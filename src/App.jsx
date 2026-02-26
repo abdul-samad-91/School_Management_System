@@ -8,7 +8,15 @@ import AuthLayout from './layouts/AuthLayout'
 
 // Pages
 import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
+import ForgotPassword from './pages/auth/ForgotPassword'
+import VerifyEmail from './pages/auth/VerifyEmail'
+import OtpVerification from './pages/auth/OtpVerification'
+import ResetPassword from './pages/auth/ResetPassword'
+import PasswordUpdated from './pages/auth/PasswordUpdated'
 import Dashboard from './pages/Dashboard'
+import AddmissionForm from './pages/admission/AddmissionForm'
+import AdmissionList from './pages/admission/AdmissionList'
 import Students from './pages/students/Students'
 import StudentDetails from './pages/students/StudentDetails'
 import AddStudent from './pages/students/AddStudent'
@@ -49,6 +57,12 @@ function App() {
         {/* Auth Routes */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/otp-verification" element={<OtpVerification />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/password-updated" element={<PasswordUpdated />} />
         </Route>
 
         {/* Dashboard Routes */}
@@ -66,6 +80,10 @@ function App() {
           <Route path="students" element={<Students />} />
           <Route path="students/add" element={<AddStudent />} />
           <Route path="students/:id" element={<StudentDetails />} />
+          
+          {/* Admissions */}
+          <Route path="/admissions/form" element={<AddmissionForm />} />
+          <Route path="/admissions/list" element={<AdmissionList />} />
           
           {/* Teachers */}
           <Route path="teachers" element={<Teachers />} />

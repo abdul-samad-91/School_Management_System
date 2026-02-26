@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import Admission from '@/Assets/Admission.svg'
 import { 
   LayoutDashboard, 
   Users, 
@@ -28,6 +29,14 @@ const DashboardLayout = () => {
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+     {
+      name: 'Admissions',
+      // icon: <img src="/src/Assets/Admission.svg" alt="Admission" className="w-5 h-5" />,
+      children: [
+        { name: 'Addmision form ', href: '/admissions/form' },
+        { name: 'Admission List', href: '/admissions/list' },
+      ]
+    },
     { name: 'Students', href: '/students', icon: Users },
     { name: 'Teachers', href: '/teachers', icon: GraduationCap },
     {
