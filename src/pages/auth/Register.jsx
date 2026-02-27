@@ -47,24 +47,26 @@ const Register = () => {
     <div>
       <div className="mb-6">
         <h2 className="text-3xl font-bold text-gray-900">Register</h2>
-        <p className="text-primary-500 mt-2">Please enter your details to sign up</p>
+        <p className=" mt-2">Please enter your details to sign up</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           label="Name"
-          placeholder="Enter your name"
+          // placeholder="Enter your name"
+          labelClassName="mb-2"
           error={errors.name?.message}
-          rightIcon={<User className="h-4 w-4" />}
+          rightIcon={<User className="h-4 w-4 text-gray-900" />}
           {...register('name', { required: 'Name is required' })}
         />
 
         <Input
           label="Email Address"
           type="email"
-          placeholder="Enter your email"
+          // placeholder="Enter your email"
+          labelClassName="mb-2"
           error={errors.email?.message}
-          rightIcon={<Mail className="h-4 w-4" />}
+          rightIcon={<Mail className="h-4 w-4 text-gray-900" />}
           {...register('email', { 
             required: 'Email is required',
             pattern: {
@@ -77,9 +79,10 @@ const Register = () => {
         <Input
           label="Password"
           type={showPassword ? 'text' : 'password'}
-          placeholder="Enter your password"
+          // placeholder="Enter your password"
+          labelClassName="mb-2"
           error={errors.password?.message}
-          rightIcon={showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          rightIcon={showPassword ? <EyeOff className="h-4 w-4 text-gray-900" /> : <Eye className="h-4 w-4 text-gray-900" />}
           rightIconAriaLabel={showPassword ? 'Hide password' : 'Show password'}
           onRightIconClick={() => setShowPassword((prev) => !prev)}
           {...register('password', { 
@@ -94,9 +97,10 @@ const Register = () => {
         <Input
           label="Confirm Password"
           type={showConfirmPassword ? 'text' : 'password'}
-          placeholder="Confirm your password"
+          // placeholder="Confirm your password"
+          labelClassName="mb-2"
           error={errors.confirmPassword?.message}
-          rightIcon={showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          rightIcon={showConfirmPassword ? <EyeOff className="h-4 w-4 text-gray-900" /> : <Eye className="h-4 w-4 text-gray-900" />}
           rightIconAriaLabel={showConfirmPassword ? 'Hide password' : 'Show password'}
           onRightIconClick={() => setShowConfirmPassword((prev) => !prev)}
           {...register('confirmPassword', { 
@@ -132,7 +136,7 @@ const Register = () => {
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600">
-          Already have an account?{' '}
+          Already have an account?{' '} 
           <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
             Sign In
           </Link>

@@ -284,7 +284,7 @@ const AddmissionFrom = () => {
                 <Input
                 className='bg-gray-200'
                   label="Occupation"
-                  labelClassName="text-lg "
+                  labelClassName="text-lg"
                   required
                   placeholder="Type Here"
                   error={errors.guardianOccupation?.message}

@@ -38,24 +38,26 @@ const Login = () => {
     <div >
       <div className=" mb-6">
         <h2 className="text-3xl font-bold text-gray-900">Login</h2>
-        <p className="text-primary-500 mt-2">Please Enter your details to sign in</p>
+        <p className="text-primary-500 mt-1">Please Enter your details to sign in</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           label="Email Address"
-          placeholder="Enter your username"
+          // placeholder="Enter your username"
+          labelClassName="mb-2"
           error={errors.username?.message}
-          rightIcon={<Mail className="h-4 w-4" />}
+          rightIcon={<Mail className="h-4 w-4 text-gray-900" />}
           {...register('username', { required: 'Username is required' })}
         />
 
         <Input
           label="Password"
           type={showPassword ? 'text' : 'password'}
-          placeholder="Enter your password"
+          // placeholder="Enter your password"
+          labelClassName="mb-2"
           error={errors.password?.message}
-          rightIcon={showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          rightIcon={showPassword ? <EyeOff className="h-4 w-4 text-gray-700" /> : <Eye className="h-4 w-4 text-gray-700" />}
           rightIconAriaLabel={showPassword ? 'Hide password' : 'Show password'}
           onRightIconClick={() => setShowPassword((prev) => !prev)}
           {...register('password', { required: 'Password is required' })}

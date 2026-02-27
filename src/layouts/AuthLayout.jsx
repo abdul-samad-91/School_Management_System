@@ -1,6 +1,7 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import logo from '@/Assets/logo.svg'
+import BookLogo1 from '@/Assets/BookLogo1.png'
 
 const AuthLayout = () => {
   const year = new Date().getFullYear()
@@ -17,32 +18,29 @@ const AuthLayout = () => {
       <div >
         <img src="./src/Assets/loginSignup.png" alt="Login/Signup" className="w-full h-full object-cover" />
       </div>
-      <div className="min-h-screen bg-gradient-to-b from-[#8095ea]  to-[#587de3] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center flex flex-col items-center justify-center gap-4">
-          
-   <div className="flex  gap-4 ">
-     {/* <img
-    src={logo}
-    alt="Logo"
-    
-  /> */}
-  <h1 className="text-4xl font-bold text-white">
-    SMS
-  </h1>
-   </div>
+      <div className="min-h-screen bg-gradient-to-b from-[#e2e6f5] to-[#386af1] flex items-center justify-center p-4 ">
+      <div className="w-full max-w-lg  ">
+        <div className="text-center flex flex-col items-center justify-center gap-4 mb-10 ">
+          <div className="flex items-center justify-center gap-3">
+            <img
+              src={BookLogo1}
+              alt="Logo"
+              className="h-20 w-20 object-contain"
+            />
+            <h1 className="text-5xl font-bold text-black font-serif">SMS</h1>
+          </div>
 
           <div>
-            <h2 className='text-3xl font-bold'>
+            <h2 className='text-4xl font-bold mb-2'>
               {isRegisterPage ? 'Welcome to' : 'Welcome Back'}
             </h2>
             {isRegisterPage && (
-              <h2 className='text-3xl font-bold'>School Management System</h2>
+              <h2 className='text-4xl font-bold '>School Management System</h2>
             )}
           </div>
           <div>
-            <p className="text-primary-100 mb-20">
-            Manage your school efficiently and effectively
+            <p className="text-black text-lg mb-6">
+            {isRegisterPage ? '' : 'Manage your school efficiently and effectively'}
           </p>
           </div>
         </div>
@@ -51,9 +49,11 @@ const AuthLayout = () => {
           <Outlet />
         </div>
         
-        <p className="text-center text-primary-100 text-sm mt-6">
+       <div className=' mt-32'>
+         <p className="text-center text-primary-100 text-base ">
           © {year} School Management System. All rights reserved.
         </p>
+       </div>
       </div>
     </div>
     </div>
