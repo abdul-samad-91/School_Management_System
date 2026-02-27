@@ -1,135 +1,236 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Search, Filter } from 'lucide-react'
-import { studentsAPI } from '@/lib/api'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table'
+import { Filter, Mail, MoreVertical, Phone, Plus, Search } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Badge from '@/components/ui/Badge'
-import { formatDate } from '@/lib/utils'
+import SortVector from '../../Assets/SortVector.svg'
+import brandhiphat from '../../Assets/brandhiphat.svg'
+import loader3 from '../../Assets/loader3.svg'
+
+const students = [
+  {
+    id: '1',
+    admissionNumber: '101',
+    name: 'Alina',
+    className: 'III',
+    section: 'A',
+    rollNo: '03',
+    gender: 'Female',
+    fatherName: 'Yousaf Ali',
+    status: 'Active',
+  },
+  {
+    id: '2',
+    admissionNumber: '31',
+    name: 'Junaid',
+    className: 'IV',
+    section: 'B',
+    rollNo: '05',
+    gender: 'Male',
+    fatherName: 'Samad Khan',
+    status: 'Active',
+  },
+  {
+    id: '3',
+    admissionNumber: '20',
+    name: 'Kainat',
+    className: 'III',
+    section: 'A',
+    rollNo: '10',
+    gender: 'Female',
+    fatherName: 'Ahmad Ali',
+    status: 'Active',
+  },
+  {
+    id: '4',
+    admissionNumber: '40',
+    name: 'Ghaffor',
+    className: 'I',
+    section: 'B',
+    rollNo: '30',
+    gender: 'Male',
+    fatherName: 'Hashim Khan',
+    status: 'Active',
+  },
+  {
+    id: '5',
+    admissionNumber: '111',
+    name: 'Laila',
+    className: 'II',
+    section: 'B',
+    rollNo: '18',
+    gender: 'Female',
+    fatherName: 'Talhaa Ahmad',
+    status: 'Active',
+  },
+  {
+    id: '6',
+    admissionNumber: '200',
+    name: 'Rehan',
+    className: 'III',
+    section: 'B',
+    rollNo: '27',
+    gender: 'Male',
+    fatherName: 'Fareed Ali',
+    status: 'Active',
+  },
+  {
+    id: '7',
+    admissionNumber: '245',
+    name: 'Javeria',
+    className: 'V',
+    section: 'A',
+    rollNo: '35007',
+    gender: 'Female',
+    fatherName: 'Nasir Butt',
+    status: 'Active',
+  },
+  {
+    id: '8',
+    admissionNumber: '200',
+    name: 'Raheel',
+    className: 'VI',
+    section: 'A',
+    rollNo: '35006',
+    gender: 'Male',
+    fatherName: 'Javed Shah',
+    status: 'Active',
+  },
+]
 
 const Students = () => {
   const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['students', { search, page }],
-    queryFn: async () => {
-      const response = await studentsAPI.getAll({ search, page, limit: 10 })
-      return response.data
-    }
-  })
+  const filteredStudents = useMemo(() => {
+    if (!search.trim()) return students
+    const needle = search.toLowerCase()
+    return students.filter((student) => {
+      return (
+        student.name.toLowerCase().includes(needle) ||
+        student.admissionNumber.toLowerCase().includes(needle)
+      )
+    })
+  }, [search])
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Students</h1>
-          <p className="text-gray-600 mt-1">Manage student records and information</p>
-        </div>
-        <Link to="/students/add">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Student
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-semibold text-gray-900">Students</h1>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" className="gap-2">
+            Export
           </Button>
-        </Link>
+          <Link to="/students/add">
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Student
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>All Students</CardTitle>
-            <div className="flex items-center space-x-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search students..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-            </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 ">
+        <p className="text-xl font-medium text-gray-900">Students Grid</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="w-44">
+            <Input
+              placeholder="Search"
+              leftIcon={<Search className="h-4 w-4" />}
+              className="h-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8">Loading...</div>
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Admission No.</TableHead>
-                    <TableHead>Student Name</TableHead>
-                    <TableHead>Class</TableHead>
-                    <TableHead>Roll No.</TableHead>
-                    <TableHead>Admission Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data?.data?.map((student) => (
-                    <TableRow key={student._id}>
-                      <TableCell className="font-medium">{student.admissionNumber}</TableCell>
-                      <TableCell>
-                        <Link to={`/students/${student._id}`} className="text-primary-600 hover:underline">
-                          {student.profile.firstName} {student.profile.lastName}
-                        </Link>
-                      </TableCell>
-                      <TableCell>{student.academic.currentClass?.name || 'N/A'}</TableCell>
-                      <TableCell>{student.rollNumber || '-'}</TableCell>
-                      <TableCell>{formatDate(student.academic.admissionDate, 'PP')}</TableCell>
-                      <TableCell>
-                        <Badge status={student.status}>{student.status}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Link to={`/students/${student._id}`}>
-                          <Button variant="ghost" size="sm">View</Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              
-              {data?.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-sm text-gray-600">
-                    Showing {data.data.length} of {data.count} students
-                  </p>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page === 1}
-                      onClick={() => setPage(page - 1)}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={page === data.totalPages}
-                      onClick={() => setPage(page + 1)}
-                    >
-                      Next
-                    </Button>
+          <button className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm text-gray-600 hover:bg-gray-50">
+            <Filter className="h-4 w-4" />
+            Filter
+          </button>
+          <button className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm text-gray-600 hover:bg-gray-50">
+            {/* <SortAsc className="h-4 w-4" /> */}
+            <img src={SortVector} alt="" />
+            Sort By A-Z 
+          </button>
+        </div>
+      </div>
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {filteredStudents.map((student) => {
+          const initials = student.name
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0].toUpperCase())
+            .join('')
+
+          return (
+            <Card key={student.id} className="border border-gray-100 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-primary-600">Adm.{student.admissionNumber}</span>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="success">{student.status}</Badge>
+                    <button className="text-gray-400 hover:text-gray-600">
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-              )}
-            </>
-          )}
-        </CardContent>
-      </Card>
+
+                <div className="mt-4 flex items-center gap-3 rounded-lg bg-gray-50 p-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-gray-700 shadow-sm">
+                    {initials || 'ST'}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{student.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {student.className}, {student.section}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-3 text-xs text-gray-500">
+                  <div>
+                    <p className="text-[11px] uppercase text-gray-900">Roll No</p>
+                    <p className="text-sm text-gray-900">{student.rollNo}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase text-gray-900">Gender</p>
+                    <p className="text-sm text-gray-900">{student.gender}</p>
+                  </div>
+                  <div>
+                    <p className="text-[11px] uppercase text-gray-900">Father Name</p>
+                    <p className="text-sm text-gray-900">{student.fatherName}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
+                      {/* <Search className="h-4 w-4" /> */}
+                      <img src={brandhiphat} alt="" className='w-5 h-5' />
+                    </button>
+                    <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
+                      <Phone className="h-4 w-4" />
+                    </button>
+                    <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
+                      <Mail className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <button className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200">
+                   View Details
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      <div className="flex justify-center">
+        <button className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white">
+            <img src={loader3} alt="" className='w-4 h-4' /> Load More
+        </button>
+      </div>
     </div>
   )
 }
