@@ -8,6 +8,8 @@ import Badge from '@/components/ui/Badge'
 import SortVector from '../../Assets/SortVector.svg'
 import brandhiphat from '../../Assets/brandhiphat.svg'
 import loader3 from '../../Assets/loader3.svg'
+import dotsVertical from '../../Assets/dotsVertical.svg'
+
 
 const students = [
   {
@@ -169,9 +171,10 @@ const Students = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-primary-600">Adm.{student.admissionNumber}</span>
                   <div className="flex items-center gap-2">
-                    <Badge variant="success">{student.status}</Badge>
+                    <Badge variant="success"  className="flex items-center gap-1 border-none rounded py-1 px-3"><span className="w-1 h-1 bg-green-400 rounded-full inline-block"></span>{student.status}</Badge>
                     <button className="text-gray-400 hover:text-gray-600">
-                      <MoreVertical className="h-4 w-4" />
+                      {/* <MoreVertical className="h-4 w-4" /> */}
+                      <img src={dotsVertical} alt="" className='w-4 h-4' />
                     </button>
                   </div>
                 </div>
