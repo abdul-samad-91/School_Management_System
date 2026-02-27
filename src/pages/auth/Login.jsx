@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { authAPI } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import { handleError } from '@/lib/utils'
+import { Eye, EyeOff, Mail } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 
@@ -12,6 +13,7 @@ const Login = () => {
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const { register, handleSubmit, formState: { errors } } = useForm()
 
@@ -44,14 +46,18 @@ const Login = () => {
           label="Email Address"
           placeholder="Enter your username"
           error={errors.username?.message}
+          rightIcon={<Mail className="h-4 w-4" />}
           {...register('username', { required: 'Username is required' })}
         />
 
         <Input
           label="Password"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           placeholder="Enter your password"
           error={errors.password?.message}
+          rightIcon={showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          rightIconAriaLabel={showPassword ? 'Hide password' : 'Show password'}
+          onRightIconClick={() => setShowPassword((prev) => !prev)}
           {...register('password', { required: 'Password is required' })}
         />
 <div className='flex items-center justify-between'>
