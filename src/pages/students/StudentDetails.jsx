@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import edit from '../../Assets/edit.svg'
 import Customer from '../../Assets/Customer.svg'
+import gender from '../../Assets/gender.svg'
+import pdfIcon from '../../Assets/pdfIcon.svg'
 import {
   ArrowLeft,
   CalendarDays,
@@ -29,9 +32,9 @@ const performanceBars = [45, 32, 58, 74, 88, 60, 28]
 const performanceMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
 const documents = [
   { id: 1, name: 'Form-B', type: 'Pdf' },
-  { id: 2, name: 'Birth Certificate', type: 'Pdf' },
-  { id: 3, name: 'Medical Report', type: 'Pdf' },
-  { id: 4, name: 'Transfer Letter', type: 'Pdf' },
+  { id: 2, name: 'B-Certificate', type: 'Pdf' },
+  { id: 3, name: 'Medical ', type: 'Pdf' },
+  { id: 4, name: 'Transfer ', type: 'Pdf' },
   { id: 5, name: 'Form-B', type: 'Pdf' },
 ]
 const behaviorLogs = [
@@ -80,9 +83,29 @@ const calendarDays = [
   '31',
 ]
 
+const monthOptions = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]
+
+const yearOptions = Array.from({ length: 11 }, (_, index) => 2020 + index)
+
 const StudentDetails = () => {
+  const [selectedMonth, setSelectedMonth] = useState('Sep')
+  const [selectedYear, setSelectedYear] = useState(2025)
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       <div className="flex flex-wrap items-center gap-3">
         <Link
           to="/students"
@@ -97,8 +120,8 @@ const StudentDetails = () => {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.05fr_2fr_1.1fr]">
-        <div className="space-y-6">
-          <Card>
+        <div className="space-y-6 bg-white">
+          <Card className="border-none bg-transparent">
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3 flex-col">
@@ -109,22 +132,24 @@ const StudentDetails = () => {
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 text-center mb-1">Amna Malik</h2>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <Badge variant="primary">Adm.101</Badge>
-                      <Badge variant="default">Class 9-A</Badge>
-                      <Badge variant="success">Active</Badge>
+                      <Badge variant="primary" className= "bg-gray-200 rounded text-gray-900">Adm.101</Badge>
+                      <Badge variant="default" className="bg-gray-200 rounded text-gray-900">Class 9-A</Badge>
+                      <Badge variant="success" className="bg-green-100 rounded ">Active</Badge>
                     </div>
                   </div>
                 </div>
-                <button className="rounded-md border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 flex items-center justify-center h-7">
+                <button className="rounded-md border border-gray-200 p-2 text-gray-500 hover:bg-gray-50 flex items-center justify-center h-8">
                   {/* <Edit2 className="h-4 w-4" /> */}
                    <img src={edit} alt="Edit" className="h-4 w-4" />
+                  
                 </button>
               </div>
 
-              <div className="mt-5 space-y-3 text-sm text-gray-600">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-gray-500">
-                    <UserRound className="h-4 w-4" />
+              <div className="mt-5 space-y-3 text-sm text-gray-600  px-3 py-4 w-full rounded-lg bg-[#F8F8F8]">
+                <div className="flex items-center justify-between ">
+                  <div className="flex  items-center gap-2 text-gray-400 ">
+                    {/* <UserRound className="h-4 w-4" /> */}
+                    <img src={gender} alt="Gender" className="h-4 w-4 " />
                     Gender
                   </div>
                   <span className="font-medium text-gray-900">Female</span>
@@ -137,14 +162,14 @@ const StudentDetails = () => {
                   <span className="font-medium text-gray-900">May 18, 2005</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-gray-500">
+                  <div className="flex items-center gap-2 text-gray-500 ">
                     <Phone className="h-4 w-4" />
                     Phone Number
                   </div>
                   <span className="font-medium text-gray-900">0268799646</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-gray-500">
+                  <div className="flex  items-center gap-2 text-gray-500">
                     <MapPin className="h-4 w-4" />
                     Address
                   </div>
@@ -154,11 +179,11 @@ const StudentDetails = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Parent/Guardian Info</CardTitle>
+          <Card className="border-none bg-transparent">
+            <CardHeader className="border-none ">
+              <CardTitle className="text-lg font-semibold ">Parent/Guardian Info</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4 bg-[#F8F8F8]">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Father</span>
                 <div className="text-right">
@@ -166,6 +191,7 @@ const StudentDetails = () => {
                   <p className="text-xs text-gray-500">03639192490</p>
                 </div>
               </div>
+              <hr />
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Mother</span>
                 <div className="text-right">
@@ -173,6 +199,7 @@ const StudentDetails = () => {
                   <p className="text-xs text-gray-500">03639192490</p>
                 </div>
               </div>
+              <hr />
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Alternative Guardian</span>
                 <div className="text-right">
@@ -183,33 +210,34 @@ const StudentDetails = () => {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="border-none bg-transparent p-2">
+            <CardHeader className="border-none">
               <CardTitle className="text-base">Additional Info</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-700">Hobbies</p>
-              <p className="text-sm font-medium text-gray-900">Running, Reading</p>
+            <CardContent className="bg-[#F8F8F8] rounded ">
+              <p className="text-sm font-medium text-gray-900">Hobbies</p>
+              <p className="text-sm text-gray-500">Running, Reading</p>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
+          <Card className="border-none bg-transparent p-2">
+            {/* <CardHeader className="border-none">
               <CardTitle className="text-base">Medical Info</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-700">Mild Allergy</p>
+              </CardHeader> */}
+            <CardContent className="bg-[#F8F8F8] rounded">
+              <p className="text-sm font-medium text-gray-900">Running, Reading</p>
+              <p className="text-sm text-gray-500">Mild Allergy</p>
             </CardContent>
           </Card>
         </div>
 
         <div className="space-y-6">
-          <Card>
+          <Card className="h-[385px] ">
             <CardContent className="p-5">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <h3 className="text-base font-semibold text-gray-900">Academic Performance</h3>
-                <Button variant="secondary" size="sm">
-                  Last 7 Months
+              <div className="flex flex-wrap items-center justify-between gap-4 ">
+                <h3 className="text-lg font-semibold text-gray-900">Academic Performance</h3>
+                <Button variant="primary" size="sm" className="bg-primary-500">
+                  Last 7 Months  
                 </Button>
               </div>
 
@@ -256,45 +284,52 @@ const StudentDetails = () => {
             </CardContent>
           </Card>
 
-          <div className="grid gap-6 lg:grid-cols-[1fr_2fr]">
-            <Card className="h-full">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+          <div className="grid gap-6 lg:grid-cols-[1fr_2fr] ">
+            <Card className="h-full border-none">
+              <CardHeader className="border-none ">
+                <div className="flex items-center ">
                   <CardTitle className="text-base">Documents</CardTitle>
-                  <button className="rounded-md border border-gray-200 p-2 text-gray-500 hover:bg-gray-50">
-                    <Edit2 className="h-4 w-4" />
-                  </button>
+                <button className="rounded-md border border-gray-200 p-1 text-gray-500 hover:bg-gray-50 flex items-center justify-center h-6 w-6 ml-10">
+                  {/* <Edit2 className="h-4 w-4" /> */}
+                   <img src={edit} alt="Edit" className="h-4 w-4 " />
+                  
+                </button>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 p-1  w-full bg-[#F8F8F8] ">
                 {documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg  "
                   >
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500">
-                        <FileText className="h-4 w-4" />
+                    <div className="flex items-center gap-2 text-sm  px-2 py-1 rounded w-full border-b rounded-none">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EFF6FF] p-1 text-gray-500">
+                        {/* <FileText className="h-4 w-4" /> */}
+                        <img src={pdfIcon} alt="PDF Icon" className='w-6 h-6'/>
                       </span>
-                      <div>
+
+                      <div >
                         <p className="text-sm font-medium text-gray-900">{doc.name}</p>
                         <p className="text-xs text-gray-500">{doc.type}</p>
                       </div>
                     </div>
-                    <button className="text-xs text-gray-500 hover:text-gray-700">
+                      
+                    {/* <button className="text-xs text-gray-500 hover:text-gray-700">
                       View
-                    </button>
+                    </button> */}
+                  
                   </div>
                 ))}
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
+            <Card className="h-full border-none">
+              <CardHeader className="border-none">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">Behavior & Discipline Log</CardTitle>
                   <button className="rounded-md border border-gray-200 p-2 text-gray-500 hover:bg-gray-50">
-                    <Edit2 className="h-4 w-4" />
+                    {/* <Edit2 className="h-4 w-4" /> */}
+                      <img src={edit} alt="Edit" className="h-4 w-4" />
                   </button>
                 </div>
               </CardHeader>
@@ -302,13 +337,15 @@ const StudentDetails = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead></TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Notes</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {behaviorLogs.map((log) => (
-                      <TableRow key={log.id}>
+                      <TableRow key={log.id} >
+                        <TableCell > <input type="checkbox" className="ml-2" /></TableCell>
                         <TableCell className="text-primary-600">{log.date}</TableCell>
                         <TableCell className="text-gray-600">{log.note}</TableCell>
                       </TableRow>
@@ -321,18 +358,40 @@ const StudentDetails = () => {
         </div>
 
         <div className="space-y-6">
-          <Card>
+          <Card >
             <CardContent className="p-5">
               <div className="flex items-center justify-between">
-                <button className="rounded-md border border-gray-200 p-2 text-gray-500 hover:bg-gray-50">
-                  <ChevronLeft className="h-4 w-4" />
+                <button className="rounded-md  p-2 text-gray-500 hover:bg-gray-50">
+                  <ChevronLeft className="h-5 w-5" />
                 </button>
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-gray-900">Sep</p>
-                  <p className="text-xs text-gray-500">2025</p>
+                <div className="text-center flex gap-2">
+                  <select
+                    className="text-sm font-semibold text-gray-900 bg-transparent focus:outline-none"
+                    value={selectedMonth}
+                    onChange={(event) => setSelectedMonth(event.target.value)}
+                    aria-label="Select month"
+                  >
+                    {monthOptions.map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="text-sm font-semibold text-gray-900 bg-transparent focus:outline-none"
+                    value={selectedYear}
+                    onChange={(event) => setSelectedYear(Number(event.target.value))}
+                    aria-label="Select year"
+                  >
+                    {yearOptions.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-                <button className="rounded-md border border-gray-200 p-2 text-gray-500 hover:bg-gray-50">
-                  <ChevronRight className="h-4 w-4" />
+                <button className="rounded-md  p-2 text-gray-500 hover:bg-gray-50">
+                  <ChevronRight className="h-5 w-5" />
                 </button>
               </div>
 
@@ -376,7 +435,7 @@ const StudentDetails = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardHeader>
               <CardTitle className="text-base">Quick Actions</CardTitle>
             </CardHeader>
@@ -394,7 +453,7 @@ const StudentDetails = () => {
                 Schedule Meeting
               </button>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
     </div>
