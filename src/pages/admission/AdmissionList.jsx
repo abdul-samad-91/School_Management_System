@@ -7,6 +7,8 @@ import Select from '@/components/ui/Select'
 import Badge from '@/components/ui/Badge'
 import printer from '../../Assets/printer.svg'
 import edit from '../../Assets/edit.svg'
+import trash from '../../Assets/Trash.svg'
+
 
 const stats = [
   { label: 'New Adms', value: '200', subtext: '50% of School', tone: 'bg-blue-50 border-blue-200 text-blue-700' },
@@ -47,7 +49,7 @@ const AdmissionList = () => {
         {stats.map((stat) => (
           <Card key={stat.label} className={`border ${stat.tone}`}>
             <CardContent className="px-5 py-4">
-              <p className="text-2xl  font-medium text-gray-700">{stat.label}</p>
+              {/* <p className="text-2xl  font-medium text-gray-700">{stat.label}</p> */}
               <p className="mt-2 text-2xl font-semibold">{stat.value}</p>
               <p className="mt-1 text-base text-gray-500">{stat.subtext}</p>
             </CardContent>
@@ -131,7 +133,8 @@ const AdmissionList = () => {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <button className="rounded border border-gray-200 p-1 text-gray-600 hover:bg-gray-50">
-                        <Trash2 className="h-4 w-4" />
+                        {/* <Trash2 className="h-4 w-4" /> */}
+                        <img src={trash} alt="Delete" className="h-4 w-4" />
                       </button>
                       <button className="rounded border border-gray-200 p-1 text-gray-600 hover:bg-gray-50">
                         {/* <Edit2 className="h-4 w-4" /> */}
