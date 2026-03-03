@@ -9,7 +9,7 @@ const Modal = ({
   title, 
   children, 
   size = 'md',
-  showCloseButton = true 
+  showCloseButton = true
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -45,13 +45,13 @@ const Modal = ({
       <div className="flex min-h-full items-center justify-center p-4">
         <div 
           className={cn(
-            'relative w-full bg-white rounded-lg shadow-xl',
+            'relative w-full bg-white rounded-lg shadow-2xl',
             sizes[size]
           )}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          {(title || showCloseButton) && (
+          {/* {(title || showCloseButton) && (
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               {title && (
                 <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
@@ -65,7 +65,7 @@ const Modal = ({
                 </button>
               )}
             </div>
-          )}
+          )} */}
           
           {/* Content */}
           <div className="px-6 py-4">

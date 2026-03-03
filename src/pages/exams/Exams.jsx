@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Download, Plus, ArrowUpDown } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import Input from '@/components/ui/Input'
+import Modal from '@/components/ui/Modal'
 import Select from '@/components/ui/Select'
 import fileExport2 from '../../Assets/fileExport2.svg'
 import SortVector from '../../Assets/SortVector.svg'
@@ -8,6 +11,8 @@ import edit from '../../Assets/edit.svg'
 // import { Trash } from 'lucide-react'
 import trash from '../../Assets/trash.svg'
 import SortingArrow from '../../Assets/SortingArrow.svg'
+import logo from '../../Assets/BookLogo1.png'
+import printer from '../../Assets/printer.svg'
 import {
   Table,
   TableBody,
@@ -98,6 +103,8 @@ const examRows = [
 ]
 
 const Exams = () => {
+  const [isAddExamOpen, setIsAddExamOpen] = useState(false)
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -105,18 +112,61 @@ const Exams = () => {
           <h1 className="text-3xl font-semibold text-gray-900">Exam Schedule</h1>
           {/* <p className="text-sm text-gray-500">Exam Schedule List</p> */}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <img src={printer} alt="Printer" className="h-5 w-5 mr-4" />
           <Button variant="secondary" size="sm" className="gap-2">
             {/* <Download className="h-4 w-4" /> */}
             <img src={fileExport2} alt="Export" className="h-4 w-4" />
             Export
           </Button>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2" onClick={() => setIsAddExamOpen(true)}>
             <span className=' rounded bg-white'><Plus className="h-4 w-4 text-black"/></span>
             Add Exam
           </Button>
         </div>
       </div>
+
+      <Modal
+        isOpen={isAddExamOpen}
+        onClose={() => setIsAddExamOpen(false)}
+        title=""
+        size="sm"
+      >
+        <div className="space-y-4  space-x-2">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
+              <img src={logo} alt="Logo" className="h-10 w-14" />
+              <span className='text-4xl font-serif font-semibold '>SMS</span>
+            </div>
+            <p className="mt-2 text-2xl  font-semibold text-gray-800">Add New Exam</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Subject" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Exam Date" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Class" placeholder=""  className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Room No." placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Max. Marks" type="number" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Min. Marks" type="number" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Start Time"  placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="End Time"  placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+          </div>
+
+          <Input label="Duration" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              variant="outline"
+              size="md"
+              className="rounded"
+              onClick={() => setIsAddExamOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button size="md" className="rounded">Add Exam</Button>
+          </div>
+        </div>
+      </Modal>
 
       <Card>
         <CardHeader className="flex flex-wrap items-center justify-between gap-4">
