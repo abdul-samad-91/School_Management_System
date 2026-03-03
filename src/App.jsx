@@ -8,6 +8,7 @@ import AuthLayout from './layouts/AuthLayout'
 
 // Pages
 import Login from './pages/auth/Login'
+import Welcome from './pages/Welcome'
 import Dashboard from './pages/Dashboard'
 import Students from './pages/students/Students'
 import StudentDetails from './pages/students/StudentDetails'
@@ -60,7 +61,8 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<Welcome />} />
+          <Route path="dashboard" element={<Dashboard />} />
           
           {/* Students */}
           <Route path="students" element={<Students />} />
@@ -109,4 +111,3 @@ function App() {
 }
 
 export default App
-
