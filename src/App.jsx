@@ -27,7 +27,8 @@ import Classes from './pages/academic/Classes'
 import Subjects from './pages/academic/Subjects'
 import Timetables from './pages/academic/Timetables'
 import Sessions from './pages/academic/Sessions'
-import Attendance from './pages/attendance/Attendance'
+import StudentAttendance from './pages/attendance/StudentAttendance'
+import TeacherAttendance from './pages/attendance/TeacherAttendance'
 import AttendanceReport from './pages/attendance/AttendanceReport'
 import Exams from './pages/exams/Exams'
 import Results from './pages/exams/Results'
@@ -97,7 +98,8 @@ function App() {
           <Route path="academic/timetables" element={<Timetables />} />
           
           {/* Attendance */}
-          <Route path="attendance" element={<Attendance />} />
+          <Route path="attendance/students" element={<StudentAttendance />} />
+          <Route path="attendance/teachers" element={<TeacherAttendance />} />
           <Route path="attendance/report" element={<AttendanceReport />} />
           
           {/* Exams */}

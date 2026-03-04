@@ -53,7 +53,8 @@ const DashboardLayout = () => {
       name: 'Attendance', 
       icon: ClipboardCheck,
       children: [
-        { name: 'Mark Attendance', href: '/attendance' },
+        { name: 'Student', href: '/attendance/students' },
+        { name: 'Teacher', href: '/attendance/teachers' },
         { name: 'Reports', href: '/attendance/report' },
       ]
     },
