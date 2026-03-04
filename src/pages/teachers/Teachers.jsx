@@ -15,8 +15,8 @@ const TEACHERS = [
     id: '0001',
     name: 'Tania',
     classLabel: 'III A',
-    email: 'tania@example.com',
-    phone: '+92 12344557',
+    email: 'tania.physics@school.edu.pk',
+    phone: '+92 300 1112233',
     subject: 'Physics',
     initials: 'TA',
     avatarTone: 'bg-[#1f355f]',
@@ -25,8 +25,8 @@ const TEACHERS = [
     id: '0002',
     name: 'Danial',
     classLabel: 'II (A)',
-    email: 'danial@example.com',
-    phone: '+92 12344557',
+    email: 'danial.cs@academy.com',
+    phone: '+92 301 2223344',
     subject: 'Computer',
     initials: 'DA',
     avatarTone: 'bg-[#704132]',
@@ -35,8 +35,8 @@ const TEACHERS = [
     id: '0003',
     name: 'Hania',
     classLabel: 'VI (A)',
-    email: 'hania@example.com',
-    phone: '+92 12344557',
+    email: 'hania.english@schoolmail.pk',
+    phone: '+92 302 3334455',
     subject: 'English',
     initials: 'HA',
     avatarTone: 'bg-[#7b5b45]',
@@ -45,8 +45,8 @@ const TEACHERS = [
     id: '0004',
     name: 'Ahsan',
     classLabel: 'VI (B) , V (A)',
-    email: 'ahsan@example.com',
-    phone: '+92 12344557',
+    email: 'ahsan.urdu@eduportal.pk',
+    phone: '+92 303 4445566',
     subject: 'Urdu',
     initials: 'AH',
     avatarTone: 'bg-[#41516f]',
@@ -55,8 +55,8 @@ const TEACHERS = [
     id: '0005',
     name: 'Momina',
     classLabel: 'VIII',
-    email: 'momina@example.com',
-    phone: '+92 12344557',
+    email: 'momina.science@brightfuture.pk',
+    phone: '+92 304 5556677',
     subject: 'Science',
     initials: 'MO',
     avatarTone: 'bg-[#5e4435]',
@@ -65,8 +65,8 @@ const TEACHERS = [
     id: '0006',
     name: 'Ahmad',
     classLabel: 'I (A)',
-    email: 'ahmad@example.com',
-    phone: '+92 12344557',
+    email: 'ahmad.chem@labschool.pk',
+    phone: '+92 305 6667788',
     subject: 'Chemistry',
     initials: 'AM',
     avatarTone: 'bg-[#263446]',
@@ -75,8 +75,8 @@ const TEACHERS = [
     id: '0007',
     name: 'Fariya',
     classLabel: 'IV',
-    email: 'fariya@example.com',
-    phone: '+92 12344557',
+    email: 'fariya.maths@educare.pk',
+    phone: '+92 306 7778899',
     subject: 'Maths',
     initials: 'FA',
     avatarTone: 'bg-[#294964]',
@@ -85,14 +85,13 @@ const TEACHERS = [
     id: '0008',
     name: 'Zeeshan',
     classLabel: 'IX',
-    email: 'zeeshan@example.com',
-    phone: '+92 12344557',
+    email: 'zeeshan.bio@scholars.edu',
+    phone: '+92 307 8889900',
     subject: 'Biology',
     initials: 'ZE',
     avatarTone: 'bg-[#3d2b68]',
   },
 ]
-
 const subjectStyles = {
   Physics: 'bg-rose-100 text-rose-600',
   Computer: 'bg-rose-100 text-rose-600',
@@ -116,7 +115,8 @@ const Teachers = () => {
         teacher.name.toLowerCase().includes(normalizedTerm) ||
         teacher.email.toLowerCase().includes(normalizedTerm) ||
         teacher.subject.toLowerCase().includes(normalizedTerm) ||
-        teacher.classLabel.toLowerCase().includes(normalizedTerm)
+        teacher.classLabel.toLowerCase().includes(normalizedTerm) ||
+        teacher.phone.toLowerCase().includes(normalizedTerm)
       )
     })
 
@@ -226,7 +226,7 @@ const Teachers = () => {
                   </div>
                   <div>
                     <p className="text-xl font-bold leading-none text-[#263355]">{teacher.name}</p>
-                    <p className="mt-1 text-base text-[#5a6780]">{teacher.classLabel}</p>
+                    <p className="mt-1 text-sm text-[#5a6780]">{teacher.classLabel}</p>
                   </div>
                 </div>
 
