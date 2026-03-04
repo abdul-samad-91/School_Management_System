@@ -4,7 +4,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { Plus , Printer} from 'lucide-react'
 import { useRef } from 'react';
-import UserLogo from '@/Assets/AddUserMale.svg'
+import UserLogo from '@/assets/AddUserMale.svg'
 
 const AddmissionFrom = () => {
   const [showForm, setShowForm] = useState(false)

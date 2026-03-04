@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import edit from '../../Assets/edit.svg'
-import Customer from '../../Assets/Customer.svg'
-import gender from '../../Assets/gender.svg'
-import pdfIcon from '../../Assets/pdfIcon.svg'
+import edit from '@/assets/edit.svg'
+import Customer from '@/assets/Customer.svg'
+import gender from '@/assets/gender.svg'
+import pdfIcon from '@/assets/pdfIcon.svg'
 import {
-  ArrowLeft,
+  ArrowLeft,  
   CalendarDays,
   ChevronLeft,
   ChevronRight,

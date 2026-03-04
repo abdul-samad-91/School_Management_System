@@ -1,7 +1,7 @@
 import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import logo from '@/Assets/logo.svg'
-import BookLogo1 from '@/Assets/BookLogo1.png'
+import logo from '@/assets/logo.svg'
+import BookLogo1 from '@/assets/BookLogo1.png'
 
 const AuthLayout = () => {
   const year = new Date().getFullYear()

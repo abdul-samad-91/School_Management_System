@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import Admission from '@/Assets/Admission.svg'
+import BookLogo1 from '@/Assets/BookLogo1.png'
 import { 
   LayoutDashboard, 
   Users, 
@@ -141,7 +142,7 @@ const DashboardLayout = () => {
           <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
           <div className="fixed inset-y-0 left-0 flex flex-col w-64 bg-white">
             <div className="flex items-center justify-between h-16 px-4 border-b">
-              <span className="text-xl font-bold text-primary-600">SMS</span>
+              <span className="text-xl font-bold text-primary-600 font-serif">SMS</span>
               <button onClick={() => setSidebarOpen(false)}>
                 <X className="h-6 w-6" />
               </button>
@@ -157,9 +158,10 @@ const DashboardLayout = () => {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col">
-        <div className="flex flex-col flex-1 min-h-0 bg-white border-r">
-          <div className="flex items-center h-16 px-4 border-b">
-            <span className="text-xl font-bold text-primary-600">School Management</span>
+        <div className="flex flex-col flex-1 min-h-0 bg-white ">
+          <div className="flex items-center h-16 px-4 border-b justify-center gap-2">
+            <img src={BookLogo1} alt="" className='w-14 h-12'/>
+            <span className="text-3xl font-semibold font-serif">SMS</span>
           </div>
           <nav className="flex-1 px-4 py-4 overflow-y-auto space-y-1">
             {navigation.map((item) => (

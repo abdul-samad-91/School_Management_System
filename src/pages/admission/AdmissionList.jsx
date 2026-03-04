@@ -5,9 +5,9 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Badge from '@/components/ui/Badge'
-import printer from '../../Assets/printer.svg'
-import edit from '../../Assets/edit.svg'
-import trash from '../../Assets/Trash.svg'
+import printer from '@/assets/printer.svg'
+import edit from '@/assets/edit.svg'
+import trash from '@/assets/Trash.svg'
 
 
 const stats = [

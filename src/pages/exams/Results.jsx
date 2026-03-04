@@ -2,11 +2,11 @@ import { Download, Plus, Eye, Edit2, Trash2, Printer, Trash } from 'lucide-react
 import Button from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import Select from '@/components/ui/Select'
-import fileExport2 from '../../Assets/fileExport2.svg'
-import SortingArrow from '../../Assets/SortingArrow.svg'
-import printer from '../../Assets/printer.svg'
-import trash from '../../Assets/Trash.svg'
-import edit from '../../Assets/edit.svg'
+import fileExport2 from '@/assets/fileExport2.svg'
+import SortingArrow from '@/assets/SortingArrow.svg'
+import printer from '@/assets/printer.svg'
+import trash from '@/assets/Trash.svg'
+import edit from '@/assets/edit.svg'
 
 import {
   Table,

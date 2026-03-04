@@ -1,8 +1,8 @@
 import React from 'react'
 import { Search } from 'lucide-react'
-import SortingArrow from '../../Assets/SortingArrow.svg'
-import fileExport2 from '../../Assets/fileExport2.svg'
-import printer from '../../Assets/printer.svg'
+import SortingArrow from '@/assets/SortingArrow.svg'
+import fileExport2 from '@/assets/fileExport2.svg'
+import printer from '@/assets/printer.svg'
 import {
   Card,
   CardContent,

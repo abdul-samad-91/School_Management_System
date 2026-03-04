@@ -5,10 +5,10 @@ import { Card, CardContent } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Badge from '@/components/ui/Badge'
-import SortVector from '../../Assets/SortVector.svg'
-import brandhiphat from '../../Assets/brandhiphat.svg'
-import loader3 from '../../Assets/loader3.svg'
-import dotsVertical from '../../Assets/dotsVertical.svg'
+import SortVector from '@/assets/SortVector.svg'
+import brandhiphat from '@/assets/brandhiphat.svg'
+import loader3 from '@/assets/loader3.svg'
+import dotsVertical from '@/assets/dotsVertical.svg'
 
 
 const students = [
