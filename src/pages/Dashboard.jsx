@@ -496,18 +496,18 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-5 p-5">
-            <div className="flex items-center justify-between">
-              <h4 className="text-3xl font-semibold text-slate-800">{format(currentMonth, 'MMMM yyyy')}</h4>
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h4 className="text-2xl font-semibold text-slate-800 sm:text-3xl">{format(currentMonth, 'MMMM yyyy')}</h4>
+              <div className="ml-auto flex shrink-0 items-center gap-2">
                 <button
                   onClick={() => setCurrentMonth((prev) => subMonths(prev, 1))}
-                  className="rounded-full border border-slate-300 p-1.5"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300"
                 >
                   <ChevronLeft className="h-4 w-4 text-slate-500" />
                 </button>
                 <button
                   onClick={() => setCurrentMonth((prev) => addMonths(prev, 1))}
-                  className="rounded-full bg-slate-900 p-1.5"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-900"
                 >
                   <ChevronRight className="h-4 w-4 text-white" />
                 </button>
@@ -548,7 +548,7 @@ const Dashboard = () => {
             </div>
 
             <div>
-              <h5 className="text-3xl font-semibold text-slate-800">Upcoming Events</h5>
+              <h5 className="text-2xl font-semibold text-slate-800">Upcoming Events</h5>
               <div className="mt-3 space-y-3">
                 {UPCOMING_EVENTS.map((event) => {
                   const EventIcon = event.icon
@@ -560,7 +560,7 @@ const Dashboard = () => {
                           <EventIcon className="h-5 w-5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h6 className="text-2xl font-semibold text-slate-800">{event.title}</h6>
+                          <h6 className="text-xl font-semibold text-slate-800">{event.title}</h6>
                           <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
                             <CalendarDays className="h-3.5 w-3.5" />
                             {event.date}

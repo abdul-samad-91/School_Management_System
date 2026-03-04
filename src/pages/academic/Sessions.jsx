@@ -58,20 +58,22 @@ const SessionCard = ({ session, isCurrent, onEdit }) => {
       }`}
     >
       <header className="border-b border-[#2f343f] px-4 py-3">
-        <h3 className="text-center text-5xl font-semibold tracking-wide text-[#0f1524]">{session.name}</h3>
+        <h3 className="text-center text-3xl font-semibold tracking-wide text-[#0f1524] sm:text-4xl">
+          {session.name}
+        </h3>
       </header>
 
       <div className="space-y-3 px-5 py-4">
         <div>
-          <p className="text-[42px] font-semibold leading-none text-[#0f1524]">Start date</p>
-          <div className="mt-2 rounded-2xl border border-[#1f2937] bg-white/30 px-3 py-1 text-center text-[43px] font-medium text-[#0f1524]">
+          <p className="text-2xl font-semibold leading-none text-[#0f1524] sm:text-3xl">Start date</p>
+          <div className="mt-2 rounded-2xl border border-[#1f2937] bg-white/30 px-3 py-1 text-center text-2xl font-medium text-[#0f1524] sm:text-3xl">
             {formatDateForCard(session.startDate)}
           </div>
         </div>
 
         <div>
-          <p className="text-[42px] font-semibold leading-none text-[#0f1524]">End date</p>
-          <div className="mt-2 rounded-2xl border border-[#1f2937] bg-white/30 px-3 py-1 text-center text-[43px] font-medium text-[#0f1524]">
+          <p className="text-2xl font-semibold leading-none text-[#0f1524] sm:text-3xl">End date</p>
+          <div className="mt-2 rounded-2xl border border-[#1f2937] bg-white/30 px-3 py-1 text-center text-2xl font-medium text-[#0f1524] sm:text-3xl">
             {formatDateForCard(session.endDate)}
           </div>
         </div>
@@ -190,7 +192,7 @@ const Sessions = () => {
   return (
     <div className="h-full space-y-4 overflow-y-auto pr-1">
       <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold tracking-tight text-[#253256]">Sessions</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Sessions</h1>
         <button
           type="button"
           onClick={openAddSessionModal}
@@ -202,7 +204,7 @@ const Sessions = () => {
       </div>
 
       <section>
-        <h2 className="mb-3 text-3xl font-bold text-[#253256]">Current Sessions</h2>
+        <h2 className="mb-3 text-2xl font-bold text-[#253256]">Current Sessions</h2>
         {currentSession ? (
           <SessionCard session={currentSession} isCurrent onEdit={openSessionDetails} />
         ) : (
@@ -213,8 +215,8 @@ const Sessions = () => {
       </section>
 
       <section>
-        <h2 className="mb-3 text-4xl font-bold text-[#253256]">Previous Sessions</h2>
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+        <h2 className="mb-3 text-2xl font-bold text-[#253256] sm:text-3xl">Previous Sessions</h2>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 2xl:grid-cols-3">
           {previousSessions.map((session) => (
             <SessionCard
               key={session.id}
@@ -239,14 +241,14 @@ const Sessions = () => {
 
             <div className="flex items-center justify-center gap-3">
               <BookOpen className="h-12 w-12 text-[#0f1524]" />
-              <p className="font-serif text-7xl font-bold text-[#0f1524]">SMS</p>
+              <p className="font-serif text-5xl font-bold text-[#0f1524]">SMS</p>
             </div>
 
-            <h3 className="mt-4 text-center text-5xl font-bold text-[#0f1524]">{modalTitle}</h3>
+            <h3 className="mt-4 text-center text-3xl font-bold text-[#0f1524] sm:text-4xl">{modalTitle}</h3>
 
             <div className="mt-6 space-y-3">
               <label className="block space-y-1">
-                <span className="text-[41px] font-medium text-[#0f1524]">Session Name</span>
+                <span className="text-xl font-medium text-[#0f1524]">Session Name</span>
                 <input
                   type="text"
                   value={formData.name}
@@ -262,7 +264,7 @@ const Sessions = () => {
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <label className="block space-y-1">
-                  <span className="text-[41px] font-medium text-[#0f1524]">Start Date</span>
+                  <span className="text-xl font-medium text-[#0f1524]">Start Date</span>
                   <input
                     type="date"
                     value={formData.startDate}
@@ -277,7 +279,7 @@ const Sessions = () => {
                 </label>
 
                 <label className="block space-y-1">
-                  <span className="text-[41px] font-medium text-[#0f1524]">End Date</span>
+                  <span className="text-xl font-medium text-[#0f1524]">End Date</span>
                   <input
                     type="date"
                     value={formData.endDate}
@@ -309,7 +311,14 @@ const Sessions = () => {
                   type="button"
                   onClick={handleAddSession}
                   className="rounded-lg bg-primary-600 px-5 py-2 text-lg font-semibold text-white transition hover:bg-primary-700"
-                >
+                >To github.com:abdul-samad-91/School_Management_System.git
+ ! [rejected]        Abirullah-Work -> Abirullah-Work (fetch first)
+error: failed to push some refs to 'github.com:abdul-samad-91/School_Management_System.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
                   Add Session
                 </button>
               ) : (
@@ -324,7 +333,8 @@ const Sessions = () => {
                   <button
                     type="button"
                     onClick={handleSaveSession}
-                    className={`rounded-lg px-5 py-2 text-lg font-semibold text-white transition ${
+                    className={`rounded-lg px-5 py-2 text-lg font-semibold text-whitgit pull --rebase origin Abirullah-Work
+git push origin Abirullah-Worke transition ${
                       isEditEnabled
                         ? 'bg-primary-600 hover:bg-primary-700'
                         : 'cursor-not-allowed bg-primary-300'
