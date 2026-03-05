@@ -6,13 +6,14 @@ const Select = forwardRef(({
   error, 
   options = [],
   placeholder = 'Select',
+  labelClassName,
   className,
   ...props 
 }, ref) => {
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className={cn("block text-sm font-medium text-gray-900 mb-1", labelClassName)}>
           {label}
           {props.required && <span className="text-red-500 ml-1">*</span>}
         </label>
