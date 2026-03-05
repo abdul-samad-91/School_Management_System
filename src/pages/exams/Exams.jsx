@@ -104,6 +104,8 @@ const examRows = [
 
 const Exams = () => {
   const [isAddExamOpen, setIsAddExamOpen] = useState(false)
+  const [isEditExamOpen, setIsEditExamOpen] = useState(false)
+  const [selectedExam, setSelectedExam] = useState(null)
 
   return (
     <div className="space-y-6">
@@ -164,6 +166,55 @@ const Exams = () => {
               Cancel
             </Button>
             <Button size="md" className="rounded">Add Exam</Button>
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={isEditExamOpen}
+        onClose={() => {
+          setIsEditExamOpen(false)
+          setSelectedExam(null)
+        }}
+        title=""
+        size="sm"
+        className= "bg-gray-200"
+      >
+        <div className="space-y-4  space-x-2 ">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
+              <img src={logo} alt="Logo" className="h-10 w-14" />
+              <span className='text-4xl font-serif font-semibold'>SMS</span>
+            </div>
+            <p className="mt-4 mb-5 text-2xl  font-semibold text-gray-800 ">Exam Details</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Subject" placeholder=""  defaultValue={selectedExam?.subject || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl " />
+            <Input label="Exam Date" placeholder="" defaultValue={selectedExam?.date || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Class" placeholder="" defaultValue={selectedExam?.className || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Room No." placeholder="" defaultValue={selectedExam?.room || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Max. Marks" type="number" placeholder="" defaultValue={selectedExam?.maxMarks || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Min. Marks" type="number" placeholder="" defaultValue={selectedExam?.minMarks || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Start Time"  placeholder="" defaultValue={selectedExam?.startTime || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="End Time"  placeholder="" defaultValue={selectedExam?.endTime || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+          </div>
+
+          <Input label="Duration" placeholder="" defaultValue={selectedExam?.duration || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              variant="outline"
+              size="md"
+              className="rounded border-gray-700 text-gray-900"
+              onClick={() => {
+                setIsEditExamOpen(false)
+                setSelectedExam(null)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button size="md" className="rounded bg-primary-500">Save</Button>
           </div>
         </div>
       </Modal>
@@ -302,7 +353,10 @@ const Exams = () => {
                   <TableCell className="text-gray-600">{row.minMarks}</TableCell>
                   <TableCell className="text-right">
                     <div className="inline-flex items-center gap-2">
-                      <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
+                      <button
+                        className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"
+                      
+                      >
                         <span className="sr-only">Delete</span>
                         {/* <svg viewBox="0 0 24 24" className="h-4 w-4 text-black" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M3 6h18" />
@@ -313,7 +367,12 @@ const Exams = () => {
                         </svg> */}
                         <img src={trash} alt="Delete" className="h-4 w-4" />
                       </button>
-                      <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
+                      <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"
+                      
+                        onClick={() => {
+                          setSelectedExam(row)
+                          setIsEditExamOpen(true)
+                        }}>
                         <span className="sr-only">Edit</span>
                         {/* <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M12 20h9" />
