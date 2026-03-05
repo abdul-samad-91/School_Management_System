@@ -9,7 +9,8 @@ const Modal = ({
   title, 
   children, 
   size = 'md',
-  showCloseButton = true
+  showCloseButton = true,
+  className,
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -68,7 +69,7 @@ const Modal = ({
           )} */}
           
           {/* Content */}
-          <div className="px-6 py-4">
+          <div className={cn("px-6 py-4", className)}>
             {children}
           </div>
         </div>

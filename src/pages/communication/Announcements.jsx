@@ -1,7 +1,138 @@
+import { useState } from 'react'
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
+import Modal from '@/components/ui/Modal'
+import { Plus } from 'lucide-react'
+import pinIcon from '@/assets/pinIcon.svg'
+import Trash from '@/assets/Trash.svg'
+import edit from '@/assets/edit.svg'
+import calenderIcon from '@/assets/calenderIcon.svg'
+import logo from '@/assets/BookLogo1.png'
+
+import {  Share2 } from 'lucide-react'
+
+const announcements = [
+  {
+    id: 1,
+    title: 'Winter Break Schedule',
+    body: 'School will be closed from December 20 to January 5. Classes resume on January 6, 2026.',
+    date: '25-12-2025',
+  },
+  {
+    id: 2,
+    title: 'Parent-Teacher Meeting',
+    body: 'The quarterly parent-teacher meeting is scheduled for October 20, 2025, from 2 PM to 5 PM.',
+    date: '25-11-2025',
+  },
+  {
+    id: 3,
+    title: 'Science Fair Registration',
+    body: 'Register for the annual science fair by October 25. All students from grades 9-12 are encouraged to participate.',
+    date: '25-10-2025',
+  },
+]
+
 const Announcements = () => {
+  const [isAddAnnouncementOpen, setIsAddAnnouncementOpen] = useState(false)
+
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Announcements</h1>
+    <div className="space-y-6 ">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-semibold text-gray-900">Communications</h1>
+          <p className="text-lg mt-2 text-gray-800">Manage School-wide communications</p>
+        </div>
+        <Button
+          size="sm"
+          className="gap-2 py-2 px-6 rounded "
+          onClick={() => setIsAddAnnouncementOpen(true)}
+        >
+          <span className="bg-white w-4 h-4 rounded flex items-center justify-center">
+              <Plus className="h-4 w-4 text-black" />
+            </span>
+          Add Announcements
+        </Button>
+      </div>
+
+      <Modal
+        isOpen={isAddAnnouncementOpen}
+        onClose={() => setIsAddAnnouncementOpen(false)}
+        title=""
+        size="sm"
+        className="border-2 border-gray-400 rounded-lg"
+      
+      >
+        <div className="space-y-4 px-5 ">
+          <div className=" flex flex-col items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
+              <img src={logo} alt="Logo" className="h-14 w-16" />
+              <span className="text-5xl font-serif font-semibold">SMS</span>
+            </div>
+            <p className="mt-2 text-2xl font-semibold text-gray-800 mb-2">Add New Announcemnet</p>
+          </div>
+
+          <div className="space-y-1">
+            <Input label="Title" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-900">Details</label>
+              <textarea
+                rows="4"
+                className="w-full rounded-xl border-2 border-gray-900 bg-gray-100 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-3 pt-2 ">
+            <Button
+              variant="outline"
+              size="md"
+              className="rounded border-2 border-gray-600"
+              onClick={() => setIsAddAnnouncementOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button size="md" className="rounded">Save</Button>
+          </div>
+        </div>
+      </Modal>
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-gray-700">Recent Announcements</h2>
+
+        <div className="space-y-4">
+          {announcements.map((item) => (
+            <div key={item.id} className="rounded-xl bg-[#E9EDF4] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-2xl font-semibold text-gray-900">{item.title}</h3>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <button className="rounded-md p-1 hover:bg-gray-200">
+                    <img src={pinIcon} alt="Pin" className='w-4 h-4'/>
+                  </button>
+                  <button className="rounded-md p-1 hover:bg-gray-200">
+                    <img src={Trash} alt="Delete" className='w-4 h-4' />
+                  </button>
+                  <button className="rounded-md p-1 hover:bg-gray-200">
+                    <img src={edit} alt="Edit" className='w-4 h-4' />
+                  </button>
+                </div>
+              </div>
+
+              <p className="mt-5 text-xl text-gray-700">{item.body}</p>
+
+              <div className="mt-10 flex items-center justify-between border-t border-gray-300 pt-3">
+                <div className="flex items-center gap-2 text-xs text-gray-600 ">
+                  <img src={calenderIcon} alt="Calendar" className="h-4 w-4" />
+                  {item.date}
+                </div>
+                <Button size="sm" className="gap-2 rounded ">
+                  <Share2 className="h-4 w-4" />
+                  Share
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

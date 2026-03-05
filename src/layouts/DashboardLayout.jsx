@@ -76,7 +76,7 @@ const DashboardLayout = () => {
         { name: 'Payments', href: '/fees/payments' },
       ]
     },
-    { name: 'Communication', href: '/communication/announcements', icon: MessageSquare },
+    { name: 'Whatsapp', href: '/communication/announcements', icon: MessageSquare },
     ...(user?.role === 'super_admin' ? [{ name: 'Users', href: '/users', icon: User }] : []),
   ]
 

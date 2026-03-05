@@ -1,8 +1,10 @@
 import { Plus, Search } from 'lucide-react'
+import { useState } from 'react'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Badge from '@/components/ui/Badge'
+import Modal from '@/components/ui/Modal'
 import fileExport2 from '@/assets/fileExport2.svg'
 import edit from '@/assets/edit.svg'
 import trash from '@/assets/trash.svg'
@@ -10,6 +12,7 @@ import SortVector from '@/assets/SortVector.svg'
 import printer from '@/assets/printer.svg'
 import dotsVertical from '@/assets/dotsVertical.svg'
 import SortingArrow from '@/assets/SortingArrow.svg'
+import logo from '@/assets/BookLogo1.png'
 
 import {
   Card,
@@ -40,22 +43,65 @@ const users = [
 ]
 
 const Users = () => {
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false)
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-4xl font-semibold text-gray-900">User Management</h1>
         <div className="flex items-center gap-3">
           <img src={printer} alt="Printer icon" className='w-4 h-4'/>
-          <Button variant="secondary" size="sm" className="gap-2">
+          <Button variant="secondary" size="sm" className="gap-2 rounded">
             <img src={fileExport2} alt="Export" className="h-4 w-4" />
             Export
           </Button>
-          <Button size="sm" className="gap-2">
+          <Button size="sm" className="gap-2 rounded" onClick={() => setIsAddUserOpen(true)}>
             <Plus className="h-4 w-4" />
             Add User
           </Button>
         </div>
       </div>
+
+      <Modal
+        isOpen={isAddUserOpen}
+        onClose={() => setIsAddUserOpen(false)}
+        title=""
+        size="sm"
+      >
+        <div className="space-y-4">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
+              <img src={logo} alt="Logo" className="h-14 w-16" />
+              <span className="text-5xl font-serif font-semibold">SMS</span>
+            </div>
+            <p className="mt-4 text-3xl font-semibold text-gray-800">Add New User</p>
+          </div>
+          {/* <br /> */}
+
+          <div className="grid grid-cols-2 gap-3 p-4">
+            <Input label="Name" className="bg-gray-100 border-2 border-gray-900 rounded-xl " />
+            <Input label="Username" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Email" type="email" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Role" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Class" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Access" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Password" type="password" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Confirm Password" type="password" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+          </div>
+
+          <div className="flex items-center justify-end gap-3  px-4">
+            <Button
+              variant="outline"
+              size="md"
+              className="rounded  border border-gray-950 "
+              onClick={() => setIsAddUserOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button size="md" className="rounded py-2 px-6">Save</Button>
+          </div>
+        </div>
+      </Modal>
 
       <Card>
         <CardHeader className="flex  flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -137,7 +183,7 @@ const Users = () => {
                 <TableHead className="text-right text-sm text-gray-700">
                   <span className="inline-flex items-center gap-2">
                     Action
-                    <img src={dotsVertical} alt="" className="h-4 w-4" />
+                    <img src={dotsVertical} alt="" className="h-4 w-4 cursor-pointer" />
                   </span>
                 </TableHead>
               </TableRow>
