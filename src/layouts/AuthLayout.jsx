@@ -18,7 +18,7 @@ const AuthLayout = () => {
       <div >
         <img src="./src/Assets/loginSignup.png" alt="Login/Signup" className="w-full h-full object-cover" />
       </div>
-      <div className="min-h-screen bg-gradient-to-b from-[#e2e6f5] to-[#386af1] flex items-center justify-center p-4 ">
+      <div className="min-h-screen bg-gradient-to-b from-[#ffff] to-[#506EE4] flex items-center justify-center p-4 ">
       <div className="w-full max-w-lg  ">
         <div className="text-center flex flex-col items-center justify-center gap-4 mb-10 ">
           <div className="flex items-center justify-center gap-3">

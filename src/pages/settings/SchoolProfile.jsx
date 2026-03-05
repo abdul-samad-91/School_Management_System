@@ -158,8 +158,8 @@ const SchoolProfile = () => {
       </div>
 
       <div className='flex items-center justify-end gap-3 '>
-        <Button variant='outline' className=" px-6 py-2 rounded">Cancel</Button>
-        <Button variant='outline' className=" px-6 py-2 rounded ">Edit</Button>
+        <Button variant='outline' className=" px-6 py-2 rounded border border-gray-900">Cancel</Button>
+        <Button variant='outline' className=" px-6 py-2 rounded border border-gray-900">Edit</Button>
         <Button  variant='primary' className=" px-6 py-2 rounded ">Save</Button>
       </div>
 
