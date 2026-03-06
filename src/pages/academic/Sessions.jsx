@@ -311,15 +311,8 @@ const Sessions = () => {
                   type="button"
                   onClick={handleAddSession}
                   className="rounded-lg bg-primary-600 px-5 py-2 text-lg font-semibold text-white transition hover:bg-primary-700"
-                >To github.com:abdul-samad-91/School_Management_System.git
- ! [rejected]        Abirullah-Work -> Abirullah-Work (fetch first)
-error: failed to push some refs to 'github.com:abdul-samad-91/School_Management_System.git'
-hint: Updates were rejected because the remote contains work that you do not
-hint: have locally. This is usually caused by another repository pushing to
-hint: the same ref. If you want to integrate the remote changes, use
-hint: 'git pull' before pushing again.
-hint: See the 'Note about fast-forwards' in 'git push --help' for details.
-                  Add Session
+                >
+                  Save
                 </button>
               ) : (
                 <>
