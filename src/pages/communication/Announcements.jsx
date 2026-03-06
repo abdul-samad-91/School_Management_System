@@ -8,6 +8,7 @@ import Trash from '@/assets/Trash.svg'
 import edit from '@/assets/edit.svg'
 import calenderIcon from '@/assets/calenderIcon.svg'
 import logo from '@/assets/BookLogo1.png'
+import Push_Pin from '@/assets/Push_Pin.svg'
 
 import {  Share2 } from 'lucide-react'
 
@@ -34,6 +35,20 @@ const announcements = [
 
 const Announcements = () => {
   const [isAddAnnouncementOpen, setIsAddAnnouncementOpen] = useState(false)
+  const [announcementList, setAnnouncementList] = useState(announcements)
+  const [pinnedIds, setPinnedIds] = useState([])
+
+  const togglePin = (id) => {
+    setPinnedIds((prev) => (prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]))
+  }
+
+  const handleDelete = (id) => {
+    setAnnouncementList((prev) => prev.filter((item) => item.id !== id))
+    setPinnedIds((prev) => prev.filter((itemId) => itemId !== id))
+  }
+
+  const pinnedAnnouncements = announcementList.filter((item) => pinnedIds.includes(item.id))
+  const recentAnnouncements = announcementList.filter((item) => !pinnedIds.includes(item.id))
 
   return (
     <div className="space-y-6 ">
@@ -96,23 +111,82 @@ const Announcements = () => {
         </div>
       </Modal>
 
+
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-gray-700">Pinned Announcements</h2>
+
+        {pinnedAnnouncements.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-600">
+            No pinned announcements yet. Click the pin icon to add one here.
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {pinnedAnnouncements.map((item) => (
+              <div key={item.id} className="rounded-xl bg-[#E9EDF4] py-4 px-6 max-w-2xl">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-2xl font-semibold text-gray-900">{item.title}</h3>
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <button
+                      className="rounded-md bg-gray-200 p-1"
+                      onClick={() => togglePin(item.id)}
+                      aria-pressed="true"
+                    >
+                      <img src={Push_Pin} alt="Unpin" className="w-4 h-4" />
+                    </button>
+                    <button
+                      className="rounded-md p-1 hover:bg-gray-200"
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      <img src={Trash} alt="Delete" className="w-4 h-4" />
+                    </button>
+                    <button className="rounded-md p-1 hover:bg-gray-200">
+                      <img src={edit} alt="Edit" className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                <p className="mt-5 text-xl text-gray-700">{item.body}</p>
+
+                <div className="mt-10 flex items-center justify-between border-t border-gray-300 pt-3">
+                  <div className="flex items-center gap-2 text-xs text-gray-600 ">
+                    <img src={calenderIcon} alt="Calendar" className="h-4 w-4" />
+                    {item.date}
+                  </div>
+                  <Button size="sm" className="gap-2 rounded ">
+                    <Share2 className="h-4 w-4" />
+                    Share
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       <div className="space-y-4">
         <h2 className="text-2xl font-semibold text-gray-700">Recent Announcements</h2>
 
         <div className="space-y-4">
-          {announcements.map((item) => (
+          {recentAnnouncements.map((item) => (
             <div key={item.id} className="rounded-xl bg-[#E9EDF4] p-4">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-2xl font-semibold text-gray-900">{item.title}</h3>
                 <div className="flex items-center gap-2 text-gray-500">
-                  <button className="rounded-md p-1 hover:bg-gray-200">
-                    <img src={pinIcon} alt="Pin" className='w-4 h-4'/>
+                  <button
+                    className="rounded-md p-1 hover:bg-gray-200"
+                    onClick={() => togglePin(item.id)}
+                    aria-pressed="false"
+                  >
+                    <img src={pinIcon} alt="Pin" className="w-4 h-4" />
+                  </button>
+                  <button
+                    className="rounded-md p-1 hover:bg-gray-200"
+                    onClick={() => handleDelete(item.id)}
+                  >
+                    <img src={Trash} alt="Delete" className="w-4 h-4" />
                   </button>
                   <button className="rounded-md p-1 hover:bg-gray-200">
-                    <img src={Trash} alt="Delete" className='w-4 h-4' />
-                  </button>
-                  <button className="rounded-md p-1 hover:bg-gray-200">
-                    <img src={edit} alt="Edit" className='w-4 h-4' />
+                    <img src={edit} alt="Edit" className="w-4 h-4" />
                   </button>
                 </div>
               </div>
