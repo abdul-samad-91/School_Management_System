@@ -109,12 +109,12 @@ const Exams = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-semibold text-gray-900">Exam Schedule</h1>
           {/* <p className="text-sm text-gray-500">Exam Schedule List</p> */}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <img src={printer} alt="Printer" className="h-5 w-5 mr-4" />
           <Button variant="secondary" size="sm" className="gap-2">
             {/* <Download className="h-4 w-4" /> */}
@@ -134,7 +134,7 @@ const Exams = () => {
         title=""
         size="sm"
       >
-        <div className="space-y-4  space-x-2">
+        <div className="space-y-4">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
               <img src={logo} alt="Logo" className="h-10 w-14" />
@@ -143,7 +143,7 @@ const Exams = () => {
             <p className="mt-2 text-2xl  font-semibold text-gray-800">Add New Exam</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input label="Subject" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
             <Input label="Exam Date" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
             <Input label="Class" placeholder=""  className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
@@ -180,7 +180,7 @@ const Exams = () => {
         size="sm"
         className= "bg-gray-200"
       >
-        <div className="space-y-4  space-x-2 ">
+        <div className="space-y-4">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
               <img src={logo} alt="Logo" className="h-10 w-14" />
@@ -189,7 +189,7 @@ const Exams = () => {
             <p className="mt-4 mb-5 text-2xl  font-semibold text-gray-800 ">Exam Details</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Input label="Subject" placeholder=""  defaultValue={selectedExam?.subject || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl " />
             <Input label="Exam Date" placeholder="" defaultValue={selectedExam?.date || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
             <Input label="Class" placeholder="" defaultValue={selectedExam?.className || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
@@ -220,11 +220,11 @@ const Exams = () => {
       </Modal>
 
       <Card>
-        <CardHeader className="flex flex-wrap items-center justify-between gap-4">
+        <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg">Exam Schedule List</CardTitle>
-          <div className="flex  items-center gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Select
-              className="min-w-[140px]"
+              className="w-full sm:min-w-[140px]"
               placeholder="Select session"
               options={[
                 { label: 'Session 2024', value: '2024' },
@@ -232,7 +232,7 @@ const Exams = () => {
               ]}
             />
             <Select
-              className="min-w-[140px]"
+              className="w-full sm:min-w-[140px]"
               placeholder="Select Exam"
               options={[
                 { label: 'Mid Term', value: 'mid' },
@@ -246,7 +246,7 @@ const Exams = () => {
                 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2"
               />
               <Select
-                className="min-w-[140px] pl-9"
+                className="w-full sm:min-w-[140px] pl-9"
                 placeholder="Sort by A-Z"
                 options={[
                   { label: 'Sort by A-Z', value: 'az' },
@@ -258,7 +258,7 @@ const Exams = () => {
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <span>Row Per Page</span>
               <select className="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700">
@@ -270,7 +270,7 @@ const Exams = () => {
             </div>
             <div className="flex items-center gap-3">
               <Select
-                className="min-w-[160px]"
+                className="w-full sm:min-w-[160px]"
                 placeholder="Select Class"
                 options={[
                   { label: 'Class 8-A', value: '8a' },
@@ -280,7 +280,8 @@ const Exams = () => {
             </div>
           </div>
 
-          <Table>
+          <div className="overflow-x-auto">
+            <Table>
             <TableHeader >
               <TableRow className="">
                 <TableHead className="w-10">
@@ -385,7 +386,8 @@ const Exams = () => {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+            </Table>
+          </div>
 
           <div className="flex items-center justify-end gap-2 text-xs text-gray-500">
             <button className="px-2 py-1">Prev</button>

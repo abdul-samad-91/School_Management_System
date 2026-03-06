@@ -169,7 +169,7 @@ const Results = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 ">
           <Table>
             <TableHeader>
               <TableRow>

@@ -52,18 +52,18 @@ const Announcements = () => {
 
   return (
     <div className="space-y-6 ">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-semibold text-gray-900">Communications</h1>
-          <p className="text-lg mt-2 text-gray-800">Manage School-wide communications</p>
+          <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl lg:text-4xl">Communications</h1>
+          <p className="mt-2 text-sm text-gray-800 sm:text-base md:text-lg">Manage School-wide communications</p>
         </div>
         <Button
           size="sm"
-          className="gap-2 py-2 px-6 rounded "
+          className="w-fit gap-2 rounded px-4 py-2 text-sm sm:px-5 sm:text-base lg:px-6"
           onClick={() => setIsAddAnnouncementOpen(true)}
         >
-          <span className="bg-white w-4 h-4 rounded flex items-center justify-center">
-              <Plus className="h-4 w-4 text-black" />
+          <span className="flex h-4 w-4 items-center justify-center rounded bg-white sm:h-5 sm:w-5">
+              <Plus className="h-4 w-4 text-black sm:h-5 sm:w-5" />
             </span>
           Add Announcements
         </Button>
@@ -77,13 +77,13 @@ const Announcements = () => {
         className="border-2 border-gray-400 rounded-lg"
       
       >
-        <div className="space-y-4 px-5 ">
+        <div className="space-y-4 px-4 sm:px-5">
           <div className=" flex flex-col items-center justify-center gap-2">
             <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
-              <img src={logo} alt="Logo" className="h-14 w-16" />
-              <span className="text-5xl font-serif font-semibold">SMS</span>
+              <img src={logo} alt="Logo" className="h-10 w-12 sm:h-12 sm:w-14 lg:h-14 lg:w-16" />
+              <span className="text-3xl font-serif font-semibold sm:text-4xl lg:text-5xl">SMS</span>
             </div>
-            <p className="mt-2 text-2xl font-semibold text-gray-800 mb-2">Add New Announcemnet</p>
+            <p className="mt-2 mb-2 text-lg font-semibold text-gray-800 sm:text-xl lg:text-2xl">Add New Announcemnet</p>
           </div>
 
           <div className="space-y-1">
@@ -113,18 +113,18 @@ const Announcements = () => {
 
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-700">Pinned Announcements</h2>
+        <h2 className="text-xl font-semibold text-gray-700 sm:text-2xl">Pinned Announcements</h2>
 
         {pinnedAnnouncements.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-600">
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-600 sm:text-base">
             No pinned announcements yet. Click the pin icon to add one here.
           </div>
         ) : (
           <div className="space-y-4">
             {pinnedAnnouncements.map((item) => (
-              <div key={item.id} className="rounded-xl bg-[#E9EDF4] py-4 px-6 max-w-2xl">
+              <div key={item.id} className="max-w-2xl rounded-xl bg-[#E9EDF4] px-4 py-4 sm:px-6">
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-2xl font-semibold text-gray-900">{item.title}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 sm:text-xl lg:text-2xl">{item.title}</h3>
                   <div className="flex items-center gap-2 text-gray-500">
                     <button
                       className="rounded-md bg-gray-200 p-1"
@@ -145,15 +145,15 @@ const Announcements = () => {
                   </div>
                 </div>
 
-                <p className="mt-5 text-xl text-gray-700">{item.body}</p>
+                <p className="mt-4 text-sm text-gray-700 sm:mt-5 sm:text-base lg:text-xl">{item.body}</p>
 
-                <div className="mt-10 flex items-center justify-between border-t border-gray-300 pt-3">
-                  <div className="flex items-center gap-2 text-xs text-gray-600 ">
+                <div className="mt-6 flex items-center justify-between border-t border-gray-300 pt-3 sm:mt-8 lg:mt-10">
+                  <div className="flex items-center gap-2 text-xs text-gray-600 sm:text-sm">
                     <img src={calenderIcon} alt="Calendar" className="h-4 w-4" />
                     {item.date}
                   </div>
-                  <Button size="sm" className="gap-2 rounded ">
-                    <Share2 className="h-4 w-4" />
+                  <Button size="sm" className="gap-2 rounded px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
+                    <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     Share
                   </Button>
                 </div>
@@ -164,13 +164,13 @@ const Announcements = () => {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-700">Recent Announcements</h2>
+        <h2 className="text-xl font-semibold text-gray-700 sm:text-2xl">Recent Announcements</h2>
 
         <div className="space-y-4">
           {recentAnnouncements.map((item) => (
-            <div key={item.id} className="rounded-xl bg-[#E9EDF4] p-4">
+            <div key={item.id} className="rounded-xl bg-[#E9EDF4] p-4 sm:p-5 lg:p-6">
               <div className="flex items-start justify-between gap-3">
-                <h3 className="text-2xl font-semibold text-gray-900">{item.title}</h3>
+                <h3 className="text-lg font-semibold text-gray-900 sm:text-xl lg:text-2xl">{item.title}</h3>
                 <div className="flex items-center gap-2 text-gray-500">
                   <button
                     className="rounded-md p-1 hover:bg-gray-200"
@@ -191,15 +191,15 @@ const Announcements = () => {
                 </div>
               </div>
 
-              <p className="mt-5 text-xl text-gray-700">{item.body}</p>
+              <p className="mt-4 text-sm text-gray-700 sm:mt-5 sm:text-base lg:text-xl">{item.body}</p>
 
-              <div className="mt-10 flex items-center justify-between border-t border-gray-300 pt-3">
-                <div className="flex items-center gap-2 text-xs text-gray-600 ">
+              <div className="mt-6 flex items-center justify-between border-t border-gray-300 pt-3 sm:mt-8 lg:mt-10">
+                <div className="flex items-center gap-2 text-xs text-gray-600 sm:text-sm">
                   <img src={calenderIcon} alt="Calendar" className="h-4 w-4" />
                   {item.date}
                 </div>
-                <Button size="sm" className="gap-2 rounded ">
-                  <Share2 className="h-4 w-4" />
+                <Button size="sm" className="gap-2 rounded px-3 py-1 text-xs sm:px-4 sm:py-2 sm:text-sm">
+                  <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
                   Share
                 </Button>
               </div>
