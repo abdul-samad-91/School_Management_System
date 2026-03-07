@@ -5,6 +5,7 @@ import {
   GraduationCap,
   BookOpen,
   ClipboardCheck,
+  Coins,
   FileText,
   Settings,
   LogOut,
@@ -55,6 +56,14 @@ const DashboardLayout = () => {
       href: '/exams',
       icon: FileText,
       children: [{ name: 'Exams', href: '/exams' }, { name: 'Results', href: '/exams/results' }],
+    },
+    {
+      name: 'Fees',
+      icon: Coins,
+      children: [
+        { name: 'Fees Structure', href: '/fees/structures' },
+        { name: 'Payments', href: '/fees/payments' },
+      ],
     },
   ]
 

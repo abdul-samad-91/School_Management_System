@@ -11,7 +11,7 @@ import {
   X,
 } from 'lucide-react'
 
-const INITIAL_CLASSES = [
+const CLASS_TEMPLATES = [
   { id: 'C138038', name: 'I', section: 'A', students: 30, subjects: 3, status: 'Active' },
   { id: 'C138039', name: 'II', section: 'A', students: 31, subjects: 4, status: 'Active' },
   { id: 'C138040', name: 'III', section: 'B', students: 29, subjects: 4, status: 'Active' },
@@ -23,6 +23,14 @@ const INITIAL_CLASSES = [
   { id: 'C138046', name: 'IX', section: 'A', students: 26, subjects: 7, status: 'Active' },
   { id: 'C138047', name: 'X', section: 'A', students: 25, subjects: 8, status: 'Active' },
 ]
+
+const INITIAL_CLASSES = Array.from({ length: 200 }, (_, index) => {
+  const template = CLASS_TEMPLATES[index % CLASS_TEMPLATES.length]
+  return {
+    ...template,
+    id: `C${String(138038 + index)}`,
+  }
+})
 
 const ROWS_PER_PAGE = 10
 
@@ -66,6 +74,32 @@ const Classes = () => {
   }, [classes, searchTerm, sortOrder])
 
   const totalPages = Math.max(1, Math.ceil(filteredClasses.length / ROWS_PER_PAGE))
+
+  const paginationItems = useMemo(() => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, index) => index + 1)
+    }
+
+    const items = [1]
+
+    if (page > 3) {
+      items.push('left-ellipsis')
+    }
+
+    const startPage = Math.max(2, page - 1)
+    const endPage = Math.min(totalPages - 1, page + 1)
+
+    for (let current = startPage; current <= endPage; current += 1) {
+      items.push(current)
+    }
+
+    if (page < totalPages - 2) {
+      items.push('right-ellipsis')
+    }
+
+    items.push(totalPages)
+    return items
+  }, [page, totalPages])
 
   useEffect(() => {
     if (page > totalPages) {
@@ -324,22 +358,44 @@ const Classes = () => {
           </table>
         </div>
 
-        <div className="flex items-center justify-end gap-2 px-5 py-4 text-sm text-[#4c5877]">
+        <div className="flex items-center justify-end gap-1 px-5 py-4 text-sm text-[#4c5877]">
           <button
             type="button"
             onClick={() => setPage((previous) => Math.max(1, previous - 1))}
-            className="rounded-md px-2 py-1 transition hover:bg-[#e8ecf4]"
+            className="rounded-md px-2 py-1 transition hover:bg-[#e8ecf4] disabled:cursor-not-allowed disabled:opacity-50"
             disabled={page === 1}
           >
             Pre
           </button>
-          <span className="inline-flex h-8 min-w-8 items-center justify-center rounded-md bg-primary-600 px-2 text-white">
-            {page}
-          </span>
+
+          {paginationItems.map((item, index) => {
+            if (typeof item !== 'number') {
+              return (
+                <span key={`${item}-${index}`} className="px-2 py-1 text-[#65708a]">
+                  ....
+                </span>
+              )
+            }
+
+            const isActivePage = item === page
+            return (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setPage(item)}
+                className={`inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 transition ${
+                  isActivePage ? 'bg-primary-600 text-white' : 'text-[#4c5877] hover:bg-[#e8ecf4]'
+                }`}
+              >
+                {item}
+              </button>
+            )
+          })}
+
           <button
             type="button"
             onClick={() => setPage((previous) => Math.min(totalPages, previous + 1))}
-            className="rounded-md px-2 py-1 transition hover:bg-[#e8ecf4]"
+            className="rounded-md px-2 py-1 transition hover:bg-[#e8ecf4] disabled:cursor-not-allowed disabled:opacity-50"
             disabled={page === totalPages}
           >
             Next
