@@ -74,8 +74,7 @@ const Announcements = () => {
         onClose={() => setIsAddAnnouncementOpen(false)}
         title=""
         size="sm"
-        className="border-2 border-gray-400 rounded-lg"
-      
+        className="border-2 border-gray-400 rounded-lg"      
       >
         <div className="space-y-4 px-4 sm:px-5">
           <div className=" flex flex-col items-center justify-center gap-2">
