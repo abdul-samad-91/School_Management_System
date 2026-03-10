@@ -14,6 +14,7 @@ import VerifyEmail from './pages/auth/VerifyEmail'
 import OtpVerification from './pages/auth/OtpVerification'
 import ResetPassword from './pages/auth/ResetPassword'
 import PasswordUpdated from './pages/auth/PasswordUpdated'
+import Welcome from './pages/Welcome'
 import Dashboard from './pages/Dashboard'
 import AddmissionForm from './pages/admission/AddmissionForm'
 import AdmissionList from './pages/admission/AdmissionList'
@@ -75,7 +76,8 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<Welcome />} />
+          <Route path="dashboard" element={<Dashboard />} />
           
           {/* Students */}
           <Route path="students" element={<Students />} />
@@ -83,8 +85,8 @@ function App() {
           <Route path="students/:id" element={<StudentDetails />} />
           
           {/* Admissions */}
-          <Route path="/admissions/form" element={<AddmissionForm />} />
-          <Route path="/admissions/list" element={<AdmissionList />} />
+          <Route path="admissions/form" element={<AddmissionForm />} />
+          <Route path="admissions/list" element={<AdmissionList />} />
           
           {/* Teachers */}
           <Route path="teachers" element={<Teachers />} />
@@ -129,4 +131,3 @@ function App() {
 }
 
 export default App
-
