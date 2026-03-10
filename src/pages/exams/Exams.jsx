@@ -353,7 +353,7 @@ const Exams = () => {
                   <TableCell className="text-gray-600">{row.maxMarks}</TableCell>
                   <TableCell className="text-gray-600">{row.minMarks}</TableCell>
                   <TableCell className="text-right">
-                    <div className="inline-flex items-center gap-2">
+                    <div className="inline-flex items-center gap-2 ">
                       <button
                         className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"
                       
@@ -366,9 +366,9 @@ const Exams = () => {
                           <path d="M10 11v6" />
                           <path d="M14 11v6" />
                         </svg> */}
-                        <img src={trash} alt="Delete" className="h-4 w-4" />
+                        <img src={trash} alt="Delete" className="h-5 w-5" />
                       </button>
-                      <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"
+                      <button className="rounded border border-gray-200 p-1.5  hover:bg-gray-50"
                       
                         onClick={() => {
                           setSelectedExam(row)
@@ -379,7 +379,7 @@ const Exams = () => {
                           <path d="M12 20h9" />
                           <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" />
                         </svg> */}
-                        <img src={edit} alt="Edit" className="h-4 w-4" />
+                        <img src={edit} alt="Edit" className="h-5 w-5" />
                       </button>
                     </div>
                   </TableCell>
