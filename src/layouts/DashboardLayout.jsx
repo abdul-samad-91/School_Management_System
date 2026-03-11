@@ -7,10 +7,14 @@ import {
   ClipboardCheck,
   Coins,
   FileText,
-  Settings,
   LogOut,
   User,
   Bell,
+  Landmark,
+  FileBadge2,
+  MessageCircle,
+  UserRound,
+  BookCopy,
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 
@@ -24,7 +28,7 @@ const DashboardLayout = () => {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     {
       name: 'Admissions',
-      icon: FileText,
+      icon: Landmark,
       children: [
         { name: 'Admission Form', href: '/students/add' },
         { name: 'Admissions List', href: '/students' },
@@ -34,7 +38,7 @@ const DashboardLayout = () => {
     { name: 'Teachers', href: '/teachers', icon: GraduationCap },
     {
       name: 'Academic',
-      icon: BookOpen,
+      icon: BookCopy,
       children: [
         { name: 'Sessions', href: '/academic/sessions' },
         { name: 'Classes', href: '/academic/classes' },
@@ -61,10 +65,13 @@ const DashboardLayout = () => {
       name: 'Fees',
       icon: Coins,
       children: [
-        { name: 'Fees Structure', href: '/fees/structures' },
+        { name: 'Fee Structure', href: '/fees/structures' },
         { name: 'Payments', href: '/fees/payments' },
       ],
     },
+    { name: 'Certificates', href: '/certificates', icon: FileBadge2 },
+    { name: 'Whatsapp', href: '/whatsapp', icon: MessageCircle },
+    { name: 'Users', href: '/users', icon: UserRound },
   ]
 
   const fullName =
@@ -90,26 +97,30 @@ const DashboardLayout = () => {
       const parentActive = item.children.some((child) => isRouteActive(child.href))
 
       return (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <div
-            className={`flex items-center px-3 py-2 text-sm font-semibold ${
-              parentActive ? 'text-gray-900' : 'text-gray-700'
+            className={`flex items-center rounded-lg px-3 py-2 text-base font-semibold ${
+              parentActive ? 'bg-blue-100 text-blue-700' : 'text-gray-700'
             }`}
           >
-            {item.icon && <item.icon className="mr-3 h-5 w-5 text-gray-900" />}
-            {item.name}
+            {item.icon && (
+              <item.icon
+                className={`mr-3.5 h-6 w-6 shrink-0 ${parentActive ? 'text-blue-700' : 'text-gray-900'}`}
+              />
+            )}
+            <span>{item.name}</span>
           </div>
-          <div className="pl-11 space-y-1">
+          <div className="space-y-2.5 pl-12">
             {item.children.map((child) => {
               const childActive = isRouteActive(child.href)
               return (
                 <Link
                   key={child.name}
                   to={child.href}
-                  className={`block rounded-lg px-3 py-1.5 text-sm ${
+                  className={`block rounded-lg px-2 py-1.5 text-sm ${
                     childActive
-                      ? 'bg-primary-50 font-medium text-primary-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-100 font-semibold text-blue-700'
+                      : 'text-gray-800 hover:text-gray-900'
                   }`}
                 >
                   {child.name}
@@ -124,14 +135,16 @@ const DashboardLayout = () => {
     return (
       <Link
         to={item.href}
-        className={`flex items-center rounded-lg px-3 py-2 text-sm font-semibold ${
+        className={`flex items-center rounded-lg px-3 py-2 text-base font-semibold ${
           isActive
-            ? 'bg-primary-50 text-primary-700'
-            : 'text-gray-900 hover:bg-gray-100'
+            ? 'bg-blue-100 text-blue-700'
+            : 'text-gray-900 hover:text-gray-950'
         }`}
       >
-        {item.icon && <item.icon className="mr-3 h-5 w-5" />}
-        {item.name}
+        {item.icon && (
+          <item.icon className={`mr-3.5 h-6 w-6 shrink-0 ${isActive ? 'text-blue-700' : 'text-gray-900'}`} />
+        )}
+        <span>{item.name}</span>
       </Link>
     )
   }
@@ -139,7 +152,7 @@ const DashboardLayout = () => {
   return (
     <div className="min-h-screen bg-[#ececec]">
       {isWelcomePage ? (
-        <main className="h-screen overflow-auto p-6">
+        <main className="h-[100dvh] overflow-hidden p-0">
           <Outlet />
         </main>
       ) : (
@@ -176,26 +189,17 @@ const DashboardLayout = () => {
           </header>
 
           {/* Desktop sidebar */}
-          <aside className="fixed bottom-0 left-0 top-[68px] flex w-[240px] flex-col border-r border-gray-300 bg-[#f5f5f5]">
-            <nav className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
+          <aside className="fixed bottom-0 left-0 top-[68px] flex w-[272px] flex-col border-r border-gray-300 bg-[#ececec]">
+            <nav className="scrollbar-hide flex-1 space-y-5 overflow-y-auto px-6 py-6">
               {navigation.map((item) => (
                 <NavLink key={item.name} item={item} />
               ))}
             </nav>
-            <div className="border-t border-gray-300 p-4">
-              <Link
-                to="/settings/profile"
-                className="flex items-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-900 hover:bg-gray-50"
-              >
-                <Settings className="h-5 w-5" />
-                Settings
-              </Link>
-            </div>
           </aside>
 
           {/* Main content */}
-          <div className="pt-[68px] pl-[240px]">
-            <main className="h-[calc(100vh-68px)] overflow-auto p-5">
+          <div className="pl-[272px] pt-[68px]">
+            <main className="h-[calc(100vh-68px)] overflow-auto scrollbar-hide p-5">
               <Outlet />
             </main>
           </div>

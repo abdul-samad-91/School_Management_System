@@ -12,25 +12,25 @@ import {
 import { dashboardAPI } from '@/lib/api'
 
 const MetricBox = ({ icon: Icon, value, label, color = 'bg-blue-500' }) => (
-  <div className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-    <div className="mb-2 flex justify-center">
-      <div className={`rounded-lg p-2.5 ${color}`}>
-        <Icon className="h-5 w-5 text-white" />
+  <div className="rounded-[9px] border-2 border-black/10 bg-white/70 p-2 shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
+    <div className="mb-1.5 flex justify-center">
+      <div className={`rounded-xl p-1.5 ${color}`}>
+        <Icon className="h-4.5 w-4.5 text-white" />
       </div>
     </div>
-    <p className="text-center text-xl font-bold text-gray-900 lg:text-2xl">{value}</p>
-    <p className="text-center text-xs font-semibold leading-tight text-gray-800 lg:text-sm">{label}</p>
+    <p className="text-center text-lg font-medium text-gray-900">{value}</p>
+    <p className="text-center text-[0.92rem] font-semibold leading-tight text-gray-800">{label}</p>
   </div>
 )
 
 const ProgressRow = ({ label, value }) => (
-  <div className="space-y-1">
-    <div className="flex items-center justify-between text-sm font-semibold text-gray-900">
+  <div className="space-y-2">
+    <div className="flex items-center justify-between text-[1.05rem] font-semibold text-gray-900">
       <span>{label}</span>
       <span>{value}%</span>
     </div>
-    <div className="h-2.5 rounded-full bg-gray-200">
-      <div className="h-2.5 rounded-full bg-blue-500" style={{ width: `${value}%` }} />
+    <div className="h-1.5 rounded-full bg-gray-300">
+      <div className="h-1.5 rounded-full bg-blue-500" style={{ width: `${value}%` }} />
     </div>
   </div>
 )
@@ -56,159 +56,162 @@ const Welcome = () => {
   const pendingPercent = 100 - collectedPercent
 
   return (
-    <div className="h-100vh w-full">
-      <div className="h-full w-full overflow-hidden rounded-2xl bg-gradient-to-b from-[#eef2f9] via-[#b4bfd9] to-[#2c3f8f] p-10">
-        <h1 className="mb-6 text-center text-3xl font-bold leading-tight text-gray-900 sm:text-4xl">
-          Welcome To
-          <br />
-          School Management System
-        </h1>
+    <div className="relative h-[100dvh] w-full overflow-hidden bg-[linear-gradient(180deg,#ececec_0%,#d8dceb_42%,#3b4ea1_100%)] text-slate-950">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.72),transparent_38%)]" />
 
-        <div className="mx-auto grid h-[calc(100%-96px)] w-[80%] grid-cols-2 gap-10">
-          <section className="flex min-h-0 flex-col rounded-xl border-2 border-blue-500 bg-[#dbe4f5]/75 p-4 ">
-            <h2 className="mb-3 text-center text-2xl font-bold text-gray-900">Dashboard</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
+      <div className="relative grid h-full grid-rows-[auto_1fr] gap-3 px-10 py-3 lg:px-14 lg:py-4">
+        <header className="welcome-rise flex flex-col items-center justify-center">
+          <h1 className="text-center text-[2.5rem] font-bold leading-[1.05] text-black lg:text-[3rem]">
+            Welcome To
+            <span className="mt-2 block">School Management System</span>
+          </h1>
+        </header>
+
+        <div className="mx-auto grid min-h-0 w-full max-w-[82rem] grid-cols-2 grid-rows-2 gap-7">
+          <section className="welcome-panel welcome-rise flex min-h-0 flex-col overflow-hidden rounded-[12px] border-[5px] border-[#5670db] bg-[#d7deea]/95 p-3 [animation-delay:100ms]">
+            <h2 className="mb-2 text-center text-[1.65rem] font-bold text-black">Dashboard</h2>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="rounded-[9px] border-2 border-black/10 bg-white/70 p-3.5 shadow-[0_4px_10px_rgba(0,0,0,0.18)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">Total Students</p>
-                    <p className="text-3xl font-bold text-gray-900">{students}</p>
-                    <p className="text-sm text-gray-700">10 this month</p>
+                    <p className="text-[0.95rem] font-semibold text-black">Total Students</p>
+                    <p className="mt-0.5 text-[1.7rem] font-medium text-black">{students}</p>
+                    <p className="mt-0.5 text-sm text-black/80">10 this month</p>
                   </div>
-                  <div className="rounded-xl bg-blue-500 p-3">
-                    <Users className="h-6 w-6 text-white" />
+                  <div className="rounded-xl bg-[#4281eb] p-2.5">
+                    <Users className="h-5.5 w-5.5 text-white" />
                   </div>
                 </div>
               </div>
-              <div className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
+              <div className="rounded-[9px] border-2 border-black/10 bg-white/70 p-3.5 shadow-[0_4px_10px_rgba(0,0,0,0.18)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-semibold text-gray-900">Total Classes</p>
-                    <p className="text-3xl font-bold text-gray-900">{classes}</p>
-                    <p className="text-sm text-gray-700">Active Classes</p>
+                    <p className="text-[0.95rem] font-semibold text-black">Total Classes</p>
+                    <p className="mt-0.5 text-[1.7rem] font-medium text-black">{classes}</p>
+                    <p className="mt-0.5 text-sm text-black/80">Active Classses</p>
                   </div>
-                  <div className="rounded-xl bg-indigo-700 p-3">
-                    <BookOpen className="h-6 w-6 text-white" />
+                  <div className="rounded-xl bg-[#3d50ab] p-2.5">
+                    <BookOpen className="h-5.5 w-5.5 text-white" />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mx-auto mt-3 w-full max-w-sm rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
+            <div className="mx-auto mt-2.5 w-full max-w-[19rem] rounded-[9px] border-2 border-black/10 bg-white/70 p-3.5 shadow-[0_4px_10px_rgba(0,0,0,0.18)]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">Total Teachers</p>
-                  <p className="text-3xl font-bold text-gray-900">{teachers}</p>
-                  <p className="text-sm text-gray-700">10 this month</p>
+                  <p className="text-[0.95rem] font-semibold text-black">Total Teachers</p>
+                  <p className="mt-0.5 text-[1.7rem] font-medium text-black">{teachers}</p>
+                  <p className="mt-0.5 text-sm text-black/80">10 this month</p>
                 </div>
-                <div className="rounded-xl bg-green-500 p-3">
-                  <GraduationCap className="h-6 w-6 text-white" />
+                <div className="rounded-xl bg-[#28c85c] p-2.5">
+                  <GraduationCap className="h-5.5 w-5.5 text-white" />
                 </div>
               </div>
             </div>
 
-            <div className="mt-auto flex justify-end pt-3">
+            <div className="mt-auto flex shrink-0 justify-end pt-2">
               <button
                 onClick={() => navigate('/dashboard')}
-                className="rounded-xl bg-blue-500 px-5 py-2 text-base font-semibold text-white hover:bg-blue-600"
+                className="rounded-xl bg-[#4281eb] px-4 py-1.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
               >
                 See Details
               </button>
             </div>
           </section>
 
-          <section className="flex min-h-0 flex-col rounded-xl border-2 border-green-500 bg-[#dcece5]/75 p-4">
-            <h2 className="mb-3 text-center text-2xl font-bold text-gray-900">Whatsapp</h2>
-            <div className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
+          <section className="welcome-panel welcome-rise flex min-h-0 flex-col overflow-hidden rounded-[12px] border-[5px] border-[#2cc763] bg-[#dce9df]/95 p-3 [animation-delay:180ms]">
+            <h2 className="mb-2 text-center text-[1.65rem] font-bold text-black">Whatsapp</h2>
+            <div className="rounded-[9px] border-2 border-black/10 bg-white/65 p-2.5 shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-xl font-semibold text-gray-900">Last Sent Announcement</p>
-                <span className="text-lg font-semibold text-gray-900">9:00am</span>
+                <p className="text-[0.95rem] font-semibold text-black lg:text-[1rem]">Last Sent Announcement</p>
+                <span className="text-base font-semibold text-black">9:00am</span>
               </div>
-              <p className="mb-2 text-base text-gray-800">Fee reminder sent to Class 9</p>
+              <p className="mb-2.5 text-[0.95rem] text-black/85">Fee reminder sent to Class 9</p>
               <div className="flex justify-end">
                 <button
                   onClick={() => navigate('/communication/announcements')}
-                  className="rounded-xl bg-blue-500 px-4 py-1.5 text-sm font-semibold text-white hover:bg-blue-600"
+                  className="rounded-xl bg-[#4281eb] px-4 py-1.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
                 >
                   View Details
                 </button>
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-3">
+            <div className="mt-2.5 grid grid-cols-3 gap-2">
               <MetricBox icon={MessageSquare} value="01" label="Messages Sent today" color="bg-green-500" />
               <MetricBox icon={ClipboardCheck} value="02" label="Message Scheduled" color="bg-indigo-700" />
               <MetricBox icon={Users} value={students} label="Parents Connected" />
             </div>
 
-            <div className="mt-auto flex justify-end pt-3">
+            <div className="mt-auto flex shrink-0 justify-end pt-2">
               <button
                 onClick={() => navigate('/communication/announcements')}
-                className="rounded-xl bg-blue-500 px-5 py-2 text-base font-semibold text-white hover:bg-blue-600"
+                className="rounded-xl bg-[#4281eb] px-4 py-1.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
               >
                 Send Message
               </button>
             </div>
           </section>
 
-          <section className="flex min-h-0 flex-col rounded-xl border-2 border-amber-500 bg-[#f3eecf]/75 p-4">
-            <h2 className="mb-3 text-center text-2xl font-bold text-gray-900">Fees</h2>
-            <div className="space-y-3 rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
+          <section className="welcome-panel welcome-rise flex min-h-0 flex-col overflow-hidden rounded-[12px] border-[5px] border-[#c9891d] bg-[#ecead8]/96 p-3 [animation-delay:260ms]">
+            <h2 className="mb-2 text-center text-[1.65rem] font-bold text-black">Fees</h2>
+            <div className="space-y-3 rounded-[9px] border-2 border-black/10 bg-white/65 p-2.5 shadow-[0_4px_10px_rgba(0,0,0,0.12)]">
               <ProgressRow label="Collected" value={collectedPercent} />
               <ProgressRow label="Pending" value={pendingPercent} />
             </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-3">
+            <div className="mt-2.5 grid grid-cols-3 gap-2">
               <MetricBox icon={DollarSign} value="20L" label="Total Revenue" color="bg-green-500" />
               <MetricBox icon={DollarSign} value="2L" label="Pending Fees" color="bg-slate-600" />
               <MetricBox icon={Users} value="50" label="Defaulters" />
             </div>
 
-            <div className="mt-auto flex justify-end pt-3">
+            <div className="mt-auto flex shrink-0 justify-end pt-2">
               <button
                 onClick={() => navigate('/fees/payments')}
-                className="rounded-xl bg-blue-500 px-5 py-2 text-base font-semibold text-white hover:bg-blue-600"
+                className="rounded-xl bg-[#4281eb] px-4 py-1.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
               >
                 View Details
               </button>
             </div>
           </section>
 
-          <section className="flex min-h-0 flex-col rounded-xl border-2 border-blue-500 bg-[#dbe4f5]/75 p-4">
-            <h2 className="mb-3 text-center text-2xl font-bold text-gray-900">Certificates</h2>
-            <div className="grid grid-cols-2 gap-3">
+          <section className="welcome-panel welcome-rise flex min-h-0 flex-col overflow-hidden rounded-[12px] border-[5px] border-[#4a88ef] bg-[#d7deea]/95 p-3 [animation-delay:340ms]">
+            <h2 className="mb-2 text-center text-[1.65rem] font-bold text-black">Certificates</h2>
+            <div className="grid grid-cols-2 gap-2">
               <MetricBox icon={FileText} value="340" label="Certificates Issued" color="bg-green-500" />
               <MetricBox icon={FileText} value="12" label="Certificates Pending" color="bg-indigo-700" />
             </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-3 text-center">
-              <div className="flex h-24 items-center justify-center rounded-full border border-gray-300 bg-rose-100 px-2 text-sm font-semibold text-gray-900">
+            <div className="mt-2.5 grid grid-cols-3 gap-2 text-center">
+              <div className="flex h-20 items-center justify-center rounded-full border border-black/10 bg-[#f0e5e5] px-2 text-sm font-semibold text-gray-900">
                 Bonafide
                 <br />
                 Certificate
               </div>
-              <div className="flex h-24 items-center justify-center rounded-full border border-gray-300 bg-emerald-100 px-2 text-sm font-semibold text-gray-900">
+              <div className="flex h-20 items-center justify-center rounded-full border border-black/10 bg-[#e4efe5] px-2 text-sm font-semibold text-gray-900">
                 Leaving
                 <br />
                 Certificate
               </div>
-              <div className="flex h-24 items-center justify-center rounded-full border border-gray-300 bg-amber-100 px-2 text-sm font-semibold text-gray-900">
+              <div className="flex h-20 items-center justify-center rounded-full border border-black/10 bg-[#ece8d0] px-2 text-sm font-semibold text-gray-900">
                 Character
                 <br />
                 Certificate
               </div>
             </div>
 
-            <div className="mt-auto flex justify-end gap-3 pt-3">
+            <div className="mt-auto flex shrink-0 justify-end gap-2 pt-2">
               <button
                 onClick={() => navigate('/exams/results')}
-                className="rounded-xl bg-blue-500 px-5 py-2 text-base font-semibold text-white hover:bg-blue-600"
+                className="rounded-xl bg-[#4281eb] px-4 py-1.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
               >
                 View Details
               </button>
               <button
                 onClick={() => navigate('/exams/results')}
-                className="rounded-xl bg-blue-500 px-5 py-2 text-base font-semibold text-white hover:bg-blue-600"
+                className="rounded-xl bg-[#4281eb] px-4 py-1.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
               >
                 Generate
               </button>
