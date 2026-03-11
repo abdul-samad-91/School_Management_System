@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -22,7 +23,18 @@ const DashboardLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
+  const mainRef = useRef(null)
   const isWelcomePage = location.pathname === '/'
+  const isFeePaymentsPage = location.pathname === '/fees/payments'
+  const isCertificatesPage = location.pathname.startsWith('/certificates')
+  const shouldHideSidebar =
+    location.state?.fromWelcome && (isFeePaymentsPage || isCertificatesPage)
+
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTop = 0
+    }
+  }, [location.pathname])
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -189,17 +201,22 @@ const DashboardLayout = () => {
           </header>
 
           {/* Desktop sidebar */}
-          <aside className="fixed bottom-0 left-0 top-[68px] flex w-[272px] flex-col border-r border-gray-300 bg-[#ececec]">
-            <nav className="scrollbar-hide flex-1 space-y-5 overflow-y-auto px-6 py-6">
-              {navigation.map((item) => (
-                <NavLink key={item.name} item={item} />
-              ))}
-            </nav>
-          </aside>
+          {!shouldHideSidebar && (
+            <aside className="fixed bottom-0 left-0 top-[68px] flex w-[272px] flex-col border-r border-gray-300 bg-[#ececec]">
+              <nav className="scrollbar-hide flex-1 space-y-5 overflow-y-auto px-6 py-6">
+                {navigation.map((item) => (
+                  <NavLink key={item.name} item={item} />
+                ))}
+              </nav>
+            </aside>
+          )}
 
           {/* Main content */}
-          <div className="pl-[272px] pt-[68px]">
-            <main className="h-[calc(100vh-68px)] overflow-auto scrollbar-hide p-5">
+          <div className={`${shouldHideSidebar ? 'pl-0' : 'pl-[272px]'} pt-[68px]`}>
+            <main
+              ref={mainRef}
+              className="h-[calc(100vh-68px)] overflow-auto scrollbar-hide p-5"
+            >
               <Outlet />
             </main>
           </div>
