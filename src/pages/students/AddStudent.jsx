@@ -51,12 +51,12 @@ const AddStudent = () => {
               <div>
                 <p className="text-sm font-medium text-gray-900 mb-2">Gender</p>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-base text-gray-700">
-                    {/* <input type="radio" name="gender" className="h-4 w-4" /> */}
+                  <label className="flex items-center gap-2 rounded-lg border-2 border-gray-200 px-3 py-2 text-base text-gray-700">
+                    <input type="radio" name="gender" className="h-4 w-4" />
                     Male
                   </label>
-                  <label className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-base text-gray-700">
-                    {/* <input type="radio" name="gender" className="h-4 w-4" /> */}
+                  <label className="flex items-center gap-2 rounded-lg border-2 border-gray-200 px-3 py-2 text-base text-gray-700">
+                    <input type="radio" name="gender" className="h-4 w-4 " />
                     Female
                   </label>
                 </div>
@@ -64,7 +64,7 @@ const AddStudent = () => {
 
               <div>
                 <p className="text-sm font-medium text-gray-900 mb-2">Profile Photo</p>
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-dashed border-primary-400 bg-primary-50/40 px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-dashed border-primary-400 bg-primary-50/40 px-4 py-3">
                   <div>
                     <p className="text-base font-semibold text-gray-900">Drag And Drop Files Here Or Upload</p>
                     <p className="text-sm text-gray-500">Accepted file types: JPG, SVG, PNG 120 x 120 (px)</p>

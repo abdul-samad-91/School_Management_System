@@ -43,7 +43,7 @@ const users = [
 ]
 
 const Users = () => {
-  const [isAddUserOpen, setIsAddUserOpen] = useState(false)
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
 
   return (
     <div className="space-y-6">
@@ -69,7 +69,7 @@ const Users = () => {
         size="sm"
       >
         <div className="space-y-4">
-          <div className="text-center">
+          <div className="text-center ">
             <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
               <img src={logo} alt="Logo" className="h-14 w-16" />
               <span className="text-5xl font-serif font-semibold">SMS</span>

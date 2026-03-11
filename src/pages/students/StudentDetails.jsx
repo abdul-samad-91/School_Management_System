@@ -218,7 +218,7 @@ const StudentDetails = () => {
 
               <div className="mt-10 grid items-center gap-6 lg:grid-cols-[1.1fr_1.9fr]  ">
                 <div className="rounded-2xl  p-4  ">
-                  <div className="mx-auto w-32 ">
+                  <div className="mx-auto w-32">
                     <div className="relative h-20 w-32 ">
                       <svg
                         viewBox="0 0 200 120"

@@ -26,7 +26,11 @@ const rows = [
   { id: '1080', student: 'Farhan Ali', father: 'Ali Akbar', contact: '0337875725', status: 'Active' },
   { id: '6899', student: 'Sanan Shah', father: 'Shayan Shah', contact: '0337875725', status: 'Active' },
   { id: '6999', student: 'Zaib Malik', father: 'Ali Malik', contact: '0337875725', status: 'Active' },
+  { id: '6929', student: 'Zaib Shah', father: 'Ali zaman', contact: '0337435725', status: 'Active' },
+  { id: '6919', student: 'Zaib Malik', father: 'Ali Malik', contact: '03378725', status: 'Active' },
 ]
+
+
 
 const AdmissionList = () => {
   return (

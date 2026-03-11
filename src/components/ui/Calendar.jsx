@@ -36,7 +36,7 @@ export default function Calendar() {
 
   return (
     <div className="flex items-center justify-center">
-      <div className="bg-white shadow-xl rounded-2xl p-4 w-[300px] max-w-md " >
+      <div className="bg-white shadow-xl rounded-2xl p-4 w-[300px] max-w-md border-2 border-gray-300" >
         
         {/* Header */}
         {/* <h2 className="text-2xl font-semibold text-center mb-4">
@@ -44,7 +44,7 @@ export default function Calendar() {
         </h2> */}
 
         {/* Selectors */}
-        <div className="flex  items-center gap-3 mb-6">
+        <div className="flex  items-center gap-3 mb-6 ">
  <ChevronLeft className="h-8 w-8" />
           <select
             value={month}
