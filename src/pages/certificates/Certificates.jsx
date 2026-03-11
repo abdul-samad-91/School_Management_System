@@ -211,6 +211,10 @@ const Certificates = () => {
   const [formValues, setFormValues] = useState(EMPTY_CERTIFICATE)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSession, setSelectedSession] = useState('')
+  const [filterType, setFilterType] = useState('')
+  const [filterClass, setFilterClass] = useState('')
+  const [sortOrder, setSortOrder] = useState('asc')
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [page, setPage] = useState(1)
 
@@ -354,6 +358,12 @@ const Certificates = () => {
     setPage(1)
   }
 
+  const handleClearFilters = () => {
+    setFilterType('')
+    setFilterClass('')
+    setPage(1)
+  }
+
   const filteredRows = useMemo(() => {
     const normalized = searchTerm.trim().toLowerCase()
 
@@ -361,6 +371,8 @@ const Certificates = () => {
       if (activeStatus === 'issued' && item.status !== 'Issued') return false
       if (activeStatus === 'draft' && item.status !== 'Draft') return false
       if (selectedSession && item.session !== selectedSession) return false
+      if (filterType && item.type !== filterType) return false
+      if (filterClass && item.className !== filterClass) return false
 
       if (
         normalized &&
@@ -372,7 +384,16 @@ const Certificates = () => {
 
       return true
     })
-  }, [activeStatus, certificates, searchTerm, selectedSession])
+  }, [activeStatus, certificates, searchTerm, selectedSession, filterClass, filterType])
+
+  const sortedRows = useMemo(() => {
+    const data = [...filteredRows]
+    data.sort((a, b) => {
+      const direction = sortOrder === 'asc' ? 1 : -1
+      return a.name.localeCompare(b.name) * direction
+    })
+    return data
+  }, [filteredRows, sortOrder])
 
   const totalPages = Math.max(1, Math.ceil(filteredRows.length / rowsPerPage))
 
@@ -384,8 +405,8 @@ const Certificates = () => {
 
   const paginatedRows = useMemo(() => {
     const startIndex = (page - 1) * rowsPerPage
-    return filteredRows.slice(startIndex, startIndex + rowsPerPage)
-  }, [filteredRows, page, rowsPerPage])
+    return sortedRows.slice(startIndex, startIndex + rowsPerPage)
+  }, [sortedRows, page, rowsPerPage])
 
   const paginationItems = useMemo(
     () => buildPaginationItems(page, totalPages),
@@ -396,6 +417,14 @@ const Certificates = () => {
   const draftCount = certificates.filter((item) => item.status === 'Draft').length
   const totalCount = certificates.length
   const isEditing = Boolean(editingId)
+  const typeOptions = useMemo(
+    () => Array.from(new Set(certificates.map((item) => item.type).filter(Boolean))),
+    [certificates]
+  )
+  const classOptions = useMemo(
+    () => Array.from(new Set(certificates.map((item) => item.className).filter(Boolean))),
+    [certificates]
+  )
 
   const handleFormChange = (field) => (event) => {
     setFormValues((prev) => ({ ...prev, [field]: event.target.value }))
@@ -490,22 +519,81 @@ const Certificates = () => {
               />
             </label>
 
-            <button
-              type="button"
-              onClick={() => toast.info('Filter options will be added next.')}
-              className="inline-flex items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-3 py-2 text-sm font-semibold text-[#4c5877] transition hover:bg-[#f5f7fb]"
-            >
-              <Filter className="h-4 w-4" />
-              Filter
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen((prev) => !prev)}
+                className="inline-flex items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-3 py-2 text-sm font-semibold text-[#4c5877] transition hover:bg-[#f5f7fb]"
+              >
+                <Filter className="h-4 w-4" />
+                Filter
+              </button>
+              {isFilterOpen && (
+                <div className="absolute right-0 z-20 mt-2 w-60 rounded-lg border border-[#d4d8e3] bg-white p-3 shadow-lg">
+                  <label className="block text-xs font-semibold text-[#6b7280]">Type</label>
+                  <select
+                    value={filterType}
+                    onChange={(event) => {
+                      setFilterType(event.target.value)
+                      setPage(1)
+                    }}
+                    className="mt-1 h-9 w-full rounded-md border border-[#d4d8e3] bg-white px-2 text-sm text-[#4c5877] outline-none"
+                  >
+                    <option value="">All Types</option>
+                    {typeOptions.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+
+                  <label className="mt-3 block text-xs font-semibold text-[#6b7280]">Class</label>
+                  <select
+                    value={filterClass}
+                    onChange={(event) => {
+                      setFilterClass(event.target.value)
+                      setPage(1)
+                    }}
+                    className="mt-1 h-9 w-full rounded-md border border-[#d4d8e3] bg-white px-2 text-sm text-[#4c5877] outline-none"
+                  >
+                    <option value="">All Classes</option>
+                    {classOptions.map((className) => (
+                      <option key={className} value={className}>
+                        {className}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="mt-3 flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={handleClearFilters}
+                      className="rounded-md border border-[#d4d8e3] px-2.5 py-1 text-xs font-semibold text-[#4c5877] hover:bg-[#f5f7fb]"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsFilterOpen(false)}
+                      className="rounded-md bg-primary-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-primary-700"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
 
             <button
               type="button"
-              onClick={() => toast.info('Sorting will be added next.')}
+              onClick={() => {
+                setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'))
+                setPage(1)
+              }}
               className="inline-flex items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-3 py-2 text-sm font-semibold text-[#4c5877] transition hover:bg-[#f5f7fb]"
             >
               <ArrowUpDown className="h-4 w-4" />
-              Sort By A-Z
+              {sortOrder === 'asc' ? 'Sort By A-Z' : 'Sort By Z-A'}
             </button>
           </div>
         </div>

@@ -15,9 +15,9 @@ import {
   CalendarCheck2,
   FileText,
   ClipboardList,
-  Leaf,
 } from 'lucide-react'
 import {
+  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -30,102 +30,155 @@ import {
   subMonths,
 } from 'date-fns'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { dashboardAPI } from '@/lib/api'
+import { communicationAPI, dashboardAPI } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 
-const FEE_CHART_DATA = [
-  { quarter: 'Q1-24', totalFee: 54, collectedFee: 43 },
-  { quarter: 'Q2-24', totalFee: 56, collectedFee: 50 },
-  { quarter: 'Q3-24', totalFee: 55, collectedFee: 48 },
-  { quarter: 'Q4-24', totalFee: 57, collectedFee: 50 },
-  { quarter: 'Q1-25', totalFee: 54, collectedFee: 47 },
-  { quarter: 'Q2-25', totalFee: 52, collectedFee: 41 },
-  { quarter: 'Q3-25', totalFee: 50, collectedFee: 37 },
-  { quarter: 'Q4-25', totalFee: 56, collectedFee: 44 },
-]
-
-const FEE_TICKS = [0, 10, 20, 30, 40, 50, 60]
+const FEE_CHART_MONTHS = 8
 const WEEK_DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-const CALENDAR_HIGHLIGHT_DATES = ['2024-07-06', '2024-07-07', '2024-07-12', '2024-07-27']
 
-const ANNOUNCEMENTS = [
-  {
-    id: 1,
-    title: 'New Syllabus Instructions',
-    date: '11 Mar 2025',
-    daysLeft: '20 Days',
-    icon: FileText,
-    iconStyles: 'bg-blue-100 text-blue-600',
-  },
-  {
-    id: 2,
-    title: 'Exam Preparation Notification!',
-    date: '13 Mar 2025',
-    daysLeft: '12 Days',
-    icon: BellRing,
-    iconStyles: 'bg-rose-100 text-rose-500',
-  },
-  {
-    id: 3,
-    title: 'Exam Time Table Release',
-    date: '24 May 2025',
-    daysLeft: '06 Days',
-    icon: BookOpen,
-    iconStyles: 'bg-amber-100 text-amber-600',
-  },
-  {
-    id: 4,
-    title: 'Classes Attendence Discussion',
-    date: '24 May 2025',
-    icon: ClipboardList,
-    iconStyles: 'bg-sky-100 text-sky-600',
-  },
-  {
-    id: 5,
-    title: 'World Environment Day',
-    date: '21 Apr 2025',
-    icon: Leaf,
-    iconStyles: 'bg-green-100 text-green-600',
-  },
-]
+const buildEmptyFeeChart = (months) => {
+  const now = new Date()
+  return Array.from({ length: months }, (_, index) => {
+    const date = subMonths(now, months - 1 - index)
+    return {
+      label: format(date, 'MMM yy'),
+      collectedFee: 0,
+    }
+  })
+}
 
-const UPCOMING_EVENTS = [
-  {
-    id: 1,
-    title: 'Parents, Teacher Meet',
-    date: '15 Nov 2025',
-    time: '09:10 AM - 10:50 PM',
-    accent: 'border-cyan-500',
-    icon: Users,
-    iconStyles: 'bg-sky-100 text-sky-600',
-    attendees: ['AR', 'NS', 'MK'],
-  },
-  {
-    id: 2,
-    title: 'Staff Meeting',
-    date: '10 Nov 2025',
-    accent: 'border-blue-500',
-    icon: GraduationCap,
-    iconStyles: 'bg-indigo-100 text-indigo-600',
-    attendees: [],
-  },
-  {
-    id: 3,
-    title: 'Winter Vacation Meeting',
-    date: '07 Dec 2025 - 07 Jan 2026',
-    time: '09:10 AM - 10:50 PM',
-    accent: 'border-rose-500',
-    icon: BellRing,
-    iconStyles: 'bg-rose-100 text-rose-500',
-    attendees: ['RM', 'AT'],
-  },
-]
+const buildDummyFeeChart = (months) => {
+  const now = new Date()
+  const sampleValues = [3.4, 4.1, 3.8, 4.6, 5.2, 4.8, 5.6, 6.1]
+
+  return Array.from({ length: months }, (_, index) => {
+    const date = subMonths(now, months - 1 - index)
+    const value = sampleValues[index % sampleValues.length]
+
+    return {
+      _id: {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+      },
+      totalCollected: Math.round(value * 100000),
+    }
+  })
+}
+
+const buildYAxisTicks = (maxValue) => {
+  const safeMax = Math.max(1, maxValue)
+  const roundedMax = Math.ceil(safeMax / 10) * 10
+  const step = Math.max(1, Math.round(roundedMax / 5))
+  return Array.from({ length: 6 }, (_, index) => index * step)
+}
+
+const buildDummyAnnouncements = () => {
+  const today = new Date()
+
+  return [
+    {
+      _id: 'ann-fee-deadline',
+      title: 'Fee submission closes Friday',
+      publishDate: addDays(today, -2).toISOString(),
+      expiryDate: addDays(today, 4).toISOString(),
+      priority: 'urgent',
+      type: 'fee',
+    },
+    {
+      _id: 'ann-science-fair',
+      title: 'Science fair registrations open',
+      publishDate: addDays(today, -5).toISOString(),
+      expiryDate: addDays(today, 12).toISOString(),
+      priority: 'high',
+      type: 'event',
+    },
+    {
+      _id: 'ann-ptm',
+      title: 'Parent-teacher meeting schedule',
+      publishDate: addDays(today, -1).toISOString(),
+      expiryDate: addDays(today, 3).toISOString(),
+      priority: 'general',
+      type: 'general',
+    },
+    {
+      _id: 'ann-exams',
+      title: 'Midterm exam timetable released',
+      publishDate: addDays(today, -7).toISOString(),
+      expiryDate: addDays(today, 20).toISOString(),
+      priority: 'exam',
+      type: 'exam',
+    },
+  ]
+}
+
+const buildDummyStats = () => {
+  const today = new Date()
+  const examStart = addDays(today, 6)
+  const examEnd = addDays(today, 8)
+  const quizDate = addDays(today, 13)
+
+  return {
+    students: {
+      total: 1240,
+      newAdmissions: 28,
+    },
+    teachers: {
+      total: 86,
+    },
+    classes: {
+      total: 44,
+    },
+    attendance: {
+      date: today.toISOString(),
+      today: {
+        present: 1182,
+        absent: 46,
+        late: 12,
+      },
+      teachers: {
+        present: 73,
+        absent: 4,
+        late: 2,
+      },
+    },
+    upcomingExams: [
+      {
+        _id: 'exam-midterm',
+        name: 'Midterm Exams',
+        startDate: examStart.toISOString(),
+        endDate: examEnd.toISOString(),
+        schedule: [{ startTime: '09:00 AM', endTime: '12:00 PM' }],
+      },
+      {
+        _id: 'quiz-math',
+        name: 'Math Quiz',
+        startDate: quizDate.toISOString(),
+        endDate: quizDate.toISOString(),
+        schedule: [{ startTime: '10:30 AM', endTime: '11:30 AM' }],
+      },
+    ],
+  }
+}
+
+const ANNOUNCEMENT_ICON_MAP = {
+  urgent: { icon: BellRing, iconStyles: 'bg-rose-100 text-rose-500' },
+  high: { icon: BellRing, iconStyles: 'bg-amber-100 text-amber-600' },
+  exam: { icon: FileText, iconStyles: 'bg-blue-100 text-blue-600' },
+  holiday: { icon: CalendarDays, iconStyles: 'bg-green-100 text-green-600' },
+  event: { icon: CalendarDays, iconStyles: 'bg-sky-100 text-sky-600' },
+  fee: { icon: FileText, iconStyles: 'bg-amber-100 text-amber-600' },
+  general: { icon: ClipboardList, iconStyles: 'bg-slate-100 text-slate-600' },
+}
+
+const DUMMY_FEE_CHART = buildDummyFeeChart(FEE_CHART_MONTHS)
+const DUMMY_ANNOUNCEMENTS = buildDummyAnnouncements()
+const DUMMY_STATS = buildDummyStats()
 
 const Dashboard = () => {
   const navigate = useNavigate()
   const { user } = useAuthStore()
-  const [currentMonth, setCurrentMonth] = useState(new Date(2024, 6, 1))
-  const [selectedDate, setSelectedDate] = useState(new Date(2024, 6, 6))
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState(new Date())
   const [attendanceTab, setAttendanceTab] = useState('students')
   const [feeTooltip, setFeeTooltip] = useState({
     visible: false,
@@ -137,7 +190,7 @@ const Dashboard = () => {
   })
   const feeChartRef = useRef(null)
 
-  const { data: stats, isLoading } = useQuery({
+  const { data: statsRaw, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
       const response = await dashboardAPI.getStats()
@@ -145,22 +198,44 @@ const Dashboard = () => {
     },
   })
 
+  const { data: feeChartRaw } = useQuery({
+    queryKey: ['dashboard-fee-chart', FEE_CHART_MONTHS],
+    queryFn: async () => {
+      const response = await dashboardAPI.getFeeChart({ months: FEE_CHART_MONTHS })
+      return response.data.data || []
+    },
+  })
+
+  const { data: announcementsRaw } = useQuery({
+    queryKey: ['dashboard-announcements'],
+    queryFn: async () => {
+      const response = await communicationAPI.getAnnouncements({ isPublished: true })
+      return response.data.data || []
+    },
+  })
+
+  const shouldUseDummyStats = !statsRaw || Object.keys(statsRaw).length === 0
+  const stats = shouldUseDummyStats ? DUMMY_STATS : statsRaw
+  const feeChartSource = feeChartRaw?.length ? feeChartRaw : DUMMY_FEE_CHART
+  const announcementsSource = announcementsRaw?.length ? announcementsRaw : DUMMY_ANNOUNCEMENTS
+
   const fullName = [user?.profile?.firstName, user?.profile?.lastName].filter(Boolean).join(' ') || 'Admin'
-  const studentsCount = stats?.students?.total ?? 400
-  const teachersCount = stats?.teachers?.total ?? 400
-  const classesCount = stats?.classes?.total ?? 400
-  const newStudents = stats?.students?.newAdmissions ?? 10
+  const studentsCount = stats?.students?.total ?? 0
+  const teachersCount = stats?.teachers?.total ?? 0
+  const classesCount = stats?.classes?.total ?? 0
+  const newStudents = stats?.students?.newAdmissions ?? 0
+  const updatedDate = stats?.attendance?.date ? new Date(stats.attendance.date) : new Date()
 
   const studentAttendance = {
-    present: stats?.attendance?.today?.present ?? 28,
-    absent: stats?.attendance?.today?.absent ?? 1,
-    late: stats?.attendance?.today?.late ?? 1,
+    present: stats?.attendance?.today?.present ?? 0,
+    absent: stats?.attendance?.today?.absent ?? 0,
+    late: stats?.attendance?.today?.late ?? 0,
   }
 
   const teacherAttendance = {
-    present: stats?.teachers?.today?.present ?? 24,
-    absent: stats?.teachers?.today?.absent ?? 2,
-    late: stats?.teachers?.today?.late ?? 1,
+    present: stats?.attendance?.teachers?.present ?? 0,
+    absent: stats?.attendance?.teachers?.absent ?? 0,
+    late: stats?.attendance?.teachers?.late ?? 0,
   }
 
   const attendancePanelData = useMemo(() => {
@@ -169,28 +244,113 @@ const Dashboard = () => {
     return {
       students: {
         stats: [
-          { label: 'Emergency', value: formatSmallValue(studentAttendance.present) },
+          { label: 'Present', value: formatSmallValue(studentAttendance.present) },
           { label: 'Absent', value: formatSmallValue(studentAttendance.absent) },
           { label: 'Late', value: formatSmallValue(studentAttendance.late) },
         ],
-        presentTotal: stats?.students?.total ?? 3610,
-        absentTotal: Math.max(studentAttendance.absent, 44),
+        presentTotal: studentAttendance.present,
+        absentTotal: studentAttendance.absent,
       },
       teachers: {
         stats: [
-          { label: 'Emergency', value: formatSmallValue(teacherAttendance.present) },
+          { label: 'Present', value: formatSmallValue(teacherAttendance.present) },
           { label: 'Absent', value: formatSmallValue(teacherAttendance.absent) },
           { label: 'Late', value: formatSmallValue(teacherAttendance.late) },
         ],
-        presentTotal: stats?.teachers?.total ?? 540,
-        absentTotal: Math.max(teacherAttendance.absent, 12),
+        presentTotal: teacherAttendance.present,
+        absentTotal: teacherAttendance.absent,
       },
     }
-  }, [stats, studentAttendance, teacherAttendance])
+  }, [studentAttendance, teacherAttendance])
 
   const activeAttendanceData = attendancePanelData[attendanceTab]
   const donutTotal = activeAttendanceData.presentTotal + activeAttendanceData.absentTotal
   const presentRingAngle = donutTotal > 0 ? (activeAttendanceData.presentTotal / donutTotal) * 360 : 0
+
+  const feeChartData = useMemo(() => {
+    const baseline = buildEmptyFeeChart(FEE_CHART_MONTHS)
+    if (!feeChartSource.length) {
+      return baseline
+    }
+
+    const valueMap = new Map()
+    feeChartSource.forEach((entry) => {
+      const date = new Date(entry._id.year, entry._id.month - 1, 1)
+      const key = format(date, 'MMM yy')
+      const collectedInLakh = Number((entry.totalCollected / 100000).toFixed(1))
+      valueMap.set(key, collectedInLakh)
+    })
+
+    return baseline.map((item) => ({
+      ...item,
+      collectedFee: valueMap.get(item.label) ?? 0,
+    }))
+  }, [feeChartSource])
+
+  const feeChartMax = useMemo(
+    () => Math.max(...feeChartData.map((item) => item.collectedFee), 1),
+    [feeChartData]
+  )
+  const feeTicks = useMemo(() => buildYAxisTicks(feeChartMax), [feeChartMax])
+
+  const announcements = useMemo(() => {
+    if (!announcementsSource.length) return []
+
+    return announcementsSource.slice(0, 4).map((item) => {
+      const priorityKey = item.priority === 'urgent' ? 'urgent' : item.priority
+      const typeKey = item.type || 'general'
+      const styleKey = ANNOUNCEMENT_ICON_MAP[priorityKey] ? priorityKey : typeKey
+      const { icon, iconStyles } = ANNOUNCEMENT_ICON_MAP[styleKey] || ANNOUNCEMENT_ICON_MAP.general
+      const publishDate = item.publishDate ? new Date(item.publishDate) : new Date()
+      const expiryDate = item.expiryDate ? new Date(item.expiryDate) : null
+      const daysLeft = expiryDate
+        ? `${Math.max(1, Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24)))} Days`
+        : null
+
+      return {
+        id: item._id || item.id,
+        title: item.title,
+        date: format(publishDate, 'dd MMM yyyy'),
+        daysLeft,
+        icon,
+        iconStyles,
+      }
+    })
+  }, [announcementsSource])
+
+  const upcomingEvents = useMemo(() => {
+    const exams = stats?.upcomingExams ?? []
+    if (!exams.length) return []
+
+    const accents = ['border-cyan-500', 'border-blue-500', 'border-rose-500', 'border-emerald-500']
+    const iconStyles = ['bg-sky-100 text-sky-600', 'bg-indigo-100 text-indigo-600', 'bg-rose-100 text-rose-500']
+
+    return exams.map((exam, index) => {
+      const startDate = exam.startDate ? new Date(exam.startDate) : new Date()
+      const endDate = exam.endDate ? new Date(exam.endDate) : startDate
+      const sameDay = isSameDay(startDate, endDate)
+      const dateLabel = sameDay
+        ? format(startDate, 'dd MMM yyyy')
+        : `${format(startDate, 'dd MMM yyyy')} - ${format(endDate, 'dd MMM yyyy')}`
+
+      const firstSchedule = exam.schedule?.[0]
+      const timeLabel = firstSchedule?.startTime
+        ? `${firstSchedule.startTime}${firstSchedule.endTime ? ` - ${firstSchedule.endTime}` : ''}`
+        : null
+
+      return {
+        id: exam._id || `${exam.name}-${index}`,
+        title: exam.name || 'Exam Schedule',
+        date: dateLabel,
+        time: timeLabel,
+        rawDateKey: format(startDate, 'yyyy-MM-dd'),
+        accent: accents[index % accents.length],
+        icon: FileText,
+        iconStyles: iconStyles[index % iconStyles.length],
+        attendees: [],
+      }
+    })
+  }, [stats])
 
   const calendarDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 })
@@ -198,7 +358,9 @@ const Dashboard = () => {
     return eachDayOfInterval({ start, end })
   }, [currentMonth])
 
-  const eventDateSet = useMemo(() => new Set(CALENDAR_HIGHLIGHT_DATES), [])
+  const eventDateSet = useMemo(() => {
+    return new Set(upcomingEvents.map((event) => event.rawDateKey))
+  }, [upcomingEvents])
 
   const handleFeeChartMouseMove = (chartState) => {
     if (!chartState?.activePayload?.length || !chartState?.activeCoordinate) {
@@ -206,7 +368,6 @@ const Dashboard = () => {
       return
     }
 
-    const totalEntry = chartState.activePayload.find((item) => item.dataKey === 'totalFee')
     const collectedEntry = chartState.activePayload.find((item) => item.dataKey === 'collectedFee')
     const containerWidth = feeChartRef.current?.clientWidth ?? 0
     const containerHeight = feeChartRef.current?.clientHeight ?? 0
@@ -221,7 +382,7 @@ const Dashboard = () => {
       x: nextX,
       y: nextY,
       label: chartState.activeLabel ?? '',
-      totalFee: Number(totalEntry?.value ?? totalEntry?.payload?.totalFee ?? 0),
+      totalFee: 0,
       collectedFee: Number(collectedEntry?.value ?? collectedEntry?.payload?.collectedFee ?? 0),
     })
   }
@@ -260,7 +421,7 @@ const Dashboard = () => {
           <p className="flex items-center gap-2 text-xs text-blue-100 sm:text-sm">
             <RefreshCw className="h-4 w-4" />
             Updated Recently on{' '}
-            {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+            {format(updatedDate, 'dd MMM yyyy')}
           </p>
         </div>
       </section>
@@ -284,7 +445,7 @@ const Dashboard = () => {
             <div>
               <h3 className="text-base font-semibold text-gray-900">Total Teachers</h3>
               <p className="mt-1 text-2xl font-bold text-gray-900">{teachersCount}</p>
-              <p className="text-sm text-gray-700">10 this month</p>
+              <p className="text-sm text-gray-700">Active Teachers</p>
             </div>
             <div className="rounded-lg bg-green-500 p-2.5">
               <GraduationCap className="h-6 w-6 text-white" />
@@ -312,15 +473,14 @@ const Dashboard = () => {
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
               <h3 className="text-base font-semibold text-slate-800">Fees Collection</h3>
               <button className="inline-flex items-center gap-1 text-xs text-slate-600" >
-              
-                Last 8 Quarter
+                Last {FEE_CHART_MONTHS} Months
               </button>
             </div>
             <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
               <div ref={feeChartRef} className="relative h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={FEE_CHART_DATA}
+                    data={feeChartData}
                     margin={{ top: 8, right: 10, left: 4, bottom: 0 }}
                     barGap={-40}
                     barCategoryGap={24}
@@ -329,7 +489,7 @@ const Dashboard = () => {
                   >
                     <CartesianGrid vertical={false} stroke="#e2e8f0" strokeDasharray="3 3" />
                     <XAxis
-                      dataKey="quarter"
+                      dataKey="label"
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 11, fill: '#64748b' }}
@@ -338,13 +498,12 @@ const Dashboard = () => {
                       axisLine={false}
                       tickLine={false}
                       width={42}
-                      ticks={FEE_TICKS}
-                      domain={[0, 60]}
+                      ticks={feeTicks}
+                      domain={[0, feeTicks[feeTicks.length - 1]]}
                       tickFormatter={(value) => `${value}L`}
                       tick={{ fontSize: 11, fill: '#64748b' }}
                     />
                     <Tooltip cursor={false} content={() => null} />
-                    <Bar dataKey="totalFee" fill="#cbd5e1" radius={[6, 6, 0, 0]} barSize={40} />
                     <Bar dataKey="collectedFee" fill="#2563eb" radius={[6, 6, 0, 0]} barSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -358,13 +517,6 @@ const Dashboard = () => {
                 >
                   <p className="text-[11px] font-semibold text-slate-800">{feeTooltip.label}</p>
                   <div className="mt-1 space-y-1">
-                    <p className="flex items-center justify-between gap-3 text-[11px] text-slate-700">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="h-2 w-2 rounded-full bg-slate-300" />
-                        Total
-                      </span>
-                      <span className="font-semibold">{feeTooltip.totalFee}L</span>
-                    </p>
                     <p className="flex items-center justify-between gap-3 text-[11px] text-slate-700">
                       <span className="inline-flex items-center gap-1">
                         <span className="h-2 w-2 rounded-full bg-blue-500" />
@@ -452,32 +604,38 @@ const Dashboard = () => {
                 </button>
               </div>
               <div className="divide-y divide-slate-200 px-4">
-                {ANNOUNCEMENTS.map((item) => {
-                  const Icon = item.icon
+                {announcements.length === 0 ? (
+                  <div className="py-6 text-center text-sm text-slate-500">
+                    No announcements available.
+                  </div>
+                ) : (
+                  announcements.map((item) => {
+                    const Icon = item.icon
 
-                  return (
-                    <article key={item.id} className="flex items-center gap-3 py-4">
-                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${item.iconStyles}`}>
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="text-lg font-semibold leading-snug text-slate-800">{item.title}</h4>
-                        <p className="mt-1 flex items-center gap-1 text-sm text-slate-500">
-                          <CalendarDays className="h-3.5 w-3.5" />
-                          Added on : {item.date}
-                        </p>
-                      </div>
-                      {item.daysLeft ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
-                          <Clock3 className="h-3.5 w-3.5" />
-                          {item.daysLeft}
-                        </span>
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-slate-500" />
-                      )}
-                    </article>
-                  )
-                })}
+                    return (
+                      <article key={item.id} className="flex items-center gap-3 py-4">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${item.iconStyles}`}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-lg font-semibold leading-snug text-slate-800">{item.title}</h4>
+                          <p className="mt-1 flex items-center gap-1 text-sm text-slate-500">
+                            <CalendarDays className="h-3.5 w-3.5" />
+                            Added on : {item.date}
+                          </p>
+                        </div>
+                        {item.daysLeft ? (
+                          <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-700">
+                            <Clock3 className="h-3.5 w-3.5" />
+                            {item.daysLeft}
+                          </span>
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-slate-500" />
+                        )}
+                      </article>
+                    )
+                  })
+                )}
               </div>
             </section>
           </div>
@@ -550,47 +708,53 @@ const Dashboard = () => {
             <div>
               <h5 className="text-2xl font-semibold text-slate-800">Upcoming Events</h5>
               <div className="mt-3 space-y-3">
-                {UPCOMING_EVENTS.map((event) => {
-                  const EventIcon = event.icon
+                {upcomingEvents.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
+                    No upcoming events available.
+                  </div>
+                ) : (
+                  upcomingEvents.map((event) => {
+                    const EventIcon = event.icon
 
-                  return (
-                    <article key={event.id} className={`border-l-4 ${event.accent} rounded-r-xl bg-white px-4 py-3 shadow-sm`}>
-                      <div className="flex items-center gap-3">
-                        <div className={`flex h-11 w-11 items-center justify-center rounded-lg ${event.iconStyles}`}>
-                          <EventIcon className="h-5 w-5" />
+                    return (
+                      <article key={event.id} className={`border-l-4 ${event.accent} rounded-r-xl bg-white px-4 py-3 shadow-sm`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-11 w-11 items-center justify-center rounded-lg ${event.iconStyles}`}>
+                            <EventIcon className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h6 className="text-xl font-semibold text-slate-800">{event.title}</h6>
+                            <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
+                              <CalendarDays className="h-3.5 w-3.5" />
+                              {event.date}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <h6 className="text-xl font-semibold text-slate-800">{event.title}</h6>
-                          <p className="mt-0.5 flex items-center gap-1 text-sm text-slate-500">
-                            <CalendarDays className="h-3.5 w-3.5" />
-                            {event.date}
-                          </p>
-                        </div>
-                      </div>
 
-                      {event.time && (
-                        <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3">
-                          <p className="flex items-center gap-1 text-sm text-slate-500">
-                            <Clock3 className="h-3.5 w-3.5" />
-                            {event.time}
-                          </p>
-                          {event.attendees.length > 0 && (
-                            <div className="flex -space-x-2">
-                              {event.attendees.map((name) => (
-                                <span
-                                  key={`${event.id}-${name}`}
-                                  className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-200 text-[10px] font-semibold text-slate-700"
-                                >
-                                  {name}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </article>
-                  )
-                })}
+                        {event.time && (
+                          <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3">
+                            <p className="flex items-center gap-1 text-sm text-slate-500">
+                              <Clock3 className="h-3.5 w-3.5" />
+                              {event.time}
+                            </p>
+                            {event.attendees.length > 0 && (
+                              <div className="flex -space-x-2">
+                                {event.attendees.map((name) => (
+                                  <span
+                                    key={`${event.id}-${name}`}
+                                    className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-slate-200 text-[10px] font-semibold text-slate-700"
+                                  >
+                                    {name}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </article>
+                    )
+                  })
+                )}
               </div>
             </div>
           </div>
