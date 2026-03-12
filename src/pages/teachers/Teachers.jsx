@@ -8,8 +8,13 @@ import {
   Printer,
   Search,
   ArrowDownUp,
+  Plus
 } from 'lucide-react'
 import { toast } from 'sonner'
+import dotsVertical from '@/assets/dotsVertical.svg'
+import fileExport2 from '@/assets/fileExport2.svg'
+import printer from '@/assets/printer.svg'
+import SortVector from '@/assets/SortVector.svg'
 
 const TEACHERS_STORAGE_KEY = 'sms_teachers'
 
@@ -332,31 +337,34 @@ const Teachers = () => {
   }
 
   return (
-    <div className="h-full space-y-4 overflow-y-auto pr-1">
+    <div className="h-full space-y-4 overflow-y-auto pr-1 ">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Teachers</h1>
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => handlePrintList(filteredTeachers)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d4d9e4] bg-white text-[#55637f] transition hover:bg-slate-50"
+            className="inline-flex h-9 w-9 items-center justify-center text-[#55637f] transition hover:bg-slate-50"
             aria-label="Print teachers"
           >
-            <Printer className="h-4 w-4" />
+            <img src={printer} alt="Printer Logo" />
+            {/* <Printer className="h-4 w-4" /> */}
           </button>
           <button
             type="button"
             onClick={() => handleExport(filteredTeachers)}
             className="inline-flex items-center gap-2 rounded-lg bg-[#dce1eb] px-4 py-2 text-sm font-semibold text-[#475372] transition hover:bg-[#ced5e4]"
           >
-            <FileDown className="h-4 w-4" />
+            {/* <FileDown className="h-4 w-4" /> */}
+            <img src={fileExport2} alt="Export" className="h-4 w-4" /> 
             Export
           </button>
           <Link
             to="/teachers/add"
             className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
           >
-            <PlusCircle className="h-4 w-4" />
+            <Plus  className="text-primary-500 bg-white rounded w-3 h-3"/>
+            {/* <PlusCircle className="h-4 w-4" /> */}
             Add Teacher
           </Link>
         </div>
@@ -438,7 +446,8 @@ const Teachers = () => {
               onClick={handleSortToggle}
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-4 text-sm font-medium text-[#55637f] transition hover:bg-slate-50"
             >
-              <ArrowDownUp className="h-4 w-4" />
+              {/* <ArrowDownUp className="h-4 w-4" /> */}
+              <img src ={SortVector}   alt="sorting icon" className ="w-4 h-4"/>
               Sort by {sortOrder === 'az' ? 'A-Z' : 'Z-A'}
             </button>
           </div>
@@ -450,10 +459,10 @@ const Teachers = () => {
           {filteredTeachers.map((teacher) => (
             <article
               key={teacher.id}
-              className="overflow-hidden rounded-xl border border-[#e0e4ea] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.04)]"
+              className="overflow-hidden rounded shadow-lg bg-white"
             >
               <header className="relative flex items-center justify-between border-b border-[#e6e9ef] px-5 py-3">
-                <p className="text-lg font-medium text-primary-600">ID.{teacher.id}</p>
+                <p className="text-base font-medium text-primary-600">ID.{teacher.id}</p>
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-sm font-semibold text-green-700">
                     <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
@@ -467,7 +476,8 @@ const Teachers = () => {
                     className="rounded-lg p-1 text-slate-500 transition hover:bg-slate-100"
                     aria-label={`More actions for ${teacher.name}`}
                   >
-                    <MoreVertical className="h-4 w-4" />
+                    {/* <MoreVertical className="h-4 w-4" /> */}
+                    <img src={dotsVertical} alt="Vertical Dots " />
                   </button>
                   {activeMenuId === teacher.id && (
                     <div className="absolute right-4 top-12 z-10 w-40 rounded-lg border border-[#d4d8e3] bg-white py-1 shadow-lg">
@@ -514,18 +524,18 @@ const Teachers = () => {
                     {teacher.initials}
                   </div>
                   <div>
-                    <p className="text-xl font-bold leading-none text-[#263355]">{teacher.name}</p>
-                    <p className="mt-1 text-sm text-[#5a6780]">{teacher.classLabel}</p>
+                    <p className="text-base font-semibold leading-none text-[#263355]">{teacher.name}</p>
+                    <p className="mt-1 text-base text-[#5a6780]">{teacher.classLabel}</p>
                   </div>
                 </div>
 
                 <div>
                   <p className="text-sm text-[#727d93]">Email</p>
-                  <p className="text-lg font-medium text-[#2e3b59]">{teacher.email}</p>
+                  <p className="text-base  text-[#2e3b59]">{teacher.email}</p>
                 </div>
                 <div>
                   <p className="text-sm text-[#727d93]">Phone</p>
-                  <p className="text-lg font-medium text-[#2e3b59]">{teacher.phone}</p>
+                  <p className="text-base  text-[#2e3b59]">{teacher.phone}</p>
                 </div>
               </div>
 

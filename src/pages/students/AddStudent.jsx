@@ -26,8 +26,8 @@ const AddStudent = () => {
 
   return (
     <div className="space-y-6 ">
-      <div className="flex flex-wrap items-center gap-3 bg-gray-50">
-        <Link to="/students" className="rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-gray-50">
+      <div className="flex flex-wrap items-center gap-3 ">
+        <Link to="/students" className="rounded-lg border border-gray-200 p-2 text-gray-600 bg-white hover:bg-gray-50">
           {/* <ArrowLeft className="h-4 w-4" /> */}
           <img src={Icon} alt="Back Icon" />
         </Link>

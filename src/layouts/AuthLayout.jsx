@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import logo from '@/assets/logo.svg'
@@ -9,16 +10,24 @@ const AuthLayout = () => {
   const location = useLocation()
   const isRegisterPage = location.pathname === '/register'
 
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'auto'
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [])
+
   if (token) {
     return <Navigate to="/" replace />
   }
 
   return (
-    <div className='grid grid-cols-[30%_70%]'>
+    <div className='grid min-h-screen grid-cols-[30%_70%]'>
       <div >
         <img src="./src/Assets/loginSignup.png" alt="Login/Signup" className="w-full h-full object-cover" />
       </div>
-      <div className="min-h-screen bg-gradient-to-b from-[#ffff] to-[#506EE4] flex items-center justify-center p-4 ">
+      <div className="min-h-screen overflow-y-auto bg-gradient-to-b from-[#ffff] to-[#506EE4] flex items-center justify-center p-4 ">
       <div className="w-full max-w-lg  ">
         <div className="text-center flex flex-col items-center justify-center gap-4 mb-10 ">
           <div className="flex items-center justify-center gap-3">

@@ -15,24 +15,32 @@ import {
   Settings,
 } from 'lucide-react'
 import BookLogo1 from '@/assets/BookLogo1.png'
+// import Admission from '@/assets/Admission.svg'
 import { useAuthStore } from '@/store/authStore'
+
 
 const DashboardLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const isWelcomePage = location.pathname === '/'
+  const hideSidebar =
+    location.pathname === '/students/add' ||
+    location.pathname.startsWith('/students/') ||
+    location.pathname === '/teachers/add' ||
+    location.pathname.startsWith('/teachers/')
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     {
       name: 'Admissions',
-      icon: FileText,
+      icon: BookCopy,
       children: [
-        { name: 'Admission Form', href: '/students/add' },
-        { name: 'Admissions List', href: '/students' },
+        { name: 'Admission Form', href: 'admissions/form' },
+        { name: 'Admissions List', href: 'admissions/list' },
       ],
     },
+
     { name: 'Students', href: 'students', icon: Users },
     { name: 'Teachers', href: 'teachers', icon: GraduationCap },
     {
@@ -68,6 +76,9 @@ const DashboardLayout = () => {
         { name: 'Payments', href: '/fees/payments' },
       ],
     },
+    { name: 'Certificates', href: '/certificates',icon: FileText},
+    { name: 'Whatsapp', href: '/communication/announcements', icon: Bell },
+    { name: 'Users', href: '/users', icon: User },
   ]
 
   const fullName =
@@ -158,12 +169,14 @@ const DashboardLayout = () => {
             <div className="flex h-full items-center justify-between px-10">
               <div className="flex items-center gap-3">
                 <Link to="/dashboard" className="flex items-center gap-3">
-                  <BookOpen className="h-7 w-7 text-gray-900" />
-                  <span className="text-2xl font-bold leading-none text-gray-900">SMS</span>
+                  {/* <BookOpen className="h-7 w-7 text-gray-900" /> */}
+                  <img src={BookLogo1} alt="Book Logo" className='w-14 h-12'/>
+                  <span className="text-xl font-semibold leading-tight text-gray-900  ">School Management 
+                    <br /> System</span>
                 </Link>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <button className="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100">
                   <Bell className="h-6 w-6" />
                   <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
@@ -185,25 +198,27 @@ const DashboardLayout = () => {
           </header>
 
           {/* Desktop sidebar */}
-          <aside className="fixed bottom-0 left-0 top-[68px] flex w-[240px] flex-col border-r border-gray-300 bg-[#f5f5f5]">
-            <nav className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
-              {navigation.map((item) => (
-                <NavLink key={item.name} item={item} />
-              ))}
-            </nav>
-            <div className="border-t border-gray-300 p-4">
-              <Link
-                to="/settings/profile"
-                className="flex items-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-900 hover:bg-gray-50"
-              >
-                <Settings className="h-5 w-5" />
-                Settings
-              </Link>
-            </div>
-          </aside>
+          {!hideSidebar && (
+            <aside className="fixed bottom-0 left-0 top-[68px] flex w-[240px] flex-col border-r border-gray-300 bg-[#f5f5f5]">
+              <nav className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
+                {navigation.map((item) => (
+                  <NavLink key={item.name} item={item} />
+                ))}
+              </nav>
+              <div className="border-t border-gray-300 bg-white p-4 flex items-center">
+                <Settings className="h-6 w-6" />
+                <Link
+                  to="/settings/school"
+                  className="flex items-center gap-3 rounded-lg   px-4 py-3 text-2xl font-semibold text-gray-900 hover:bg-gray-50 focus:text-primary-500"
+                >
+                  Settings
+                </Link>
+              </div>
+            </aside>
+          )}
 
           {/* Main content */}
-          <div className="pt-[68px] pl-[240px]">
+          <div className={`pt-[68px] ${hideSidebar ? 'pl-0' : 'pl-[240px]'}`}>
             <main className="h-[calc(100vh-68px)] overflow-auto p-5">
               <Outlet />
             </main>

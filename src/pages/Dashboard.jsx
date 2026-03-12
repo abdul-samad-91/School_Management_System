@@ -32,6 +32,11 @@ import {
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { communicationAPI, dashboardAPI } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import edit2 from '@/assets/edit2.svg'
+import users from '@/assets/users.svg'
+import book from '@/assets/book.svg'
+import collectedFee from '@/assets/collectedFee.svg'
+import totalFee from '@/assets/totalFee.svg'
 
 const FEE_CHART_MONTHS = 8
 const WEEK_DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -402,23 +407,25 @@ const Dashboard = () => {
   return (
     <div className="h-full overflow-y-auto space-y-4 pr-1">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-slate-800">Dashboard</h1>
         <button
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 rounded-lg bg-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-300"
+          className="inline-flex items-center gap-2 rounded bg-gray-300 px-6 py-2 text-sm font-medium text-slate-600 hover:bg-slate-300"
         >
-          <ChevronLeft className="h-4 w-4" />
+         <span className="border rounded-full border-black"> <ChevronLeft className="h-4 w-4 text-black" /></span>
           Back
         </button>
       </div>
 
-      <section className="rounded-lg bg-[#112b98] px-4 py-3 text-white">
+      <section className="rounded bg-[#112b98] px-4 py-3 text-white">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-xl font-bold">Welcome Back, Mr. {fullName}</h2>
-            <p className="mt-1 text-sm text-blue-100">Have a Good day at work</p>
+            <h2 className="text-2xl font-bold flex items-center justify-center gap-3">Welcome Back, Mr. {fullName} 
+              <span className="bg-gray-800 p-1 rounded "><img src={edit2} alt="image for edit" className="cursor-pointer" /></span>
+            </h2>
+            <p className="mt-1 text-sm text-white">Have a Good day at work</p>
           </div>
-          <p className="flex items-center gap-2 text-xs text-blue-100 sm:text-sm">
+          <p className="flex items-center gap-2 text-xs text-white sm:text-sm">
             <RefreshCw className="h-4 w-4" />
             Updated Recently on{' '}
             {format(updatedDate, 'dd MMM yyyy')}
@@ -428,40 +435,42 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         <article className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-base font-semibold text-gray-900">Total Students</h3>
+          <div className="flex items-center justify-between py-4 px-6">
+            <div className="flex flex-col gap-3">
+              <h3 className="text-xl font-semibold text-gray-900">Total Students</h3>
               <p className="mt-1 text-2xl font-bold text-gray-900">{studentsCount}</p>
-              <p className="text-sm text-gray-700">{newStudents} this month</p>
+              <p className="text-base text-gray-700">{newStudents} this month</p>
             </div>
             <div className="rounded-lg bg-blue-500 p-2.5">
-              <Users className="h-6 w-6 text-white" />
+              {/* <Users className="h-6 w-6 text-white" /> */}
+              <img src={users} alt="Users Icon" />
             </div>
           </div>
         </article>
 
         <article className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between py-4 px-6">
+            <div className="flex flex-col gap-3">
               <h3 className="text-base font-semibold text-gray-900">Total Teachers</h3>
               <p className="mt-1 text-2xl font-bold text-gray-900">{teachersCount}</p>
               <p className="text-sm text-gray-700">Active Teachers</p>
             </div>
             <div className="rounded-lg bg-green-500 p-2.5">
-              <GraduationCap className="h-6 w-6 text-white" />
+              <GraduationCap className="h-7 w-7 text-white" />
             </div>
           </div>
         </article>
 
         <article className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex items-center justify-between py-4 px-6">
+            <div className="flex flex-col gap-3">
               <h3 className="text-base font-semibold text-gray-900">Total Classes</h3>
               <p className="mt-1 text-2xl font-bold text-gray-900">{classesCount}</p>
               <p className="text-sm text-gray-700">Active Classes</p>
             </div>
             <div className="rounded-lg bg-indigo-700 p-2.5">
-              <BookOpen className="h-6 w-6 text-white" />
+              {/* <BookOpen className="h-6 w-6 text-white" /> */}
+              <img src={book} alt="" />
             </div>
           </div>
         </article>
@@ -473,9 +482,16 @@ const Dashboard = () => {
             <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
               <h3 className="text-base font-semibold text-slate-800">Fees Collection</h3>
               <button className="inline-flex items-center gap-1 text-xs text-slate-600" >
-                Last {FEE_CHART_MONTHS} Months
+                Last {FEE_CHART_MONTHS} Months 
               </button>
-            </div>
+
+                        </div>
+
+                    <div className="flex items-center justify-cente gap-3 ml-4  py-2">
+                      
+                      <p className="flex  items-center justify-center gap-2"> <img src={totalFee} alt="fee collected icon" className="text-gray-400" /> Total Fee</p>
+                      <p className="flex  items-center justify-center gap-2"> <img src={collectedFee} alt="fee collected icon" className="text-gray-400" /> Collected Fee</p>
+                    </div>
             <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
               <div ref={feeChartRef} className="relative h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -531,7 +547,7 @@ const Dashboard = () => {
           </section>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <section className="rounded-2xl border border-slate-200 bg-[#f4f5f8] shadow-sm">
+            <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
               <div className="border-b border-slate-300 px-4 pt-3">
                 <div className="flex items-center gap-5 text-sm font-semibold">
                   <button
@@ -572,14 +588,14 @@ const Dashboard = () => {
                   />
                   <div className="absolute inset-[62px] rounded-full bg-[#f4f5f8]" />
 
-                  <div className="absolute -left-5 top-3 rounded-full bg-white px-3 py-2 text-center shadow-lg shadow-slate-300/60">
-                    <p className="text-3xl font-bold leading-none text-slate-800">{activeAttendanceData.presentTotal}</p>
-                    <p className="mt-1 text-2xl text-slate-600">Present</p>
+                  <div className="absolute -left-8 top-3 rounded-full bg-white px-3 py-4 text-center shadow-lg shadow-slate-300/60 w-[6rem] h-[6rem]">
+                    <p className="text-2xl font-bold leading-none text-slate-800">{activeAttendanceData.presentTotal}</p>
+                    <p className="mt-1 text-xl text-slate-600">Present</p>
                   </div>
 
-                  <div className="absolute -right-6 top-1/2 -translate-y-1/2 rounded-full bg-white px-3 py-2 text-center shadow-lg shadow-slate-300/60">
-                    <p className="text-3xl font-bold leading-none text-slate-800">{activeAttendanceData.absentTotal}</p>
-                    <p className="mt-1 text-2xl text-slate-600">Absent</p>
+                  <div className="absolute -right-16 top-1/2 -translate-y-1/2 rounded-full bg-white px-3 py-4 text-center shadow-lg shadow-slate-300/60 w-[6rem] h-[6rem]">
+                    <p className="text-2xl font-bold leading-none text-slate-800">{activeAttendanceData.absentTotal}</p>
+                    <p className="mt-1 text-xl text-slate-600">Absent</p>
                   </div>
                 </div>
 

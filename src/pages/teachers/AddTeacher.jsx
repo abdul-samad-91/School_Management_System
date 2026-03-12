@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, PlusCircle, Image, Upload } from 'lucide-react'
+import Icons from '@/assets/Icons.svg'
 
 const createScheduleRow = (id) => ({
   id,
@@ -15,8 +16,9 @@ const DropZone = ({ title, helperText }) => {
     <div className="rounded-2xl border-2 border-dashed border-primary-400 bg-[#f8f9fd] px-5 py-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-start gap-3">
-          <div className="rounded-md bg-white p-2 text-[#58698d]">
-            <Image className="h-5 w-5" />
+          <div className=" p-2 text-[#58698d]">
+            {/* <Image className="h-5 w-5" /> */}
+            <img src={Icons} alt="" className='w-6 h-6'/>
           </div>
           <div>
             <p className="text-lg font-semibold text-[#3b4660]">{title}</p>
@@ -65,8 +67,8 @@ const AddTeacher = () => {
   }
 
   const inputStyles =
-    'h-12 w-full rounded-xl border border-[#d5d9e2] bg-white px-3 text-base text-[#2e3a58] outline-none transition placeholder:text-[#afb7c8] focus:border-primary-400'
-  const labelStyles = 'text-base font-medium leading-none text-[#1c2232]'
+    'h-12 w-full rounded-xl border-2 border-[#d5d9e2] bg-white px-3 text-base text-[#2e3a58] outline-none transition placeholder:text-[#afb7c8] focus:border-primary-400'
+  const labelStyles = 'text-lg font-medium leading-none text-[#1c2232]'
 
   return (
     <div className="h-full overflow-y-auto pb-4 pr-1">
@@ -78,7 +80,7 @@ const AddTeacher = () => {
           <ChevronLeft className="h-6 w-6" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Add New Teacher</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#253256]">Add New Teacher</h1>
           <p className="mt-1 text-base text-[#6f7890]">Students &nbsp; / &nbsp; Add Teacher</p>
         </div>
       </div>
@@ -87,7 +89,7 @@ const AddTeacher = () => {
         <div className="grid grid-cols-1 gap-3 2xl:grid-cols-[1.55fr_1fr]">
           <div className="space-y-3">
             <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
-              <h2 className="text-2xl font-bold leading-none text-[#11131a]">Personal Information</h2>
+              <h2 className="text-2xl font-semibold leading-none text-[#11131a]">Personal Information</h2>
 
               <div className="mt-5 grid grid-cols-1 gap-3 xl:grid-cols-3">
                 <label className="space-y-2">
@@ -105,7 +107,7 @@ const AddTeacher = () => {
                   <input
                     value={teacher.fullName}
                     onChange={(event) => updateTeacher('fullName', event.target.value)}
-                    placeholder="Type here"
+                    // placeholder="Type here"
                     className={inputStyles}
                   />
                 </label>
@@ -113,7 +115,7 @@ const AddTeacher = () => {
                 <label className="space-y-2">
                   <span className={labelStyles}>Date of Birth</span>
                   <input
-                    type="date"
+                    type="text"
                     value={teacher.dateOfBirth}
                     onChange={(event) => updateTeacher('dateOfBirth', event.target.value)}
                     className={inputStyles}

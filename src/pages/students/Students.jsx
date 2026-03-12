@@ -53,7 +53,7 @@ const students = [
     section: 'B',
     rollNo: '30',
     gender: 'Male',
-    fatherName: 'Hashim Khan',
+    fatherName: 'Hashim ',
     status: 'Active',
   },
   {
@@ -191,7 +191,7 @@ const Students = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-3 text-xs text-gray-500">
+                <div className="mt-4 grid grid-cols-3 gap-3 text-xs text-gray-500 ">
                   <div>
                     <p className="text-[11px] uppercase text-gray-900">Roll No</p>
                     <p className="text-sm text-gray-900">{student.rollNo}</p>
@@ -206,23 +206,25 @@ const Students = () => {
                   </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
+                <div className="mt-4 flex items-center justify-between border-t " >
+                  <div className="flex items-center gap-2 mt-4 ">
                     <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
                       {/* <Search className="h-4 w-4" /> */}
                       <img src={brandhiphat} alt="" className='w-5 h-5' />
                     </button>
                     <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
-                      <Phone className="h-4 w-4" />
+                      <Phone className="h-5 w-5" />
                     </button>
                     <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
-                      <Mail className="h-4 w-4" />
+                      <Mail className="h-5 w-5" />
                     </button>
                   </div>
-                  <button className="rounded-md bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200">
+                 
+                   <button className="rounded-md mt-4 bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200">
                    View Details
                   </button>
-                </div>
+                 </div>
+               
               </CardContent>
             </Card>
           )
