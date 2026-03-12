@@ -36,6 +36,8 @@ import Results from './pages/exams/Results'
 import FeeStructures from './pages/fees/FeeStructures'
 import FeePayments from './pages/fees/FeePayments'
 import Announcements from './pages/communication/Announcements'
+import Certificates from './pages/certificates/Certificates'
+import Whatsapp from './pages/communication/Whatsapp'
 import Users from './pages/users/Users'
 import SchoolProfile from './pages/settings/SchoolProfile'
 import Profile from './pages/settings/Profile'
@@ -114,6 +116,10 @@ function App() {
           
           {/* Communication */}
           <Route path="communication/announcements" element={<Announcements />} />
+          <Route path="whatsapp" element={<Whatsapp />} />
+
+          {/* Certificates */}
+          <Route path="certificates" element={<Certificates />} />
           
           {/* Users */}
           <Route path="users" element={<Users />} />

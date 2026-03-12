@@ -235,7 +235,7 @@ const FeeStructures = () => {
   }
 
   return (
-    <div className="h-full space-y-4 overflow-y-auto pr-1">
+    <div className="scrollbar-hide h-full space-y-4 overflow-y-auto pr-1">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Fees Structure</h1>

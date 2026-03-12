@@ -1,21 +1,18 @@
-import { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { 
   LayoutDashboard, 
   Users, 
   GraduationCap, 
   BookOpen, 
+  BookCopy,
   Calendar,
   ClipboardCheck,
   Coins,
   FileText,
-  Settings,
   LogOut,
   User,
   Bell,
-  MessageSquare,
-  Menu,
-  X,
+  Settings,
 } from 'lucide-react'
 import BookLogo1 from '@/assets/BookLogo1.png'
 import { useAuthStore } from '@/store/authStore'
@@ -25,34 +22,22 @@ const DashboardLayout = () => {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const isWelcomePage = location.pathname === '/'
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [logoutMenuOpen, setLogoutMenuOpen] = useState(false)
-
-  const displayName =
-    [user?.profile?.firstName, user?.profile?.lastName].filter(Boolean).join(' ') ||
-    user?.name ||
-    'User'
-  const roleLabel = user?.role?.replace(/_/g, ' ') || 'User'
-
-  const isRouteActive = (href) => location.pathname === href
-  const hideSidebar =
-    location.pathname === '/students/add' ||
-    (location.pathname.startsWith('/students/') && location.pathname !== '/students/add')
 
   const navigation = [
-    { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { name: 'Admission',
-       icon: Calendar,
-       children: [
-         { name: 'Admission Form', href: 'admissions/form' },
-         { name: 'Admission List', href: 'admissions/list' },
-       ]
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    {
+      name: 'Admissions',
+      icon: FileText,
+      children: [
+        { name: 'Admission Form', href: '/students/add' },
+        { name: 'Admissions List', href: '/students' },
+      ],
     },
     { name: 'Students', href: 'students', icon: Users },
     { name: 'Teachers', href: 'teachers', icon: GraduationCap },
     {
       name: 'Academic',
-      icon: BookOpen,
+      icon: BookCopy,
       children: [
         { name: 'Sessions', href: '/academic/sessions' },
         { name: 'Classes', href: '/academic/classes' },
@@ -79,59 +64,27 @@ const DashboardLayout = () => {
       name: 'Fees',
       icon: Coins,
       children: [
-        { name: 'Fees Structure', href: '/fees/structures' },
+        { name: 'Fee Structure', href: '/fees/structures' },
         { name: 'Payments', href: '/fees/payments' },
-      ]
+      ],
     },
-    { name: 'Whatsapp', href: '/communication/announcements', icon: MessageSquare },
-    ...(user?.role === 'super_admin' ? [{ name: 'Users', href: '/users', icon: User }] : []),
   ]
 
+  const fullName =
+    [user?.profile?.firstName, user?.profile?.lastName].filter(Boolean).join(' ') || 'Admin User'
+  const roleLabel = user?.role?.replace('_', ' ') || 'Admin'
+
+  const isRouteActive = (href) => {
+    if (href === '/dashboard') {
+      return location.pathname === '/dashboard' || location.pathname === '/'
+    }
+    return location.pathname === href
+  }
+
   const handleLogout = () => {
-    setLogoutMenuOpen(false)
     logout()
     navigate('/login')
   }
-
-  const HeaderRight = ({ compact = false }) => (
-    <div className={`flex items-center ${compact ? 'gap-2' : 'gap-4'}`}>
-      <button
-        className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100"
-        aria-label="Notifications"
-      >
-        <Bell className="h-5 w-5" />
-      </button>
-      <div className="flex items-center gap-2">
-        <div className="text-right leading-tight">
-          <div className="text-sm font-semibold text-gray-900">
-            {displayName}
-          </div>
-          <div className="text-xs text-gray-500 capitalize">{roleLabel}</div>
-        </div>
-        <User className="h-5 w-5 text-gray-700" />
-      </div>
-      <div className="relative">
-        <button
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-700 hover:bg-gray-100"
-          onClick={() => setLogoutMenuOpen((open) => !open)}
-          aria-label="Log out"
-        >
-          <LogOut className="h-5 w-5" />
-        </button>
-        {logoutMenuOpen && (
-          <div className="absolute right-0 mt-2 w-36 rounded-md border border-gray-200 bg-white shadow-lg">
-            <button
-              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              onClick={handleLogout}
-            >
-              {/* <LogOut className="h-4 w-4" /> */}
-              Log out
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
 
   const NavLink = ({ item }) => {
     const isActive = isRouteActive(item.href)
@@ -140,26 +93,30 @@ const DashboardLayout = () => {
       const parentActive = item.children.some((child) => isRouteActive(child.href))
 
       return (
-        <div className="space-y-2 ">
+        <div className="space-y-2">
           <div
-            className={`flex items-center px-3 py-2 text-sm font-semibold  ${
+            className={`flex items-center px-3 py-2 text-sm font-semibold ${
               parentActive ? 'text-gray-900' : 'text-gray-700'
             }`}
           >
-            {item.icon && <item.icon className="mr-3 h-5 w-5 text-gray-900" />}
-            {item.name}
+            {item.icon && (
+              <item.icon
+                className={`mr-3.5 h-6 w-6 shrink-0 ${parentActive ? 'text-blue-700' : 'text-gray-900'}`}
+              />
+            )}
+            <span>{item.name}</span>
           </div>
-          <div className="pl-11 space-y-1">
+          <div className="space-y-2.5 pl-12">
             {item.children.map((child) => {
               const childActive = isRouteActive(child.href)
               return (
                 <Link
                   key={child.name}
                   to={child.href}
-                  className={`block rounded-lg px-3 py-1.5 text-sm ${
+                  className={`block rounded-lg px-2 py-1.5 text-sm ${
                     childActive
-                      ? 'bg-primary-50 font-medium text-primary-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-100 font-semibold text-blue-700'
+                      : 'text-gray-800 hover:text-gray-900'
                   }`}
                 >
                   {child.name}
@@ -174,115 +131,85 @@ const DashboardLayout = () => {
     return (
       <Link
         to={item.href}
-        className={`flex items-center rounded-lg px-3 py-2 text-sm font-semibold ${
+        className={`flex items-center rounded-lg px-3 py-2 text-base font-semibold ${
           isActive
-            ? 'bg-primary-50 text-primary-700'
-            : 'text-gray-900 hover:bg-gray-100'
+            ? 'bg-blue-100 text-blue-700'
+            : 'text-gray-900 hover:text-gray-950'
         }`}
       >
-        {item.icon && <item.icon className="mr-3 h-5 w-5" />}
-        {item.name}
+        {item.icon && (
+          <item.icon className={`mr-3.5 h-6 w-6 shrink-0 ${isActive ? 'text-blue-700' : 'text-gray-900'}`} />
+        )}
+        <span>{item.name}</span>
       </Link>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 ">
-      {/* Mobile sidebar */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75" onClick={() => setSidebarOpen(false)} />
-          <div className="fixed inset-y-0 left-0 flex w-64 flex-col bg-white">
-            <div className="flex items-center justify-between h-16 px-4 border-b">
-              <span className="text-xl font-bold text-primary-600">SMS</span>
-              <button onClick={() => setSidebarOpen(false)}>
-                <X className="h-6 w-6" />
-              </button>
-            
-            </div>
-            <nav className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
-              {navigation.map((item) => (
-                <NavLink key={item.name} item={item} />
-              ))}
-            </nav>
-            <div className="p-4 border-t">
-              <Link
-                to="/settings/school"
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg"
-              >
-                <Settings className="mr-3 h-5 w-5" />
-                Settings
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop sidebar */}
-      {!hideSidebar && (
-        <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-64 lg:flex-col ">
-          <div className="flex flex-col flex-1 min-h-0 bg-white border-r ">
-            <div className="flex items-center justify-center h-16 px-4 border-b font-serif">
-              <img src={BookLogo1} alt="" className='w-14 h-12'/>
-              <span className="text-4xl font-bold ">SMS</span>
-            </div>
-            <nav className="flex-1 px-4 py-4 overflow-y-auto space-y-1">
-              {navigation.map((item) => (
-                <NavLink key={item.name} item={item} />
-              ))}
-            </nav>
-            <div className="p-4 border-t">
-              <Link
-                to="/settings/school"
-                className="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg"
-              >
-                <Settings className="mr-3 h-5 w-5" />
-                Settings
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop header */}
-      <div
-        className={`fixed top-0 right-0 z-30 hidden h-[64px] items-center justify-between border-b bg-white px-6 lg:flex ${
-          hideSidebar ? 'lg:left-0' : 'lg:left-[240px]'
-        }`}
-      >
-        {hideSidebar ? (
-          <div className="flex items-center gap-2 font-serif">
-            <img src={BookLogo1} alt="" className="h-14 w-16" />
-            <span className="text-3xl font-bold">SMS</span>
-          </div>
-        ) : (
-          <div />
-        )}
-        <HeaderRight />
-      </div>
-
-      {/* Mobile header */}
-      <div className="flex items-center justify-between h-16 px-4 bg-white border-b lg:hidden">
-        <button
-          className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100"
-          onClick={() => setSidebarOpen(true)}
-          aria-label="Open sidebar"
-        >
-          <Menu className="h-6 w-6" />
-        </button>
-        <div className="flex items-center gap-2 font-serif">
-          <img src={BookLogo1} alt="" className="h-7 w-7" />
-          <span className="text-lg font-semibold text-gray-900">SMS</span>
-        </div>
-        <HeaderRight compact />
-      </div>
-
-      {/* Main content */}
-      <div className={`pt-16 lg:pt-[68px] ${hideSidebar ? 'lg:pl-0' : 'lg:pl-[240px]'}`}>
-        <main className="h-[calc(100vh-68px)] overflow-auto px-10">
-          <Outlet/>
+    <div className="min-h-screen bg-[#ececec]">
+      {isWelcomePage ? (
+        <main className="h-screen overflow-auto p-6">
+          <Outlet />
         </main>
-      </div>
+      ) : (
+        <>
+          {/* Top navbar */}
+          <header className="fixed inset-x-0 top-0 z-40 h-[68px] border-b border-gray-300 bg-white">
+            <div className="flex h-full items-center justify-between px-10">
+              <div className="flex items-center gap-3">
+                <Link to="/dashboard" className="flex items-center gap-3">
+                  <BookOpen className="h-7 w-7 text-gray-900" />
+                  <span className="text-2xl font-bold leading-none text-gray-900">SMS</span>
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button className="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100">
+                  <Bell className="h-6 w-6" />
+                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+                </button>
+
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-gray-900">{fullName}</p>
+                  <p className="text-xs font-semibold capitalize text-gray-500">{roleLabel}</p>
+                </div>
+
+                <Link to="/settings/profile" className="rounded-lg p-2 text-gray-900 hover:bg-gray-100" title="Profile">
+                  <User className="h-6 w-6" />
+                </Link>
+                <button onClick={handleLogout} className="rounded-lg p-2 text-gray-900 hover:bg-gray-100" title="Logout">
+                  <LogOut className="h-6 w-6" />
+                </button>
+              </div>
+            </div>
+          </header>
+
+          {/* Desktop sidebar */}
+          <aside className="fixed bottom-0 left-0 top-[68px] flex w-[240px] flex-col border-r border-gray-300 bg-[#f5f5f5]">
+            <nav className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
+              {navigation.map((item) => (
+                <NavLink key={item.name} item={item} />
+              ))}
+            </nav>
+            <div className="border-t border-gray-300 p-4">
+              <Link
+                to="/settings/profile"
+                className="flex items-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-900 hover:bg-gray-50"
+              >
+                <Settings className="h-5 w-5" />
+                Settings
+              </Link>
+            </div>
+          </aside>
+
+          {/* Main content */}
+          <div className="pt-[68px] pl-[240px]">
+            <main className="h-[calc(100vh-68px)] overflow-auto p-5">
+              <Outlet />
+            </main>
+          </div>
+        </>
+      )}
     </div>
   )
 }

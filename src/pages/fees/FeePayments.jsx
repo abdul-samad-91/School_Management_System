@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
+  ArrowLeft,
   ChevronDown,
   Download,
   MoreVertical,
@@ -76,6 +78,7 @@ const buildPaginationItems = (currentPage, totalPages) => {
     items.push('right-ellipsis')
   }
 
+
   items.push(totalPages)
   return items
 }
@@ -87,6 +90,7 @@ const formatCompactAmount = (value) => {
     return `${formatted}L`
   }
 
+
   if (value >= 1000) {
     return `${Math.round(value / 1000)}k`
   }
@@ -95,6 +99,7 @@ const formatCompactAmount = (value) => {
 }
 
 const FeePayments = () => {
+  const navigate = useNavigate()
   const [payments, setPayments] = useState(INITIAL_PAYMENTS)
   const [selectedSession, setSelectedSession] = useState('')
   const [selectedMonth, setSelectedMonth] = useState('')
@@ -218,6 +223,14 @@ const FeePayments = () => {
     toast.info('Add student flow will be connected in the next step.')
   }
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+      return
+    }
+    navigate('/')
+  }
+
   const statsCards = [
     {
       title: 'Total Revenue',
@@ -250,11 +263,21 @@ const FeePayments = () => {
   ]
 
   return (
-    <div className="h-full space-y-4 overflow-y-auto pr-1">
+    <div className="scrollbar-hide h-full space-y-4 overflow-y-auto pr-1">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Fee Payments</h1>
-          <p className="mt-1 text-sm text-[#65708a]">Fees / Payments</p>
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#d9dde7] bg-white text-[#475372] transition hover:bg-[#eef1f6]"
+            aria-label="Go back"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Fee Payments</h1>
+            <p className="mt-1 text-sm text-[#65708a]">Fees / Payments</p>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -277,15 +300,15 @@ const FeePayments = () => {
         </div>
       </div>
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4 xl:justify-items-center">
         {statsCards.map((card) => (
           <article
             key={card.title}
-            className={`rounded-3xl border-2 px-6 py-7 shadow-[0_2px_8px_rgba(15,23,42,0.04)] ${card.panelClass}`}
+            className={`w-full xl:max-w-[350px] rounded-2xl border-2 px-5 py-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)] ${card.panelClass}`}
           >
-            <h2 className="text-3xl font-semibold leading-none text-[#111827]">{card.title}</h2>
-            <p className={`mt-6 text-5xl font-semibold leading-none ${card.valueClass}`}>{card.value}</p>
-            <p className="mt-3 text-2xl font-medium leading-none text-[#5f6268]">{card.subtitle}</p>
+            <h2 className="text-2xl font-semibold leading-none text-[#111827]">{card.title}</h2>
+            <p className={`mt-4 text-4xl font-semibold leading-none ${card.valueClass}`}>{card.value}</p>
+            <p className="mt-2 text-lg font-medium leading-none text-[#5f6268]">{card.subtitle}</p>
           </article>
         ))}
       </section>
