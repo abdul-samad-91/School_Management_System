@@ -8,8 +8,16 @@ import {
   PlusCircle,
   Search,
   Trash2,
+  Plus
+  ,
   X,
 } from 'lucide-react'
+import fileExport from '@/assets/fileExport.svg'
+import SortVector from '@/assets/SortVector.svg'
+import filterIcon from '@/assets/filterIcon.svg'
+
+
+
 
 const CLASS_TEMPLATES = [
   { id: 'C138038', name: 'I', section: 'A', students: 30, subjects: 3, status: 'Active' },
@@ -227,7 +235,7 @@ const Classes = () => {
     <div className="h-full space-y-4 overflow-y-auto pr-1">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Classes</h1>
+          <h1 className="text-3xl font-medium tracking-tight ">Classes</h1>
           <p className="mt-1 text-sm text-[#65708a]">Academic / Classes</p>
         </div>
 
@@ -236,7 +244,8 @@ const Classes = () => {
             type="button"
             className="inline-flex items-center gap-2 rounded-lg bg-[#dce1eb] px-4 py-2 text-sm font-semibold text-[#475372] transition hover:bg-[#ced5e4]"
           >
-            <Download className="h-4 w-4" />
+            {/* <Download className="h-4 w-4" /> */}
+            <img src={fileExport} alt="Export Icon" />
             Export
           </button>
           <button
@@ -244,7 +253,8 @@ const Classes = () => {
             onClick={openAddClassModal}
             className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
           >
-            <PlusCircle className="h-4 w-4" />
+            <Plus  className="h-3 w-3 bg-white text-primary-500 rounded "/>
+            {/* <PlusCircle className="h-4 w-4" /> */}
             Add Class
           </button>
         </div>
@@ -252,7 +262,7 @@ const Classes = () => {
 
       <section className="rounded-xl border border-[#d9dde7] bg-[#f2f3f5]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d9dde7] px-5 py-4">
-          <h2 className="text-2xl font-bold text-[#263355]">Class List</h2>
+          <h2 className="text-xl font-medium text-[#263355]">Class List</h2>
 
           <div className="flex flex-wrap items-center gap-2">
             <label className="relative min-w-[230px]">
@@ -270,7 +280,8 @@ const Classes = () => {
               type="button"
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-4 text-sm font-medium text-[#55637f] transition hover:bg-slate-50"
             >
-              <Filter className="h-4 w-4" />
+              {/* <Filter className="h-4 w-4" /> */}
+              <img src={filterIcon} alt="Filter icon" />
               Filter
             </button>
 
@@ -279,7 +290,8 @@ const Classes = () => {
               onClick={handleSortToggle}
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-4 text-sm font-medium text-[#55637f] transition hover:bg-slate-50"
             >
-              <ArrowDownUp className="h-4 w-4" />
+              {/* <ArrowDownUp className="h-4 w-4" /> */}
+              <img src ={SortVector} alt=""  />
               Sort By {sortOrder === 'az' ? 'A-Z' : 'Z-A'}
             </button>
           </div>
@@ -298,13 +310,13 @@ const Classes = () => {
                 <th className="w-12 px-4 py-3 text-left">
                   <input type="checkbox" className="h-4 w-4 rounded border-[#d5dbe7]" />
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">ID</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Class</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Section</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">No of Students</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">No of Subjects</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Action</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold ">ID </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold ">Class</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold ">Section</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold ">No of Students</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold ">No of Subjects</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold ">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold ">Action</th>
               </tr>
             </thead>
             <tbody className="bg-white">

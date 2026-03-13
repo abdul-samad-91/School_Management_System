@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, PlusCircle, Image, Upload } from 'lucide-react'
 import Icons from '@/assets/Icons.svg'
@@ -11,26 +11,58 @@ const createScheduleRow = (id) => ({
   subject: '',
 })
 
-const DropZone = ({ title, helperText }) => {
+const DropZone = ({ title, helperText, accept, multiple = false, selectedFiles, onFilesSelected }) => {
+  const inputRef = useRef(null)
+
+  const handleButtonClick = () => {
+    if (inputRef.current) {
+      inputRef.current.click()
+    }
+  }
+
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files || [])
+    onFilesSelected(files)
+  }
+
+  const selectedNames = selectedFiles
+    .map((file) => file.name)
+    .filter(Boolean)
   return (
     <div className="rounded-2xl border-2 border-dashed border-primary-400 bg-[#f8f9fd] px-5 py-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-start gap-3">
-          <div className=" p-2 text-[#58698d]">
+        <div className="flex items-start">
+          <div className=" p-2 text-[#58698d] ">
             {/* <Image className="h-5 w-5" /> */}
             <img src={Icons} alt="" className='w-6 h-6'/>
           </div>
           <div>
-            <p className="text-lg font-semibold text-[#3b4660]">{title}</p>
-            <p className="mt-1 text-sm text-[#7a8498]">{helperText}</p>
+            <p className="text-base font-semibold text-[#3b4660] sm:text-lg">{title}</p>
+            <p className="mt-1 text-xs text-[#7a8498] sm:text-sm">{helperText}</p>
           </div>
         </div>
-        <button
-          type="button"
-          className="inline-flex items-center rounded-lg bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
-        >
-          Upload
-        </button>
+        <div className="flex flex-col items-end gap-2">
+          <input
+            ref={inputRef}
+            type="file"
+            accept={accept}
+            multiple={multiple}
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={handleButtonClick}
+            className="inline-flex items-center rounded-lg bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+          >
+            Upload
+          </button>
+          {selectedNames.length > 0 && (
+            <div className="text-right text-xs text-[#6f7890]">
+              {multiple ? `${selectedNames.length} files selected` : selectedNames[0]}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -46,6 +78,8 @@ const AddTeacher = () => {
     phoneNumber: '',
     address: '',
   })
+  const [profilePhoto, setProfilePhoto] = useState(null)
+  const [documents, setDocuments] = useState([])
   const [scheduleRows, setScheduleRows] = useState([createScheduleRow(1), createScheduleRow(2)])
 
   const updateTeacher = (field, value) => {
@@ -67,8 +101,8 @@ const AddTeacher = () => {
   }
 
   const inputStyles =
-    'h-12 w-full rounded-xl border-2 border-[#d5d9e2] bg-white px-3 text-base text-[#2e3a58] outline-none transition placeholder:text-[#afb7c8] focus:border-primary-400'
-  const labelStyles = 'text-lg font-medium leading-none text-[#1c2232]'
+    'h-12 w-full rounded-2xl border-2 border-[#d5d9e2] bg-white px-3 text-sm text-[#2e3a58] outline-none transition placeholder:text-[#afb7c8] focus:border-primary-400 sm:text-base'
+  const labelStyles = 'text-base font-medium leading-none text-[#1c2232] sm:text-lg'
 
   return (
     <div className="h-full overflow-y-auto pb-4 pr-1">
@@ -80,16 +114,16 @@ const AddTeacher = () => {
           <ChevronLeft className="h-6 w-6" />
         </Link>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-[#253256]">Add New Teacher</h1>
-          <p className="mt-1 text-base text-[#6f7890]">Students &nbsp; / &nbsp; Add Teacher</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-[#253256] sm:text-3xl">Add New Teacher</h1>
+          <p className="mt-1 text-sm text-[#6f7890] sm:text-base">Students &nbsp; / &nbsp; Add Teacher</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid grid-cols-1 gap-3 2xl:grid-cols-[1.55fr_1fr]">
           <div className="space-y-3">
-            <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
-              <h2 className="text-2xl font-semibold leading-none text-[#11131a]">Personal Information</h2>
+            <section className="rounded-2xl border border-[#e0e3ea] bg-white p-5">
+              <h2 className="text-xl font-semibold leading-none text-[#11131a] sm:text-2xl">Personal Information</h2>
 
               <div className="mt-5 grid grid-cols-1 gap-3 xl:grid-cols-3">
                 <label className="space-y-2">
@@ -154,12 +188,15 @@ const AddTeacher = () => {
                 <DropZone
                   title="Drag And Drop Files Here Or Upload"
                   helperText="Accepted file types: JPG, SVG, PNG 120 x 120 (px)"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  selectedFiles={profilePhoto ? [profilePhoto] : []}
+                  onFilesSelected={(files) => setProfilePhoto(files[0] || null)}
                 />
               </div>
             </section>
 
-            <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
-              <h2 className="text-2xl font-bold leading-none text-[#11131a]">Contact Information</h2>
+            <section className="rounded-2xl border border-[#e0e3ea] bg-white p-5">
+              <h2 className="text-xl font-bold leading-none text-[#11131a] sm:text-2xl">Contact Information</h2>
 
               <div className="mt-5 grid grid-cols-1 gap-3 xl:grid-cols-2">
                 <label className="space-y-2">
@@ -192,13 +229,13 @@ const AddTeacher = () => {
           </div>
 
           <div className="space-y-3">
-            <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
+            <section className="rounded-2xl border border-[#e0e3ea] bg-white p-5">
               <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold leading-none text-[#11131a]">Schedule</h2>
+                <h2 className="text-xl font-bold leading-none text-[#11131a] sm:text-2xl">Schedule</h2>
                 <button
                   type="button"
                   onClick={addScheduleRow}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#cdd2df] bg-white text-[#576483] transition hover:bg-slate-50"
+                  className="inline-flex h-9 w-9 items-center justify-center  bg-white text-[#576483] transition hover:bg-slate-50"
                 >
                   <PlusCircle className="h-5 w-5" />
                 </button>
@@ -206,14 +243,14 @@ const AddTeacher = () => {
 
               <div className="mt-4 space-y-3">
                 {scheduleRows.map((row) => (
-                  <article key={row.id} className="rounded-2xl bg-[#ebedf1] p-3">
+                  <article key={row.id} className="rounded-2xl bg-gray-50 p-3">
                     <div className="grid grid-cols-1 gap-2 lg:grid-cols-[1fr_1.35fr_0.9fr]">
                       <label className="space-y-1">
                         <span className={labelStyles}>Class</span>
                         <input
                           value={row.className}
                           onChange={(event) => updateSchedule(row.id, 'className', event.target.value)}
-                          className={inputStyles}
+                          className={`h-9 ${inputStyles}`}
                         />
                       </label>
                       <label className="space-y-1">
@@ -221,7 +258,7 @@ const AddTeacher = () => {
                         <input
                           value={row.dayTime}
                           onChange={(event) => updateSchedule(row.id, 'dayTime', event.target.value)}
-                          className={inputStyles}
+                          className={`h-9 ${inputStyles}`}
                         />
                       </label>
                       <label className="space-y-1">
@@ -229,7 +266,7 @@ const AddTeacher = () => {
                         <input
                           value={row.hours}
                           onChange={(event) => updateSchedule(row.id, 'hours', event.target.value)}
-                          className={inputStyles}
+                          className={`h-9 ${inputStyles}`}
                         />
                       </label>
                     </div>
@@ -238,7 +275,7 @@ const AddTeacher = () => {
                       <input
                         value={row.subject}
                         onChange={(event) => updateSchedule(row.id, 'subject', event.target.value)}
-                        className={inputStyles}
+                        className={` w-[60%] flex h-9 ${inputStyles}`}
                       />
                     </label>
                   </article>
@@ -246,12 +283,16 @@ const AddTeacher = () => {
               </div>
             </section>
 
-            <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
-              <h2 className="text-2xl font-bold leading-none text-[#11131a]">Documents</h2>
+            <section className="rounded-2xl border border-[#e0e3ea] bg-white p-5 h-[260px]">
+              <h2 className="text-lg font-bold leading-none text-[#11131a] sm:text-2xl">Documents</h2>
               <div className="mt-4">
                 <DropZone
                   title="Drag And Drop Files Here Or Upload"
                   helperText="Accepted file types: JPG, SVG, PNG 120 x 120 (px)"
+                  accept="image/png,image/jpeg,image/svg+xml"
+                  multiple
+                  selectedFiles={documents}
+                  onFilesSelected={setDocuments}
                 />
               </div>
             </section>
@@ -261,7 +302,7 @@ const AddTeacher = () => {
         <div className="flex justify-end gap-3 pt-2">
           <Link
             to="/teachers"
-            className="inline-flex h-12 items-center rounded-lg border border-[#3a3f4d] bg-[#f5f5f6] px-6 text-base font-medium text-[#171a22] transition hover:bg-[#ececef]"
+            className="inline-flex h-12 items-center rounded-lg border-2 border-gray-300  bg-[#f5f5f6] px-6 text-base font-medium text-[#171a22] transition hover:bg-[#ececef]"
           >
             Cancel
           </Link>
@@ -269,7 +310,7 @@ const AddTeacher = () => {
             type="submit"
             className="inline-flex h-12 items-center rounded-lg bg-primary-600 px-6 text-base font-medium text-white transition hover:bg-primary-700"
           >
-            <Upload className="mr-2 h-4 w-4" />
+            {/* <Upload className="mr-2 h-4 w-4" /> */}
             Save &amp; Add
           </button>
         </div>

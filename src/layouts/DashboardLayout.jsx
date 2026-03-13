@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import { 
   LayoutDashboard, 
@@ -13,6 +14,8 @@ import {
   User,
   Bell,
   Settings,
+  Menu,
+  X,
 } from 'lucide-react'
 import BookLogo1 from '@/assets/BookLogo1.png'
 // import Admission from '@/assets/Admission.svg'
@@ -23,6 +26,7 @@ const DashboardLayout = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const isWelcomePage = location.pathname === '/'
   const hideSidebar =
     location.pathname === '/students/add' ||
@@ -97,6 +101,10 @@ const DashboardLayout = () => {
     navigate('/login')
   }
 
+  const closeMobileSidebar = () => {
+    setIsMobileSidebarOpen(false)
+  }
+
   const NavLink = ({ item }) => {
     const isActive = isRouteActive(item.href)
 
@@ -157,7 +165,7 @@ const DashboardLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#ececec]">
+    <div className="min-h-screen bg-white">
       {isWelcomePage ? (
         <main className="h-screen overflow-auto p-6">
           <Outlet />
@@ -168,7 +176,17 @@ const DashboardLayout = () => {
           <header className="fixed inset-x-0 top-0 z-40 h-[68px] border-b border-gray-300 bg-white">
             <div className="flex h-full items-center justify-between px-10">
               <div className="flex items-center gap-3">
-                <Link to="/dashboard" className="flex items-center gap-3">
+                {!hideSidebar && (
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileSidebarOpen(true)}
+                    className="inline-flex items-center justify-center rounded-lg p-2 text-gray-900 transition hover:bg-gray-100 lg:hidden"
+                    aria-label="Open sidebar"
+                  >
+                    <Menu className="h-6 w-6" />
+                  </button>
+                )}
+                <Link to="/dashboard" className="hidden items-center gap-3 md:flex">
                   {/* <BookOpen className="h-7 w-7 text-gray-900" /> */}
                   <img src={BookLogo1} alt="Book Logo" className='w-14 h-12'/>
                   <span className="text-xl font-semibold leading-tight text-gray-900  ">School Management 
@@ -197,10 +215,57 @@ const DashboardLayout = () => {
             </div>
           </header>
 
+          {/* Mobile sidebar */}
+          {!hideSidebar && (
+            <div
+              className={`fixed inset-0 z-50 bg-black/40 transition-opacity lg:hidden ${
+                isMobileSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
+              onClick={closeMobileSidebar}
+            >
+              <aside
+                className={`absolute left-0 top-0 flex h-full w-[260px] flex-col bg-white transition-transform ${
+                  isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                }`}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <div className="flex h-[68px] items-center justify-between border-b border-gray-300 px-4">
+                  <Link to="/dashboard" className="flex items-center gap-2">
+                    <img src={BookLogo1} alt="Book Logo" className='w-10 h-9'/>
+                    <span className="text-base font-semibold text-gray-900">School Management</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={closeMobileSidebar}
+                    className="rounded-lg p-2 text-gray-900 hover:bg-gray-100"
+                    aria-label="Close sidebar"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <nav className="flex-1 min-h-0 space-y-2 overflow-y-auto px-4 py-4 pb-6">
+                  {navigation.map((item) => (
+                    <NavLink key={item.name} item={item} />
+                  ))}
+                </nav>
+                <div className="border-t border-gray-300 bg-white p-4 flex items-center">
+                  <Settings className="h-6 w-6" />
+                  <Link
+                    to="/settings/school"
+                    onClick={closeMobileSidebar}
+                    className="flex items-center gap-3 rounded-lg px-4 py-3 text-lg font-semibold text-gray-900 hover:bg-gray-50 focus:text-primary-500"
+                  >
+                    Settings
+                  </Link>
+                </div>
+              </aside>
+            </div>
+          )}
+
           {/* Desktop sidebar */}
           {!hideSidebar && (
-            <aside className="fixed bottom-0 left-0 top-[68px] flex w-[240px] flex-col border-r border-gray-300 bg-[#f5f5f5]">
-              <nav className="flex-1 space-y-2 overflow-y-auto px-5 py-4">
+            <aside className="fixed bottom-0 left-0 top-[68px] hidden w-[240px] flex-col border-r border-gray-300 bg-white lg:flex">
+              <nav className="flex-1 min-h-0 space-y-2 overflow-y-auto px-5 py-4 pb-6">
                 {navigation.map((item) => (
                   <NavLink key={item.name} item={item} />
                 ))}
@@ -218,7 +283,7 @@ const DashboardLayout = () => {
           )}
 
           {/* Main content */}
-          <div className={`pt-[68px] ${hideSidebar ? 'pl-0' : 'pl-[240px]'}`}>
+          <div className={`pt-[68px] ${hideSidebar ? 'pl-0' : 'lg:pl-[240px]'}`}>
             <main className="h-[calc(100vh-68px)] overflow-auto p-5">
               <Outlet />
             </main>

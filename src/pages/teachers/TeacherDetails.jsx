@@ -27,6 +27,11 @@ import {
   subMonths,
 } from 'date-fns'
 import { toast } from 'sonner'
+import edit from '@/assets/edit.svg'
+import Customer from '@/assets/Customer.svg'
+import genderIcon from '@/assets/genderIcon.svg'
+import emaiIcon from '@/assets/emaiIcon.svg'
+import pdfIcon from '@/assets/pdfIcon.svg'
 
 const TEACHERS_STORAGE_KEY = 'sms_teachers'
 
@@ -291,7 +296,7 @@ const TeacherDetails = () => {
 
       <div className="grid grid-cols-1 gap-3 xl:grid-cols-[340px_minmax(0,1fr)]">
         <div className="space-y-3">
-          <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
+          <section className="rounded-2xl border border-[#e0e3ea] bg-white p-5">
             <div className="flex justify-end">
               <button
                 type="button"
@@ -299,17 +304,19 @@ const TeacherDetails = () => {
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d4d9e4] bg-white text-[#55637f] transition hover:bg-slate-50"
                 aria-label="Edit teacher profile"
               >
-                <PencilLine className="h-4 w-4" />
+                {/* <PencilLine className="h-4 w-4" /> */}
+                <img src={edit} alt="" />
               </button>
             </div>
 
             <div className="-mt-2 flex flex-col items-center">
               <div className="flex h-32 w-32 items-center justify-center rounded-full bg-[#c7c9cd] text-[#565a64]">
-                <UserRound className="h-16 w-16" />
+                {/* <UserRound className="h-16 w-16" /> */}
+                <img src={Customer} alt="User logo"  />
               </div>
               <h2 className="mt-3 text-2xl font-bold leading-none text-[#11131a]">{teacher.name}</h2>
               <div className="mt-2 flex items-center gap-2">
-                <span className="rounded-md bg-[#e5e7eb] px-3 py-1 text-sm font-semibold text-[#131722]">
+                <span className="rounded-md bg-gray-100 px-3 py-1 text-sm font-semibold text-[#131722]">
                   {teacherIdLabel}
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
@@ -319,43 +326,78 @@ const TeacherDetails = () => {
               </div>
             </div>
 
-            <div className="mt-4 rounded-xl bg-[#ebedf1] p-4">
-              <p className="text-base text-[#707a90]">Subject</p>
-              <p className="text-xl font-medium leading-none text-[#1d2434]">{teacher.subject}</p>
-              <p className="mt-3 text-base text-[#707a90]">Class</p>
-              <p className="text-xl font-medium leading-none text-[#1d2434]">{teacher.classLabel}</p>
+            <div className="mt-4 rounded-xl bg-gray-100 p-4 flex flex-col gap-3">
+             <div className='flex items-center gap-6'>
+               <p className="text-base text-[#707a90]">Subject</p>
+              <p className="text-base font-semibold leading-none text-[#1d2434]">{teacher.subject}</p>
+             </div>
+              <div className='flex items-center gap-6 '>
+                <p className=" text-base  text-[#707a90]">Class</p>
+              <p className="text-base font-medium leading-none text-[#1d2434]">{teacher.classLabel}</p>
+              </div>
             </div>
 
-            <div className="mt-4 space-y-3 rounded-xl bg-[#ebedf1] p-4">
-              <p className="flex items-center gap-3 text-base text-[#3b465f]">
-                <User className="h-5 w-5 text-[#868fa2]" />
-                <span className="w-24 text-[#7a8294]">Gender</span>
-                <span className="font-medium text-[#121826]">{teacher.gender || 'Male'}</span>
-              </p>
-              <p className="flex items-center gap-3 text-base text-[#3b465f]">
-                <CalendarDays className="h-5 w-5 text-[#868fa2]" />
-                <span className="w-24 text-[#7a8294]">Date of Birth</span>
-                <span className="font-medium text-[#121826]">{teacher.dob || 'May 18, 2005'}</span>
-              </p>
-              <p className="flex items-center gap-3 text-base text-[#3b465f]">
-                <Phone className="h-5 w-5 text-[#868fa2]" />
-                <span className="w-24 text-[#7a8294]">Phone Number</span>
-                <span className="font-medium text-[#121826]">{teacher.phone || '02687996746'}</span>
-              </p>
-              <p className="flex items-center gap-3 text-base text-[#3b465f]">
-                <Mail className="h-5 w-5 text-[#868fa2]" />
-                <span className="w-24 text-[#7a8294]">Email</span>
-                <span className="font-medium text-[#121826]">{teacher.email || 'xyz@gmail.com'}</span>
-              </p>
-              <p className="flex items-center gap-3 text-base text-[#3b465f]">
-                <MapPin className="h-5 w-5 text-[#868fa2]" />
-                <span className="w-24 text-[#7a8294]">Address</span>
-                <span className="font-medium text-[#121826]">{teacher.address || 'Peshawar, Pakistan'}</span>
-              </p>
-            </div>
+            <div className="mt-4 rounded-2xl bg-gray-100 p-5 space-y-4">
+
+  {/* Gender */}
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3 text-gray-500">
+      <img src={genderIcon} alt="Gender Icon" className="w-5 h-5 opacity-70"/>
+      <span>Gender</span>
+    </div>
+    <span className="font-medium text-gray-900">
+      {teacher.gender || "Male"}
+    </span>
+  </div>
+
+  {/* Date of Birth */}
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3 text-gray-500">
+      <CalendarDays className="w-5 h-5 text-gray-400"/>
+      <span>Date of Birth</span>
+    </div>
+    <span className="font-medium text-gray-900">
+      {teacher.dob || "May 18, 2005"}
+    </span>
+  </div>
+
+  {/* Phone */}
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3 text-gray-500">
+      <Phone className="w-5 h-5 text-gray-400"/>
+      <span>Phone Number</span>
+    </div>
+    <span className="font-medium text-gray-900">
+      {teacher.phone || "02687996746"}
+    </span>
+  </div>
+
+  {/* Email */}
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3 text-gray-500">
+      <img src={emaiIcon} alt="Email Icon" className="w-5 h-5 opacity-70"/>
+      <span>Email</span>
+    </div>
+    <span className="font-medium text-gray-900">
+      {teacher.email || "xyz@gmail.com"}
+    </span>
+  </div>
+
+  {/* Address */}
+  <div className="flex items-center justify-between">
+    <div className="flex items-center gap-3 text-gray-500">
+      <MapPin className="w-5 h-5 text-gray-400"/>
+      <span>Address</span>
+    </div>
+    <span className="font-medium text-gray-900">
+      {teacher.address || "Peshawar, Pakistan"}
+    </span>
+  </div>
+
+</div>
           </section>
 
-          <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
+          <section className="rounded-2xl border border-[#e0e3ea] bg-gray-100 p-5">
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-bold leading-none text-[#11131a]">Documents</h3>
               <button
@@ -364,18 +406,20 @@ const TeacherDetails = () => {
                 className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d4d9e4] bg-white text-[#55637f] transition hover:bg-slate-50"
                 aria-label="Edit teacher documents"
               >
-                <PencilLine className="h-4 w-4" />
+                {/* <PencilLine className="h-4 w-4" /> */}
+                <img src={edit} alt="" />
               </button>
             </div>
 
-            <div className="mt-3 divide-y divide-[#d4d9e2] overflow-hidden rounded-xl bg-[#ebedf1]">
+            <div className="mt-3 divide-y divide-[#d4d9e2] overflow-hidden rounded-xl bg-gray-100">
               {documents.map((document) => (
                 <div key={document} className="flex items-center gap-3 px-3 py-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#dbe0ea] text-[#6d7892]">
-                    <FileText className="h-5 w-5" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#EFF6FF] text-[#6d7892]">
+                    {/* <FileText className="h-5 w-5" /> */}
+                    <img src={pdfIcon} alt="Pdf Icon" />
                   </div>
                   <div>
-                    <p className="text-lg font-medium leading-none text-[#1c2334]">{document}</p>
+                    <p className="text-base font-medium leading-none text-[#1c2334]">{document}</p>
                     <p className="text-sm text-[#778096]">Pdf</p>
                   </div>
                 </div>
@@ -471,7 +515,7 @@ const TeacherDetails = () => {
               </div>
             </section>
 
-            <section className="rounded-2xl border border-[#d3d8e2] bg-[#f3f4f6] p-4">
+            <section className="rounded-2xl border border-[#d3d8e2] bg-white p-4">
               <div className="mb-3 flex items-center justify-between">
                 <button
                   type="button"
@@ -561,14 +605,14 @@ const TeacherDetails = () => {
                 })}
               </div>
 
-              <div className="mt-4 flex gap-2">
-                <div className="flex-1 rounded-xl border-2 border-primary-500 bg-[#eaf0fc] px-3 py-2">
+              <div className="mt-4 flex justify-end gap-3">
+                <div className=" rounded-xl border-2 border-primary-500  bg-[#eaf0fc] px-3 py-2 flex flex-col gap-2">
                   <p className="text-base text-[#3a445f]">Present</p>
                   <p className="text-2xl font-bold leading-none text-[#141922]">
                     {Math.max(1, Math.round(performanceRows.length / 2))}
                   </p>
                 </div>
-                <div className="flex-1 rounded-xl border-2 border-red-400 bg-[#f9ecec] px-3 py-2">
+                <div className=" rounded-xl border-2 border-red-400 bg-[#f9ecec] px-3 py-2 flex flex-col gap-2">
                   <p className="text-base text-[#3a445f]">Absent</p>
                   <p className="text-2xl font-bold leading-none text-[#141922]">
                     {Math.max(1, Math.round(performanceRows.length / 3))}
@@ -578,9 +622,9 @@ const TeacherDetails = () => {
             </section>
           </div>
 
-          <div className="grid grid-cols-1 gap-3 2xl:grid-cols-[minmax(0,1fr)_330px]">
-            <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="grid grid-cols-1 gap-3 2xl:grid-cols-[minmax(0,1fr)_330px] ">
+            <section className="rounded-2xl border border-[#e0e3ea] bg-white  p-5 pb-20">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-20">
                 <h2 className="text-2xl font-bold leading-none text-[#11131a]">Schedule</h2>
                 <button
                   type="button"
@@ -594,21 +638,21 @@ const TeacherDetails = () => {
                 </button>
               </div>
 
-              <div className="mt-4 overflow-x-auto">
+              <div className="mt-4 ">
                 <div
-                  className="grid min-w-[760px] rounded-xl border border-[#d8dde7] bg-white"
+                  className="grid min-w-[760px] rounded-xl border border-[#d8dde7]"
                   style={{
                     gridTemplateColumns: '74px repeat(5, minmax(0, 1fr))',
-                    gridTemplateRows: `40px repeat(${TIME_SLOTS.length}, 52px)`,
+                    gridTemplateRows: `32px repeat(${TIME_SLOTS.length}, 42px)`,
                   }}
                 >
-                  <div className="flex items-center justify-center border-b border-[#d8dde7] bg-[#f2f4f8] text-sm font-medium text-[#778198]">
+                  <div className="flex items-center justify-center border-b  text-sm font-medium text-[#778198]">
                     Time
                   </div>
                   {SCHEDULE_DAYS.map((day) => (
                     <div
                       key={day}
-                      className="flex items-center justify-center border-b border-l border-[#d8dde7] bg-[#f2f4f8] text-sm font-medium text-[#778198]"
+                      className="flex items-center justify-center border-b  text-sm font-medium text-[#778198]"
                     >
                       {day}
                     </div>
@@ -616,14 +660,17 @@ const TeacherDetails = () => {
 
                   {TIME_SLOTS.map((time, rowIndex) => (
                     <div key={time} className="contents">
-                      <div className="flex items-start justify-center border-b border-[#e0e4ec] pt-1 text-sm text-[#7e879b]">
+                      <div
+                        className="flex items-start justify-center border-b border-[#e0e4ec] pt-1 text-sm text-[#7e879b]"
+                        style={{ gridColumn: 1, gridRow: rowIndex + 2 }}
+                      >
                         {time}
                       </div>
-                      {SCHEDULE_DAYS.map((day) => (
+                      {SCHEDULE_DAYS.map((day, dayIndex) => (
                         <div
                           key={`${day}-${time}`}
                           className="border-b border-l border-[#edf1f7] bg-white"
-                          style={{ gridRow: rowIndex + 2 }}
+                          style={{ gridColumn: dayIndex + 2, gridRow: rowIndex + 2 }}
                         />
                       ))}
                     </div>
@@ -645,16 +692,17 @@ const TeacherDetails = () => {
               </div>
             </section>
 
-            <section className="rounded-2xl border border-[#e0e3ea] bg-[#f3f4f6] p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-2xl font-bold leading-none text-[#11131a]">Performance</h2>
+            <section className="rounded-2xl border border-[#e0e3ea] bg-white p-4">
+              <div className=" flex items-center justify-between mb-6">
+                <h2 className="text-lg font-semibold leading-none text-[#11131a]">Performance</h2>
                 <button
                   type="button"
                   onClick={() => setIsPerformanceEditOpen(true)}
                   className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d4d9e4] bg-white text-[#55637f] transition hover:bg-slate-50"
                   aria-label="Edit teacher performance"
                 >
-                  <PencilLine className="h-4 w-4" />
+                  {/* <PencilLine className="h-4 w-4" /> */}
+                  <img src={edit} alt="Edit button" />
                 </button>
               </div>
 
