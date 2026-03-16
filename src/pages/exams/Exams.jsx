@@ -13,6 +13,7 @@ import trash from '@/assets/trash.svg'
 import SortingArrow from '@/assets/SortingArrow.svg'
 import logo from '@/assets/BookLogo1.png'
 import printer from '@/assets/printer.svg'
+import BookLogo1 from '@/assets/BookLogo1.png'
 import {
   Table,
   TableBody,
@@ -133,14 +134,16 @@ const Exams = () => {
         onClose={() => setIsAddExamOpen(false)}
         title=""
         size="sm"
+        className="border-2 px-10 rounded-lg border-gray-300"
       >
-        <div className="space-y-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
-              <img src={logo} alt="Logo" className="h-10 w-14" />
-              <span className='text-4xl font-serif font-semibold '>SMS</span>
+        <div className="space-y-4 ">
+          <div >
+            <div className="flex items-center justify-center gap-3 mt-4">
+              {/* <BookOpen className="h-12 w-12 text-[#0f1524]" /> */}
+              <img src={BookLogo1} alt="Book logo" className="w-16 h-14"/>
+              <p className="text-lg font-medium text-[#0f1524]">School Management <br /> System</p>
             </div>
-            <p className="mt-2 text-2xl  font-semibold text-gray-800">Add New Exam</p>
+            <p className="mt-6 text-2xl  font-semibold text-center text-gray-800">Add New Exam</p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -160,12 +163,12 @@ const Exams = () => {
             <Button
               variant="outline"
               size="md"
-              className="rounded"
+              className="rounded border-gray-700 text-gray-900 px-6 mb-6"
               onClick={() => setIsAddExamOpen(false)}
             >
               Cancel
             </Button>
-            <Button size="md" className="rounded">Add Exam</Button>
+            <Button size="md" className="rounded px-6 mb-6">Add Exam</Button>
           </div>
         </div>
       </Modal>
@@ -178,15 +181,16 @@ const Exams = () => {
         }}
         title=""
         size="sm"
-        className= "bg-gray-200"
+        className= "border-2 border-gray-300 rounded-lg px-10"
       >
         <div className="space-y-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 text-xl font-semibold text-gray-900">
-              <img src={logo} alt="Logo" className="h-10 w-14" />
-              <span className='text-4xl font-serif font-semibold'>SMS</span>
+          <div >
+              <div className="flex items-center justify-center gap-3 mt-4">
+              {/* <BookOpen className="h-12 w-12 text-[#0f1524]" /> */}
+              <img src={BookLogo1} alt="Book logo" className="w-16 h-14"/>
+              <p className="text-xl font-medium text-[#0f1524]">School Management <br /> System</p>
             </div>
-            <p className="mt-4 mb-5 text-2xl  font-semibold text-gray-800 ">Exam Details</p>
+            <p className="mt-4 mb-10 text-2xl text-center font-bold text-gray-800 ">Exam Details</p>
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -206,7 +210,7 @@ const Exams = () => {
             <Button
               variant="outline"
               size="md"
-              className="rounded border-gray-700 text-gray-900"
+              className="rounded border-gray-700 text-gray-900 px-6 mb-6"
               onClick={() => {
                 setIsEditExamOpen(false)
                 setSelectedExam(null)
@@ -214,7 +218,7 @@ const Exams = () => {
             >
               Cancel
             </Button>
-            <Button size="md" className="rounded bg-primary-500">Save</Button>
+            <Button size="md" className="rounded bg-primary-500 px-6 mb-6">Save</Button>
           </div>
         </div>
       </Modal>

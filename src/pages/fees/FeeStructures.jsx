@@ -5,12 +5,18 @@ import {
   ChevronDown,
   Download,
   Pencil,
-  PlusCircle,
+  Plus,
   Printer,
   Trash2,
   X,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import Trash from '@/assets/Trash.svg'
+import edit from '@/assets/edit.svg'
+import printer from '@/assets/printer.svg'
+import fileExport from '@/assets/fileExport.svg'
+import SortVector from '@/assets/SortVector.svg'
+import BookLogo1 from '@/assets/BookLogo1.png'
 
 const CLASS_OPTIONS = ['4', '5', '6', '7', '8', '9', '10', '11', '12']
 const SESSION_OPTIONS = ['2025-2026', '2024-2025', '2023-2024']
@@ -249,14 +255,16 @@ const FeeStructures = () => {
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#748098] transition hover:bg-[#e9ecf1]"
             aria-label="Print fee structures"
           >
-            <Printer className="h-4 w-4" />
+            {/* <Printer className="h-4 w-4" /> */}
+            <img src={printer} alt="printer logo" className ="" />
           </button>
           <button
             type="button"
             onClick={handleExport}
             className="inline-flex items-center gap-2 rounded-lg bg-[#dce1eb] px-4 py-2 text-sm font-semibold text-[#475372] transition hover:bg-[#ced5e4]"
           >
-            <Download className="h-4 w-4" />
+            {/* <Download className="h- 4 w-4" /> */}
+            <img src ={fileExport} alt="Export icon" />
             Export
           </button>
           <button
@@ -264,13 +272,13 @@ const FeeStructures = () => {
             onClick={openAddModal}
             className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
           >
-            <PlusCircle className="h-4 w-4" />
+            <Plus className="h-4 w-4 bg-white rounded text-primary-500" />
             Add Fee
           </button>
         </div>
       </div>
 
-      <section className="rounded-xl border border-[#d9dde7] bg-[#f2f3f5]">
+      <section className="shadow-lg bg-white">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d9dde7] px-5 py-4">
           <h2 className="text-2xl font-bold text-[#263355]">List</h2>
 
@@ -318,7 +326,8 @@ const FeeStructures = () => {
               onClick={() => setSortOrder((previous) => (previous === 'az' ? 'za' : 'az'))}
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-4 text-sm font-medium text-[#55637f] transition hover:bg-slate-50"
             >
-              <ArrowDownUp className="h-4 w-4" />
+              {/* <ArrowDownUp className="h-4 w-4" /> */}
+              <img src ={SortVector} alt="" />
               Sort By {sortOrder === 'az' ? 'A-Z' : 'Z-A'}
             </button>
           </div>
@@ -354,7 +363,7 @@ const FeeStructures = () => {
                 setSelectedClass(event.target.value)
                 setPage(1)
               }}
-              className="h-10 min-w-[190px] appearance-none rounded-lg border border-[#d4d8e3] bg-white px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
+              className="h-10 min-w-[190px] appearance-none rounded-lg border border-[#d4d8e3] bg-gray-100 px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
             >
               <option value="">Select Class</option>
               {CLASS_OPTIONS.map((className) => (
@@ -404,8 +413,8 @@ const FeeStructures = () => {
                     <td className="px-4 py-4 text-sm text-[#4c5877]">{item.monthYear}</td>
                     <td className="px-4 py-4 text-sm text-[#4c5877]">{item.fineAfterDue}</td>
                     <td className="px-4 py-4">
-                      <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                      <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-3 py-1 text-xs font-semibold text-[#1ABE17]">
+                        <span className="h-1 w-1 rounded-full bg-[#1ABE17]" />
                         {item.status}
                       </span>
                     </td>
@@ -417,7 +426,8 @@ const FeeStructures = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label={`Delete fee for class ${item.className}`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {/* <Trash2 className="h-4 w-4" /> */}
+                          <img src={Trash} alt="Delete Icon" className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
@@ -425,7 +435,8 @@ const FeeStructures = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label={`Edit fee for class ${item.className}`}
                         >
-                          <Pencil className="h-4 w-4" />
+                          {/* <Pencil className="h-4 w-4" /> */}
+                          <img src = {edit} alt="Edit icon" className ="w-4 h-4" />
                         </button>
                       </div>
                     </td>
@@ -483,32 +494,33 @@ const FeeStructures = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4 backdrop-blur-[2px]">
-          <div className="relative w-full max-w-[560px] rounded-xl border-[3px] border-[#8e8f93] bg-[#efeff1] px-8 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
-            <button
+          <div className="relative w-full max-w-[512px] rounded-xl border-[3px] border-[#8e8f93] bg-white px-14 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
+            {/* <button
               type="button"
               onClick={closeModal}
               className="absolute right-3 top-3 rounded-full p-1 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
-            </button>
+            </button> */}
 
             <div className="flex items-center justify-center gap-3">
-              <BookOpen className="h-10 w-10 text-[#0f1524]" />
-              <p className="font-serif text-4xl font-bold text-[#0f1524]">SMS</p>
+              {/* <BookOpen className="h-10 w-10 text-[#0f1524]" /> */}
+              <img src={BookLogo1} alt="" className="w-16 h-14" />
+              <p className="font-serif text-5xl font-semibold text-[#0f1524]">SMS</p>
             </div>
 
-            <h3 className="mt-4 text-center text-2xl font-bold text-[#0f1524] sm:text-3xl">
+            <h3 className="mt-4 text-center text-3xl font-semibold text-[#0f1524] sm:text-3xl">
               {modalMode === 'add' ? 'Add Fee' : 'Edit Fee'}
             </h3>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <label className="space-y-1">
-                <span className="text-base font-medium text-[#0f1524]">Class</span>
+              <label>
+                <span className="text-xl font-normal text-[#0f1524]">Class</span>
                 <select
                   value={formData.className}
                   onChange={(event) => handleFormChange('className', event.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-white/80 px-3 text-sm text-[#0f1524] outline-none focus:border-primary-500"
+                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none focus:border-primary-500"
                 >
                   <option value="">Select Class</option>
                   {CLASS_OPTIONS.map((className) => (
@@ -519,12 +531,12 @@ const FeeStructures = () => {
                 </select>
               </label>
 
-              <label className="space-y-1">
-                <span className="text-base font-medium text-[#0f1524]">Session</span>
+              <label>
+                <span className="text-xl font-normal text-[#0f1524]">Session</span>
                 <select
                   value={formData.session}
                   onChange={(event) => handleFormChange('session', event.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-white/80 px-3 text-sm text-[#0f1524] outline-none focus:border-primary-500"
+                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none focus:border-primary-500"
                 >
                   {SESSION_OPTIONS.map((session) => (
                     <option key={session} value={session}>
@@ -534,12 +546,12 @@ const FeeStructures = () => {
                 </select>
               </label>
 
-              <label className="space-y-1">
-                <span className="text-base font-medium text-[#0f1524]">Fee Type</span>
+              <label >
+                <span className="text-xl font-normal text-[#0f1524]">Fee Type</span>
                 <select
                   value={formData.feeType}
                   onChange={(event) => handleFormChange('feeType', event.target.value)}
-                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-white/80 px-3 text-sm text-[#0f1524] outline-none focus:border-primary-500"
+                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none focus:border-primary-500"
                 >
                   {FEE_TYPE_OPTIONS.map((feeType) => (
                     <option key={feeType} value={feeType}>
@@ -549,25 +561,25 @@ const FeeStructures = () => {
                 </select>
               </label>
 
-              <label className="space-y-1">
-                <span className="text-base font-medium text-[#0f1524]">Month/Year</span>
+              <label >
+                <span className="text-xl font-normal text-[#0f1524]">Month/Year</span>
                 <input
                   type="text"
                   value={formData.monthYear}
                   onChange={(event) => handleFormChange('monthYear', event.target.value)}
                   placeholder="e.g. January 2026"
-                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-white/80 px-3 text-sm text-[#0f1524] outline-none placeholder:text-slate-400 focus:border-primary-500"
+                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none placeholder:text-slate-400 focus:border-primary-500"
                 />
               </label>
 
-              <label className="space-y-1 sm:col-span-2">
-                <span className="text-base font-medium text-[#0f1524]">Amount</span>
+              <label className=" sm:col-span-2">
+                <span className="text-xl font-normal text-[#0f1524]">Amount</span>
                 <input
                   type="text"
                   value={formData.amount}
                   onChange={(event) => handleFormChange('amount', event.target.value)}
                   placeholder="e.g. 10k/-"
-                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-white/80 px-3 text-sm text-[#0f1524] outline-none placeholder:text-slate-400 focus:border-primary-500"
+                  className="h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none placeholder:text-slate-400 focus:border-primary-500"
                 />
               </label>
             </div>
@@ -578,14 +590,14 @@ const FeeStructures = () => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg border border-[#1f2937] bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
+                className="rounded border-2 border-[#1f2937] mb-2 bg-gray-100 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveFee}
-                className="rounded-lg bg-primary-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+                className="rounded bg-primary-500 mb-2 px-8 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
               >
                 {modalMode === 'add' ? 'Add Fee' : 'Save'}
               </button>

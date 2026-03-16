@@ -11,10 +11,15 @@ import {
   Plus
   ,
   X,
+  // Trash,
 } from 'lucide-react'
+import Select from '@/components/ui/Select'
 import fileExport from '@/assets/fileExport.svg'
 import SortVector from '@/assets/SortVector.svg'
 import filterIcon from '@/assets/filterIcon.svg'
+import edit from '@/assets/edit.svg'
+import Trash from '@/assets/Trash.svg'
+import BookLogo1 from '@/assets/BookLogo1.png'
 
 
 
@@ -260,7 +265,7 @@ const Classes = () => {
         </div>
       </div>
 
-      <section className="rounded-xl border border-[#d9dde7] bg-[#f2f3f5]">
+      <section className=" bg-white shadow-lg">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d9dde7] px-5 py-4">
           <h2 className="text-xl font-medium text-[#263355]">Class List</h2>
 
@@ -297,10 +302,15 @@ const Classes = () => {
           </div>
         </div>
 
-        <div className="border-b border-[#d9dde7] px-5 py-3 text-sm text-[#55637f]">
-          <span className="font-medium">Row Per Page</span>{' '}
-          <span className="mx-1 rounded-md border border-[#d4d8e3] bg-white px-2 py-0.5">10</span>
-          Entries
+        <div className="border-b border-[#d9dde7] px-5 py-3 text-sm text-[#55637f] flex items-center  gap-5">
+          <span className="font-medium whitespace-nowrap">Row Per Page</span>{' '}
+          {/* <span className="mx-1 rounded-md border border-[#d4d8e3] bg-white px-2 py-0.5">10</span> */}
+ <select name="" id="" className='border rounded-lg  border-gray-300 px-4 '>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <span>Entries</span>  
         </div>
 
         <div className="overflow-x-auto">
@@ -308,7 +318,7 @@ const Classes = () => {
             <thead className="bg-[#e6e9ef]">
               <tr>
                 <th className="w-12 px-4 py-3 text-left">
-                  <input type="checkbox" className="h-4 w-4 rounded border-[#d5dbe7]" />
+                  <input type="checkbox" className="h-4 w-4 rounded bg-gray-50  border border-gray-100" />
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold ">ID </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold ">Class</th>
@@ -351,7 +361,8 @@ const Classes = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label={`Delete class ${classItem.name}`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {/* <Trash2 className="h-4 w-4" /> */}
+                          <img src={Trash} alt="" className='w-4 h-4' />
                         </button>
                         <button
                           type="button"
@@ -359,7 +370,8 @@ const Classes = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label={`View class ${classItem.name}`}
                         >
-                          <Pencil className="h-4 w-4" />
+                          {/* <Pencil className="h-4 w-4" /> */}
+                          <img src={edit} alt="" className='w-4 h-4' />
                         </button>
                       </div>
                     </td>
@@ -416,23 +428,24 @@ const Classes = () => {
       </section>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4 backdrop-blur-[2px]">
-          <div className="relative w-full max-w-[590px] rounded-xl border-[3px] border-[#8e8f93] bg-[#efeff1] px-8 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
-            <button
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/20 px-4 backdrop-blur-[2px]">
+          <div className="relative w-full max-w-[512px] rounded-xl border-[4px] border-gray-400 bg-white px-12 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
+            {/* <button
               type="button"
               onClick={closeModal}
               className="absolute right-3 top-3 rounded-full p-1 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
-            </button>
+            </button> */}
 
-            <div className="flex items-center justify-center gap-3">
-              <BookOpen className="h-10 w-10 text-[#0f1524]" />
-              <p className="font-serif text-4xl font-bold text-[#0f1524]">SMS</p>
-            </div>
+             <div className="flex items-center justify-center gap-3 mt-4 ">
+                          {/* <BookOpen className="h-12 w-12 text-[#0f1524]" /> */}
+                          <img src={BookLogo1} alt="Book logo" className="w-16 h-14"/>
+                          <p className="text-lg font-medium text-[#0f1524]">School Management <br /> System</p>
+                        </div>
 
-            <h3 className="mt-4 text-center text-2xl font-bold text-[#0f1524] sm:text-3xl">{modalTitle}</h3>
+            <h3 className="mt-6 text-center text-3xl font-semibold text-[#0f1524] sm:text-3xl">{modalTitle}</h3>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="space-y-1">
@@ -442,10 +455,10 @@ const Classes = () => {
                   value={formData.id}
                   onChange={(event) => handleInputChange('id', event.target.value)}
                   readOnly={modalMode === 'details'}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
+                  className={`h-10 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
                     modalMode === 'details'
                       ? 'cursor-default bg-[#e8e9eb]'
-                      : 'bg-white/80 focus:border-primary-500'
+                      : ' focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -457,8 +470,8 @@ const Classes = () => {
                   value={formData.name}
                   onChange={(event) => handleInputChange('name', event.target.value)}
                   readOnly={isReadOnly}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
-                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : 'bg-white/80 focus:border-primary-500'
+                  className={`h-10 w-full rounded-xl  border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
+                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : ' focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -470,8 +483,8 @@ const Classes = () => {
                   value={formData.section}
                   onChange={(event) => handleInputChange('section', event.target.value)}
                   readOnly={isReadOnly}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
-                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : 'bg-white/80 focus:border-primary-500'
+                  className={`h-10 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
+                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : ' focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -483,8 +496,8 @@ const Classes = () => {
                   value={formData.students}
                   onChange={(event) => handleInputChange('students', event.target.value)}
                   readOnly={isReadOnly}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
-                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : 'bg-white/80 focus:border-primary-500'
+                  className={`h-10 w-full rounded-xl border-2  border-gray-700 bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
+                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : ' focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -496,8 +509,8 @@ const Classes = () => {
                   value={formData.subjects}
                   onChange={(event) => handleInputChange('subjects', event.target.value)}
                   readOnly={isReadOnly}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
-                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : 'bg-white/80 focus:border-primary-500'
+                  className={`h-10 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
+                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : ' focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -509,7 +522,7 @@ const Classes = () => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg border border-[#1f2937] bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
+                className="rounded border-2 border-gray-500 bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
               >
                 Cancel
               </button>
@@ -518,7 +531,7 @@ const Classes = () => {
                 <button
                   type="button"
                   onClick={handleAddClass}
-                  className="rounded-lg bg-primary-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+                  className="rounded bg-primary-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
                 >
                   Add Class
                 </button>
@@ -527,16 +540,16 @@ const Classes = () => {
                   <button
                     type="button"
                     onClick={() => setIsEditEnabled(true)}
-                    className="rounded-lg border border-[#1f2937] bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
+                    className="rounded border-2 border-gray-500 bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveClass}
-                    className={`rounded-lg px-6 py-2 text-sm font-semibold text-white transition ${
+                    className={`rounded px-6 py-2 text-sm font-semibold text-white transition ${
                       isEditEnabled
-                        ? 'bg-primary-600 hover:bg-primary-700'
+                        ? 'bg-primary-500 hover:bg-primary-600'
                         : 'cursor-not-allowed bg-primary-300'
                     }`}
                   >

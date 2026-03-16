@@ -13,6 +13,11 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import FeeChallanModal from './components/FeeChallanModal'
+import fileExport from "@/assets/fileExport.svg"
+import printer from "@/assets/printer.svg"
+import edit from "@/assets/edit.svg"
+import Trash from "@/assets/Trash.svg"
+import dotsVertical from "@/assets/dotsVertical.svg"
 
 const SESSION_OPTIONS = ['2025-2026', '2024-2025', '2023-2024']
 const MONTH_OPTIONS = [
@@ -236,28 +241,28 @@ const FeePayments = () => {
       title: 'Total Revenue',
       value: formatCompactAmount(summary.totalRevenue),
       subtitle: 'Collected this term',
-      panelClass: 'border-[#9da8b7] bg-[#d5dde9]',
+      panelClass: 'border-[#9da8b7] bg-[#EFF6FF]',
       valueClass: 'text-[#3b82f6]',
     },
     {
       title: 'Pending Amount',
       value: formatCompactAmount(summary.pendingAmount),
       subtitle: 'Yet to Collect',
-      panelClass: 'border-[#9daf9f] bg-[#d7e5dd]',
+      panelClass: 'border-[#9daf9f] bg-[#F0FDF4]',
       valueClass: 'text-[#22c55e]',
     },
     {
       title: 'Paid Students',
       value: String(summary.paidStudents),
       subtitle: `Out of ${summary.totalStudents} Students`,
-      panelClass: 'border-[#a99da0] bg-[#e8e0e2]',
+      panelClass: 'border-[#a99da0] bg-[#FEF2F2]',
       valueClass: 'text-[#b91c1c]',
     },
     {
       title: 'Defaulters',
       value: String(summary.defaulters),
       subtitle: `Out of ${summary.totalStudents} Students`,
-      panelClass: 'border-[#aaa88f] bg-[#ecead7]',
+      panelClass: 'border-[#aaa88f] bg-[#FEFCE8]',
       valueClass: 'text-[#a16207]',
     },
   ]
@@ -266,16 +271,16 @@ const FeePayments = () => {
     <div className="scrollbar-hide h-full space-y-4 overflow-y-auto pr-1">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-3">
-          <button
+          {/* <button
             type="button"
             onClick={handleBack}
             className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#d9dde7] bg-white text-[#475372] transition hover:bg-[#eef1f6]"
             aria-label="Go back"
           >
             <ArrowLeft className="h-5 w-5" />
-          </button>
+          </button> */}
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Fee Payments</h1>
+            <h1 className="text-3xl font-semibold tracking-tight text-[#253256]">Fee Payments</h1>
             <p className="mt-1 text-sm text-[#65708a]">Fees / Payments</p>
           </div>
         </div>
@@ -287,33 +292,35 @@ const FeePayments = () => {
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#748098] transition hover:bg-[#e9ecf1]"
             aria-label="Print fee payment challan"
           >
-            <Printer className="h-4 w-4" />
+            {/* <Printer className="h-4 w-4" /> */}
+            <img src={printer} alt="Printer Icon"  />
           </button>
           <button
             type="button"
             onClick={handleExport}
             className="inline-flex items-center gap-2 rounded-lg bg-[#dce1eb] px-4 py-2 text-sm font-semibold text-[#475372] transition hover:bg-[#ced5e4]"
           >
-            <Download className="h-4 w-4" />
+            {/* <Download className="h-4 w-4" /> */}
+            <img src={fileExport} alt ="File Export Icon"/>
             Export
           </button>
         </div>
       </div>
 
-      <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4 xl:justify-items-center">
+      <section className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-4 xl:justify-items-center">
         {statsCards.map((card) => (
           <article
             key={card.title}
-            className={`w-full xl:max-w-[350px] rounded-2xl border-2 px-5 py-5 shadow-[0_2px_8px_rgba(15,23,42,0.04)] ${card.panelClass}`}
+            className={`w-full xl:max-w-[350px] rounded-2xl border-2 px-5 py-10 shadow-[0_2px_8px_rgba(15,23,42,0.04)] ${card.panelClass}`}
           >
             <h2 className="text-2xl font-semibold leading-none text-[#111827]">{card.title}</h2>
-            <p className={`mt-4 text-4xl font-semibold leading-none ${card.valueClass}`}>{card.value}</p>
-            <p className="mt-2 text-lg font-medium leading-none text-[#5f6268]">{card.subtitle}</p>
+            <p className={`mt-6 text-4xl font-semibold leading-none ${card.valueClass}`}>{card.value}</p>
+            <p className="mt-6 text-lg font-medium leading-none text-[#5f6268]">{card.subtitle}</p>
           </article>
         ))}
       </section>
 
-      <section className="rounded-xl border border-[#d9dde7] bg-[#f2f3f5]">
+      <section className=" shadow-lg">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d9dde7] px-5 py-4">
           <h2 className="text-2xl font-bold text-[#263355]">Fee Records</h2>
 
@@ -325,7 +332,7 @@ const FeePayments = () => {
                   setSelectedSession(event.target.value)
                   setPage(1)
                 }}
-                className="h-10 min-w-[140px] appearance-none rounded-lg border border-[#d4d8e3] bg-white px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
+                className="h-10 min-w-[140px] appearance-none rounded-lg border-2 border-gray-300 bg-white px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
               >
                 <option value="">Select Session</option>
                 {SESSION_OPTIONS.map((session) => (
@@ -344,7 +351,7 @@ const FeePayments = () => {
                   setSelectedMonth(event.target.value)
                   setPage(1)
                 }}
-                className="h-10 min-w-[140px] appearance-none rounded-lg border border-[#d4d8e3] bg-white px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
+                className="h-10 min-w-[140px] appearance-none rounded-lg border-2 border-gray-300 bg-white px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
               >
                 <option value="">Select Month</option>
                 {MONTH_OPTIONS.map((month) => (
@@ -356,14 +363,15 @@ const FeePayments = () => {
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b869f]" />
             </label>
 
-            <label className="relative">
+           <div className="border-2 border-gray-300 rounded-lg p-1">
+             <label className="relative">
               <select
                 value={selectedClass}
                 onChange={(event) => {
                   setSelectedClass(event.target.value)
                   setPage(1)
                 }}
-                className="h-10 min-w-[190px] appearance-none rounded-lg border border-[#d4d8e3] bg-white px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
+                className="h-8 min-w-[190px] appearance-none rounded-lg border border-[#d4d8e3] bg-gray-100 px-3 pr-9 text-sm font-medium text-[#55637f] outline-none transition focus:border-primary-400"
               >
                 <option value="">Select Class</option>
                 {CLASS_OPTIONS.map((className) => (
@@ -374,6 +382,7 @@ const FeePayments = () => {
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7b869f]" />
             </label>
+           </div>
           </div>
         </div>
 
@@ -430,10 +439,11 @@ const FeePayments = () => {
                 <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Due Date</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Fine After Due</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">
-                  <span className="inline-flex items-center gap-1">
+                <th className="px-4 py-3 text-center text-sm font-semibold text-[#273355]">
+                  <span className="inline-flex items-center gap-3">
                     Action
-                    <MoreVertical className="h-4 w-4 text-[#67748f]" />
+                    {/* <MoreVertical className="h-4 w-4 text-[#67748f]" /> */}
+                    <img src={dotsVertical} alt="More Actions Icon" />
                   </span>
                 </th>
               </tr>
@@ -482,14 +492,15 @@ const FeePayments = () => {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center gap-2">
                         <button
                           type="button"
                           onClick={() => openChallan(payment)}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label={`Print challan for ${payment.studentName}`}
                         >
-                          <Printer className="h-4 w-4" />
+                          {/* <Printer className="h-4 w-4" /> */}
+                          <img src={printer} alt="" />
                         </button>
                         <button
                           type="button"
@@ -497,7 +508,8 @@ const FeePayments = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label={`Delete payment for ${payment.studentName}`}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {/* <Trash2 className="h-4 w-4" /> */}
+                          <img src={Trash} alt="Delete Icon" className="w-4 h-4" />
                         </button>
                         <button
                           type="button"
@@ -505,7 +517,8 @@ const FeePayments = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label={`Edit payment for ${payment.studentName}`}
                         >
-                          <Pencil className="h-4 w-4" />
+                          {/* <Pencil className="h-4 w-4" /> */}
+                          <img src ={edit} alt="" className="w-4 h-4" />
                         </button>
                       </div>
                     </td>

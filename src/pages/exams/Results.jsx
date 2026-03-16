@@ -169,8 +169,8 @@ const Results = () => {
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4 ">
-          <Table>
+        <CardContent className="p-2">
+          <Table className="bg-white ">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">
@@ -230,10 +230,10 @@ const Results = () => {
             </TableBody>
           </Table>
 
-<div className='flex items-center justify-end'>
-  <Button size="sm" className="gap-2 rounded">
+<div className='flex items-center justify-end mt-6 mr-4'>
+  <Button size="sm" className="gap-2 rounded px-4 py-2">
               <span className=' bg-white rounded'>
-                <Plus className="h-4 w-4 text-black" />
+                <Plus className="h-3 w-3 text-primary-500" />
               </span>
               Add Student
             </Button>

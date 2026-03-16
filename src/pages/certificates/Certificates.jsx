@@ -7,7 +7,7 @@ import {
   FileBadge2,
   Filter,
   Pencil,
-  PlusCircle,
+  Plus,
   Printer,
   Search,
   Trash2,
@@ -15,6 +15,11 @@ import {
 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import filterIcon from '@/assets/filterIcon.svg'
+import sortVector from '@/assets/sortVector.svg'
+import Trash from '@/assets/Trash.svg'
+import printer from '@/assets/printer.svg'
+import edit from '@/assets/edit.svg'
 
 const SESSION_OPTIONS = ['2025-2026', '2024-2025', '2023-2024']
 const ROWS_OPTIONS = [10, 20, 30]
@@ -167,15 +172,13 @@ const StatCard = ({ title, value, subtitle, icon: Icon, iconClass, isActive, onC
     className="w-full text-left"
   >
     <div
-      className={`rounded-2xl border bg-white px-6 py-5 shadow-[0_2px_6px_rgba(30,41,59,0.15)] transition ${
-        isActive ? 'border-primary-400 ring-2 ring-primary-200' : 'border-[#d7dbe5]'
-      }`}
+      className={`rounded-2xl border-[3px] bg-white px-6 py-10  shadow-lg border-gray-200 transition `}
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-lg font-semibold text-[#141b34]">{title}</p>
+          <p className="text-2xl font-semibold text-[#141b34]">{title}</p>
           <p className="mt-2 text-3xl font-semibold text-[#0f172a]">{value}</p>
-          <p className="mt-2 text-base text-[#505a74]">{subtitle}</p>
+          <p className="mt-2 text-xl text-[#505a74]">{subtitle}</p>
         </div>
         <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${iconClass}`}>
           <Icon className="h-7 w-7 text-white" />
@@ -453,8 +456,8 @@ const Certificates = () => {
             </button>
           )}
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Certificates</h1>
-            <p className="mt-1 text-sm text-[#65708a]">
+            <h1 className="text-3xl font-semibold tracking-tight text-[#253256]">Certificates</h1>
+            <p className="mt-1 text-lg text-gray-700">
               Generate and manage student certificates
             </p>
           </div>
@@ -463,9 +466,9 @@ const Certificates = () => {
         <button
           type="button"
           onClick={handleOpenGenerate}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+          className="inline-flex items-center gap-2 rounded bg-primary-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
         >
-          <PlusCircle className="h-4 w-4" />
+          <Plus className="h-3 w-3 bg-white rounded text-primary-500" />
           Generate Certificate
         </button>
       </div>
@@ -525,7 +528,8 @@ const Certificates = () => {
                 onClick={() => setIsFilterOpen((prev) => !prev)}
                 className="inline-flex items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-3 py-2 text-sm font-semibold text-[#4c5877] transition hover:bg-[#f5f7fb]"
               >
-                <Filter className="h-4 w-4" />
+                {/* <Filter className="h-4 w-4" /> */}
+                <img src={filterIcon} alt="Filter Icon" className="w-4 h-4"/>
                 Filter
               </button>
               {isFilterOpen && (
@@ -592,7 +596,8 @@ const Certificates = () => {
               }}
               className="inline-flex items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-3 py-2 text-sm font-semibold text-[#4c5877] transition hover:bg-[#f5f7fb]"
             >
-              <ArrowUpDown className="h-4 w-4" />
+              {/* <ArrowUpDown className="h-4 w-4" /> */}
+              <img src={sortVector} className="w-4 h-4" />
               {sortOrder === 'asc' ? 'Sort By A-Z' : 'Sort By Z-A'}
             </button>
           </div>
@@ -687,7 +692,7 @@ const Certificates = () => {
                       >
                         <span
                           className={`h-1.5 w-1.5 rounded-full ${
-                            row.status === 'Issued' ? 'bg-green-500' : 'bg-amber-500'
+                            row.status === 'Issued' ? 'bg-[#1ABE17]' : 'bg-amber-500'
                           }`}
                         />
                         {row.status}
@@ -701,7 +706,8 @@ const Certificates = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label="Print certificate"
                         >
-                          <Printer className="h-4 w-4" />
+                          {/* <Printer className="h-4 w-4" /> */}
+                         < img src={printer}  className="w-4 h-4"/>
                         </button>
                         <button
                           type="button"
@@ -709,7 +715,8 @@ const Certificates = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label="Delete certificate"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {/* <Trash2 className="h-4 w-4" /> */}
+                          < img src={Trash}  className="w-4 h-4"/>
                         </button>
                         <button
                           type="button"
@@ -717,7 +724,8 @@ const Certificates = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
                           aria-label="Edit certificate"
                         >
-                          <Pencil className="h-4 w-4" />
+                          {/* <Pencil className="h-4 w-4" /> */}
+                          < img src={edit}  className="w-4 h-4"/>
                         </button>
                       </div>
                     </td>

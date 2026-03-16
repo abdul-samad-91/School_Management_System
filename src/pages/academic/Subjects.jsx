@@ -5,12 +5,28 @@ import {
   Download,
   Filter,
   Pencil,
-  PlusCircle,
+  Plus ,
   Printer,
   Search,
   Trash2,
   X,
 } from 'lucide-react'
+import SortVector from '@/assets/SortVector.svg'
+import filterIcon from '@/assets/filterIcon.svg'
+import edit from '@/assets/edit.svg'
+import Trash from '@/assets/Trash.svg'
+import BookLogo1 from '@/assets/BookLogo1.png'
+import fileExport from '@/assets/fileExport.svg'
+import printer from '@/assets/printer.svg'
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/Table'
 
 const SUBJECT_TEMPLATES = [
   { id: 'SU128394', name: 'English', code: '101', type: 'Theory', status: 'Active' },
@@ -221,39 +237,42 @@ const Subjects = () => {
     <div className="h-full space-y-4 overflow-y-auto pr-1">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Subject</h1>
+          <h1 className="text-3xl font-medium tracking-tight text-[#253256]">Subject</h1>
           <p className="mt-1 text-sm text-[#65708a]">Academic / Subject</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d4d9e4] bg-white text-[#55637f] transition hover:bg-slate-50"
+            className="inline-flex h-9 w-9 items-center justify-center  text-[#55637f] transition hover:bg-slate-50"
             aria-label="Print subjects"
           >
-            <Printer className="h-4 w-4" />
+            {/* <Printer className="h-4 w-4" /> */}
+            <img src={printer} alt="Print Icon" />
+
           </button>
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg bg-[#dce1eb] px-4 py-2 text-sm font-semibold text-[#475372] transition hover:bg-[#ced5e4]"
+            className="inline-flex items-center gap-2 rounded bg-gray-200 px-4 py-2 text-sm font-semibold text-[#475372] transition hover:bg-[#ced5e4]"
           >
-            <Download className="h-4 w-4" />
+            {/* <Download className="h-4 w-4" /> */}
+            <img src={fileExport} alt="Export Icon" />
             Export
           </button>
           <button
             type="button"
             onClick={openAddSubjectModal}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+            className="inline-flex items-center gap-2 rounded bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
           >
-            <PlusCircle className="h-4 w-4" />
+            <Plus className="h-3 w-3 bg-white rounded text-primary-500" />
             Add Subject
           </button>
         </div>
       </div>
 
-      <section className="rounded-xl border border-[#d9dde7] bg-[#f2f3f5]">
+      <section className="rounded-xl shadow-2xl">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#d9dde7] px-5 py-4">
-          <h2 className="text-2xl font-bold text-[#263355]">Subject List</h2>
+          <h2 className="text-2xl font-semibold text-[#263355]">Subject List</h2>
 
           <div className="flex flex-wrap items-center gap-2">
             <label className="relative min-w-[230px]">
@@ -271,7 +290,8 @@ const Subjects = () => {
               type="button"
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-4 text-sm font-medium text-[#55637f] transition hover:bg-slate-50"
             >
-              <Filter className="h-4 w-4" />
+              {/* <Filter className="h-4 w-4" /> */}
+              <img src={filterIcon} alt="Filter icon" />
               Filter
             </button>
 
@@ -280,82 +300,95 @@ const Subjects = () => {
               onClick={handleSortToggle}
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#d4d8e3] bg-white px-4 text-sm font-medium text-[#55637f] transition hover:bg-slate-50"
             >
-              <ArrowDownUp className="h-4 w-4" />
+              {/* <ArrowDownUp className="h-4 w-4" /> */}
+              <img src ={SortVector} alt="Sort icon"  />
               Sort By {sortOrder === 'az' ? 'A-Z' : 'Z-A'}
             </button>
           </div>
         </div>
 
-        <div className="border-b border-[#d9dde7] px-5 py-3 text-sm text-[#55637f]">
+        <div className="border-b border-[#d9dde7] px-5 py-3 text-sm text-[#55637f] flex gap-3 items-center ">
           <span className="font-medium">Row Per Page</span>{' '}
-          <span className="mx-1 rounded-md border border-[#d4d8e3] bg-white px-2 py-0.5">10</span>
-          Entries
+          <select name="" id="" className='border-2 cursor-pointer rounded  border-gray-300 p-2'>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+          <span>Entries</span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-[#e6e9ef]">
-              <tr>
-                <th className="w-12 px-4 py-3 text-left">
-                  <input type="checkbox" className="h-4 w-4 rounded border-[#d5dbe7]" />
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">ID</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Code</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Type</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-[#273355]">Action</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white">
-              {paginatedSubjects.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
-                    No subjects found.
-                  </td>
-                </tr>
-              ) : (
-                paginatedSubjects.map((subject) => (
-                  <tr key={subject.id} className="border-b border-[#e3e7ef] hover:bg-[#fafbfe]">
-                    <td className="px-4 py-4">
-                      <input type="checkbox" className="h-4 w-4 rounded border-[#d5dbe7]" />
-                    </td>
-                    <td className="px-4 py-4 text-sm font-medium text-primary-600">{subject.id}</td>
-                    <td className="px-4 py-4 text-sm text-[#4c5877]">{subject.name}</td>
-                    <td className="px-4 py-4 text-sm text-[#4c5877]">{subject.code}</td>
-                    <td className="px-4 py-4 text-sm text-[#4c5877]">{subject.type}</td>
-                    <td className="px-4 py-4">
-                      <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs font-semibold text-green-700">
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                        {subject.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteSubject(subject.id)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
-                          aria-label={`Delete subject ${subject.name}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => openSubjectDetailsModal(subject)}
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
-                          aria-label={`View subject ${subject.name}`}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Table className="overflow-x-auto">
+          <TableHeader>
+            <TableRow>
+              <TableHead className=" text-left">
+                <input type="checkbox" className="h-4 w-4 rounded border-[#d5dbe7]" />
+              </TableHead>
+              <TableHead className=" text-left text-sm font-semibold text-[#273355]">ID</TableHead>
+              <TableHead className="text-center text-sm font-semibold text-[#273355]">Name</TableHead>
+              <TableHead className="text-center text-sm font-semibold text-[#273355]">Code</TableHead>
+              <TableHead className="text-center text-sm font-semibold text-[#273355]">Type</TableHead>
+              <TableHead className="text-center text-sm font-semibold text-[#273355]">Status</TableHead>
+              <TableHead className="text-sm font-semibold text-[#273355] text-center">Action</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="bg-white">
+            {paginatedSubjects.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
+                  No subjects found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedSubjects.map((subject) => (
+                <TableRow key={subject.id} className="border-b border-[#e3e7ef] hover:bg-[#fafbfe]">
+                  <TableCell className="">
+                    <input type="checkbox" className="h-4 w-4 rounded border-[#d5dbe7]" />
+                  </TableCell>
+                  <TableCell className="text-sm font-medium text-primary-600">
+                    {subject.id}
+                  </TableCell>
+                  <TableCell className=" text-center text-sm text-[#4c5877]">
+                    {subject.name}
+                  </TableCell>
+                  <TableCell className="text-center text-sm text-[#4c5877]">
+                    {subject.code}
+                  </TableCell>
+                  <TableCell className=" text-center text-sm text-[#4c5877]">
+                    {subject.type}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-xs font-semibold text-[#1ABE17]">
+                      <span className="h-1 w-1 rounded-full bg-[#1ABE17]" />
+                      {subject.status}
+                    </span>
+                  </TableCell>
+                  <TableCell className="px-4 py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSubject(subject.id)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
+                        aria-label={`Delete subject ${subject.name}`}
+                      >
+                        {/* <Trash2 className="h-4 w-4" /> */}
+                        <img src={Trash} alt="Delete subject" className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openSubjectDetailsModal(subject)}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
+                        aria-label={`View subject ${subject.name}`}
+                      >
+                        {/* <Pencil className="h-4 w-4" /> */}
+                        <img src={edit} alt="Edit subject" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
 
         <div className="flex items-center justify-end gap-1 px-5 py-4 text-sm text-[#4c5877]">
           <button
@@ -403,23 +436,24 @@ const Subjects = () => {
       </section>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 px-4 backdrop-blur-[2px]">
-          <div className="relative w-full max-w-[560px] rounded-xl border-[3px] border-[#8e8f93] bg-[#efeff1] px-8 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
-            <button
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/20 px-4 backdrop-blur-[2px]">
+          <div className="relative w-full max-w-[512px] rounded-xl border-[3px] border-[#8e8f93] bg-white px-12 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
+            {/* <button
               type="button"
               onClick={closeModal}
               className="absolute right-3 top-3 rounded-full p-1 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
-            </button>
+            </button> */}
 
-            <div className="flex items-center justify-center gap-3">
-              <BookOpen className="h-10 w-10 text-[#0f1524]" />
-              <p className="font-serif text-4xl font-bold text-[#0f1524]">SMS</p>
-            </div>
+           <div className="flex items-center justify-center gap-3 mt-4">
+                         {/* <BookOpen className="h-12 w-12 text-[#0f1524]" /> */}
+                         <img src={BookLogo1} alt="Book logo" className="w-16 h-14"/>
+                       <p className="text-lg font-medium text-[#0f1524]">School Management <br /> System</p>
+                       </div>
 
-            <h3 className="mt-4 text-center text-2xl font-bold text-[#0f1524] sm:text-3xl">{modalTitle}</h3>
+            <h3 className="mt-8 text-center text-3xl font-medium text-[#0f1524] sm:text-3xl">{modalTitle}</h3>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="space-y-1">
@@ -429,8 +463,8 @@ const Subjects = () => {
                   value={formData.name}
                   onChange={(event) => handleInputChange('name', event.target.value)}
                   readOnly={isReadOnly}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
-                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : 'bg-white/80 focus:border-primary-500'
+                  className={`h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
+                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : ' focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -442,8 +476,8 @@ const Subjects = () => {
                   value={formData.type}
                   onChange={(event) => handleInputChange('type', event.target.value)}
                   readOnly={isReadOnly}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
-                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : 'bg-white/80 focus:border-primary-500'
+                  className={`h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
+                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : ' focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -455,10 +489,10 @@ const Subjects = () => {
                   value={formData.id}
                   onChange={(event) => handleInputChange('id', event.target.value)}
                   readOnly={modalMode === 'details'}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
+                  className={`h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
                     modalMode === 'details'
                       ? 'cursor-default bg-[#e8e9eb]'
-                      : 'bg-white/80 focus:border-primary-500'
+                      : 'focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -470,8 +504,8 @@ const Subjects = () => {
                   value={formData.code}
                   onChange={(event) => handleInputChange('code', event.target.value)}
                   readOnly={isReadOnly}
-                  className={`h-10 w-full rounded-xl border border-[#1f2937] px-3 text-sm text-[#0f1524] outline-none ${
-                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : 'bg-white/80 focus:border-primary-500'
+                  className={`h-10 w-full rounded-xl border border-[#1f2937] bg-gray-100 px-3 text-sm text-[#0f1524] outline-none ${
+                    isReadOnly ? 'cursor-default bg-[#e8e9eb]' : '   focus:border-primary-500'
                   }`}
                 />
               </label>
@@ -483,7 +517,7 @@ const Subjects = () => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg border border-[#1f2937] bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
+                className="rounded border-2 mb-10 border-gray-300 bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
               >
                 Cancel
               </button>
@@ -492,7 +526,7 @@ const Subjects = () => {
                 <button
                   type="button"
                   onClick={handleAddSubject}
-                  className="rounded-lg bg-primary-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+                  className="rounded mb-10 bg-primary-600 px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
                 >
                   Add Subject
                 </button>
@@ -501,14 +535,14 @@ const Subjects = () => {
                   <button
                     type="button"
                     onClick={() => setIsEditEnabled(true)}
-                    className="rounded-lg border border-[#1f2937] bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
+                    className="rounded border-2 mb-10 border-gray-300 bg-white/70 px-6 py-2 text-sm font-semibold text-[#131a2a] transition hover:bg-white"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveSubject}
-                    className={`rounded-lg px-6 py-2 text-sm font-semibold text-white transition ${
+                    className={`rounded mb-10 px-6 py-2 text-sm font-semibold text-white transition ${
                       isEditEnabled
                         ? 'bg-primary-600 hover:bg-primary-700'
                         : 'cursor-not-allowed bg-primary-300'

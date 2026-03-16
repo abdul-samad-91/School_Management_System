@@ -6,11 +6,16 @@ import {
   Download,
   MapPin,
   Pencil,
-  PlusCircle,
-  Printer,
+  Plus,
+  // Print,
   X,
 } from 'lucide-react'
 import { toast } from 'sonner'
+import fileExport from '@/assets/fileExport.svg'
+import printer from '@/assets/printer.svg'
+import edit from '@/assets/edit.svg'
+import LocationOn from '@/assets/LocationOn.svg'
+import BookLogo1 from '@/assets/BookLogo1.png'
 
 const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 
@@ -217,8 +222,8 @@ const Timetables = () => {
     <div className="h-full space-y-4 overflow-y-auto pr-1">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-[#253256]">Time Table</h1>
-          <p className="mt-1 text-sm text-[#65708a]">Academic / Timetables</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-[#253256]">Time Table</h1>
+          <p className="mt-1 text-[15px] text-[#65708a]">Academic / Timetables</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -228,22 +233,24 @@ const Timetables = () => {
             className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#748098] transition hover:bg-[#e9ecf1]"
             aria-label="Print timetable"
           >
-            <Printer className="h-4 w-4" />
+            {/* <Printer className="h-4 w-4" /> */}
+            <img src={printer} alt="Printer logo" />
           </button>
           <button
             type="button"
             onClick={handleExport}
             className="inline-flex items-center gap-2 rounded-lg bg-[#dce1eb] px-4 py-2 text-sm font-semibold text-[#475372] transition hover:bg-[#ced5e4]"
           >
-            <Download className="h-4 w-4" />
+            {/* <Download className="h-4 w-4" /> */}
+            <img src={fileExport} alt="Export logo" />
             Export
           </button>
           <button
             type="button"
             onClick={openAddModal}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+            className="inline-flex items-center gap-2 rounded bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
           >
-            <PlusCircle className="h-4 w-4" />
+            <Plus className="h-3 w-3 bg-white rounded  text-primary-500" />
             Add timetable
           </button>
         </div>
@@ -253,7 +260,7 @@ const Timetables = () => {
         <select
           value={selectedClassId}
           onChange={(event) => setSelectedClassId(event.target.value)}
-          className="h-11 w-full appearance-none rounded-lg border border-[#d9dde7] bg-[#eceff4] px-3 pr-10 text-sm font-semibold text-[#49597a] outline-none transition focus:border-[#9ca9bf]"
+          className="h-11 w-full appearance-none rounded-lg   bg-[#eceff4] px-4 pr-10 text-sm font-semibold text-[#49597a] outline-none transition focus:border-[#9ca9bf]"
         >
           <option value="">Select Class</option>
           {timetables.map((classItem) => (
@@ -273,10 +280,10 @@ const Timetables = () => {
               key={day}
               type="button"
               onClick={() => setActiveDay(day)}
-              className={`h-11 rounded-xl border text-base font-medium transition ${
+              className={`h-11 rounded-xl border-2 text-base font-medium transition ${
                 isActive
-                  ? 'border-[#7e8798] bg-white text-[#1f2937]'
-                  : 'border-[#a2a9b6] bg-[#f7f8fa] text-[#2d3545] hover:bg-white'
+                  ? 'border-gray-600  text-[#1f2937]'
+                  : 'border-gray-400  text-[#2d3545]'
               }`}
             >
               {day}
@@ -303,7 +310,7 @@ const Timetables = () => {
           return (
             <article
               key={`${activeDay}-${entry.id}-${index}`}
-              className="rounded-3xl border border-[#9ca3af] bg-[#eff0f2] px-4 py-5 sm:px-6 sm:py-6"
+              className="rounded-3xl border-2 border-[#9ca3af] bg-white px-4 py-5 sm:px-6 sm:py-6"
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
@@ -329,19 +336,21 @@ const Timetables = () => {
                   <button
                     type="button"
                     onClick={() => openEditModal(entry)}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#a6adb9] bg-[#edf0f4] text-[#515966] transition hover:bg-[#e1e6ec]"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#a6adb9]  text-[#515966] transition hover:bg-[#e1e6ec]"
                     aria-label={`Edit ${entry.subject}`}
                   >
-                    <Pencil className="h-5 w-5" />
+                    {/* <Pencil className="h-5 w-5" /> */}
+                    <img src={edit} alt="Edit icon" className="w-6 h-6" />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => handleRoomClick(entry)}
-                    className="inline-flex h-10 min-w-[104px] items-center justify-center gap-2 rounded-lg border border-[#757e8f] bg-[#f7f8fa] px-3 text-sm font-semibold text-[#111827] whitespace-nowrap"
+                    className="inline-flex h-10 min-w-[104px] items-center justify-center gap-2 rounded-lg border-2 border-gray-700 px-3 text-sm font-semibold text-[#111827] whitespace-nowrap"
                     aria-label={`Room for ${entry.subject}`}
                   >
-                    <MapPin className="h-4 w-4" />
+                    {/* <MapPin className="h-4 w-4" /> */}
+                    <img src={LocationOn} alt="map Icon" />
                     {entry.room}
                   </button>
                 </div>
@@ -352,58 +361,59 @@ const Timetables = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-4 backdrop-blur-[2px]">
-          <div className="relative w-full max-w-[720px] rounded-2xl border-2 border-[#8f949d] bg-[#f1f2f4] p-6 shadow-[0_10px_24px_rgba(15,23,42,0.3)] sm:p-8">
-            <button
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/35 px-4 backdrop-blur-[2px]">
+          <div className="relative w-full max-w-[512px] rounded-2xl border-[3px] border-gray-400 bg-white   shadow-[0_10px_24px_rgba(15,23,42,0.3)] sm:p-8">
+            {/* <button
               type="button"
               onClick={closeModal}
               className="absolute right-3 top-3 rounded-lg p-1 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
               aria-label="Close modal"
             >
               <X className="h-5 w-5" />
-            </button>
+            </button> */}
 
-            <div className="flex items-center justify-center gap-2">
-              <BookOpen className="h-10 w-10 text-[#0f172a]" />
-              <p className="font-serif text-4xl font-bold text-[#0f172a]">SMS</p>
-            </div>
+                      <div className="flex items-center justify-center gap-3 ">
+                                    {/* <BookOpen className="h-12 w-12 text-[#0f1524]" /> */}
+                                    <img src={BookLogo1} alt="Book logo" className="w-18 h-16 mb-2"/>
+                                  <p className="text-6xl font-medium text-[#0f1524] font-serif">SMS</p>
+                                  </div>
 
-            <h2 className="mt-4 text-center text-2xl font-semibold text-[#111827]">
+            <h2 className="mt-4 text-center text-4xl font-semibold text-[#111827]">
               {isEditMode ? 'Edit Timetable' : 'Add New Timetable'}
             </h2>
 
-            <form onSubmit={handleModalSubmit} className="mt-8 space-y-4">
+            <form onSubmit={handleModalSubmit} className="mt-8 space-y-4 px-10 ">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="space-y-1">
-                  <span className="text-base font-medium text-[#111827]">Subject Name</span>
+                  <span className="text-xl font-normal text-[#111827]">Subject Name</span>
                   <input
                     type="text"
                     value={formData.subject}
                     onChange={(event) => handleInputChange('subject', event.target.value)}
-                    className="h-11 w-full rounded-xl border border-[#808896] bg-white px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
+                    className="h-9 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-base font-medium text-[#111827]">Teacher Name</span>
+                  <span className="text-xl font-normal text-[#111827]">Teacher Name</span>
                   <input
                     type="text"
                     value={formData.teacher}
                     onChange={(event) => handleInputChange('teacher', event.target.value)}
-                    className="h-11 w-full rounded-xl border border-[#808896] bg-white px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
+                    className="h-9 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-base font-medium text-[#111827]">Class</span>
+                  <span className="text-xl font-normal text-[#111827]">Class</span>
                   <select
                     value={formData.classId}
                     onChange={(event) => handleInputChange('classId', event.target.value)}
                     disabled={isEditMode}
-                    className={`h-11 w-full rounded-xl border border-[#808896] px-3 text-sm text-[#111827] outline-none transition ${
+                    className={`h-9 w-full rounded-xl border-2 border-gray-700 px-3 text-sm text-[#111827] outline-none transition ${
                       isEditMode
                         ? 'cursor-not-allowed bg-[#e6e8ec]'
-                        : 'bg-white focus:border-primary-500'
+                        : 'bg-gray-100 focus:border-primary-500'
                     }`}
                   >
                     <option value="">Select Class</option>
@@ -416,25 +426,25 @@ const Timetables = () => {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-base font-medium text-[#111827]">Room No.</span>
+                  <span className="text-xl font-normal text-[#111827]">Room No.</span>
                   <input
                     type="text"
                     value={formData.room}
                     onChange={(event) => handleInputChange('room', event.target.value)}
-                    className="h-11 w-full rounded-xl border border-[#808896] bg-white px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
+                    className="h-9 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-base font-medium text-[#111827]">Select Day</span>
+                  <span className="text-xl font-normal text-[#111827]">Select Day</span>
                   <select
                     value={formData.day}
                     onChange={(event) => handleInputChange('day', event.target.value)}
                     disabled={isEditMode}
-                    className={`h-11 w-full rounded-xl border border-[#808896] px-3 text-sm text-[#111827] outline-none transition ${
+                    className={`h-9 w-full rounded-xl border-2 border-gray-700 px-3 text-sm text-[#111827] outline-none transition ${
                       isEditMode
                         ? 'cursor-not-allowed bg-[#e6e8ec]'
-                        : 'bg-white focus:border-primary-500'
+                        : 'bg-gray-100 focus:border-primary-500'
                     }`}
                   >
                     {WEEK_DAYS.map((day) => (
@@ -446,15 +456,15 @@ const Timetables = () => {
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-base font-medium text-[#111827]">Select Time</span>
+                  <span className="text-xl font-noraml text-[#111827]">Select Time</span>
                   <select
                     value={formData.time}
                     onChange={(event) => handleInputChange('time', event.target.value)}
                     disabled={isEditMode}
-                    className={`h-11 w-full rounded-xl border border-[#808896] px-3 text-sm text-[#111827] outline-none transition ${
+                    className={`h-9 w-full rounded-xl border-2 border-gray-700 px-3 text-sm text-[#111827] outline-none transition ${
                       isEditMode
                         ? 'cursor-not-allowed bg-[#e6e8ec]'
-                        : 'bg-white focus:border-primary-500'
+                        : 'bg-gray-100 focus:border-primary-500'
                     }`}
                   >
                     {PERIOD_SLOTS.map((slot) => (
@@ -472,13 +482,13 @@ const Timetables = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="inline-flex h-10 items-center rounded-lg border border-[#8b93a1] bg-white px-6 text-sm font-semibold text-[#111827] transition hover:bg-slate-50"
+                  className="inline-flex h-10 items-center mt-10 rounded border-2 border-gray-700 bg-white px-6 text-sm font-semibold text-[#111827] transition hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex h-10 items-center rounded-lg bg-primary-600 px-6 text-sm font-semibold text-white transition hover:bg-primary-700"
+                  className="inline-flex h-10 mt-10 items-center rounded bg-primary-500 px-6 text-sm font-semibold text-white transition hover:bg-primary-700"
                 >
                   {isEditMode ? 'Save Changes' : 'Add Timetable'}
                 </button>
