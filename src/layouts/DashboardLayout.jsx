@@ -1,19 +1,19 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
-  BookCopy,
-  Calendar,
-  ClipboardCheck,
-  Coins,
+import {
+  LayoutDashboard,
+  Users,
+  GraduationCap,
+  // BookOpen,
+  // BookCopy,
+  // Calendar,
+  // ClipboardCheck,
+  // Coins,
   FileText,
   LogOut,
   User,
-  Bell,
-  Settings,
+  // Bell,
+  // Settings,
   Menu,
   X,
   // SettingsIcon,
@@ -24,6 +24,9 @@ import bookIcon from '@/assets/bookIcon.svg'
 import notes2 from '@/assets/notes2.svg'
 import settingIcon from '@/assets/settingIcon.svg'
 import whatsappIcon from '@/assets/whatsappIcon.svg'
+import BellIcon from '@/assets/BellIcon.svg'
+import StackofCoins2 from '@/assets/StackofCoins2.svg'
+import examIcon from '@/assets/examIcon.svg'
 import { useAuthStore } from '@/store/authStore'
 
 
@@ -74,18 +77,18 @@ const DashboardLayout = () => {
     {
       name: 'Exams',
       href: '/exams',
-      icon: FileText,
+      icon: examIcon,
       children: [{ name: 'Exams', href: '/exams' }, { name: 'Results', href: '/exams/results' }],
     },
     {
       name: 'Fees',
-      icon: Coins,
+      icon: StackofCoins2,
       children: [
         { name: 'Fee Structure', href: '/fees/structures' },
         { name: 'Payments', href: '/fees/payments' },
       ],
     },
-    { name: 'Certificates', href: '/certificates',icon: FileText},
+    { name: 'Certificates', href: '/certificates', icon: FileText },
     { name: 'Whatsapp', href: '/communication/announcements', icon: whatsappIcon },
     { name: 'Users', href: '/users', icon: User },
   ]
@@ -119,9 +122,8 @@ const DashboardLayout = () => {
       return (
         <div className="space-y-2">
           <div
-            className={`flex items-center px-3 py-2 text-sm font-semibold ${
-              parentActive ? 'text-gray-900' : 'text-gray-700'
-            }`}
+            className={`flex items-center px-3 py-2 text-sm font-semibold ${parentActive ? 'text-gray-900' : 'text-gray-700'
+              }`}
           >
             {item.icon &&
               (typeof item.icon === 'string' ? (
@@ -144,11 +146,10 @@ const DashboardLayout = () => {
                 <Link
                   key={child.name}
                   to={child.href}
-                  className={`block rounded-lg px-2 py-1.5 text-sm ${
-                    childActive
+                  className={`block rounded-lg px-2 py-1.5 text-sm ${childActive
                       ? 'bg-blue-100 font-semibold text-blue-700'
                       : 'text-gray-800 hover:text-gray-900'
-                  }`}
+                    }`}
                 >
                   {child.name}
                 </Link>
@@ -162,11 +163,10 @@ const DashboardLayout = () => {
     return (
       <Link
         to={item.href}
-        className={`flex items-center rounded-lg px-3 py-2 text-base font-semibold ${
-          isActive
+        className={`flex items-center rounded-lg px-3 py-2 text-base font-semibold ${isActive
             ? 'bg-blue-100 text-blue-700'
             : 'text-gray-900 hover:text-gray-950'
-        }`}
+          }`}
       >
         {item.icon &&
           (typeof item.icon === 'string' ? (
@@ -207,16 +207,20 @@ const DashboardLayout = () => {
                 )}
                 <Link to="/dashboard" className="hidden items-center gap-3 md:flex">
                   {/* <BookOpen className="h-7 w-7 text-gray-900" /> */}
-                  <img src={BookLogo1} alt="Book Logo" className='w-14 h-12'/>
-                  <span className="text-xl font-semibold leading-tight text-gray-900  ">School Management 
+                  <img src={BookLogo1} alt="Book Logo" className='w-14 h-12' />
+                  <span className="text-xl font-semibold leading-tight text-gray-900  ">School Management
                     <br /> System</span>
                 </Link>
               </div>
 
               <div className="flex items-center gap-1">
                 <button className="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100">
-                  <Bell className="h-6 w-6" />
-                  <span className="absolute right-[1px] top-1 h-2 w-2 rounded-full bg-red-500" />
+                  <img src={BellIcon} alt="" className="h-6 w-6" />
+
+                  {/* Notification dot */}
+                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500
+                   ring-4 ring-red-200
+                   shadow-md shadow-red-400/50" />
                 </button>
 
                 <div className="text-right">
@@ -238,20 +242,18 @@ const DashboardLayout = () => {
           {/* Mobile sidebar */}
           {!hideSidebar && (
             <div
-              className={`fixed inset-0 z-50 bg-black/40 transition-opacity lg:hidden ${
-                isMobileSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
-              }`}
+              className={`fixed inset-0 z-50 bg-black/40 transition-opacity lg:hidden ${isMobileSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+                }`}
               onClick={closeMobileSidebar}
             >
               <aside
-                className={`absolute left-0 top-0 flex h-full w-[260px] flex-col bg-white transition-transform ${
-                  isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}
+                className={`absolute left-0 top-0 flex h-full w-[260px] flex-col bg-white transition-transform ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                  }`}
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="flex h-[68px] items-center justify-between border-b border-gray-300 px-4">
                   <Link to="/dashboard" className="flex items-center gap-2">
-                    <img src={BookLogo1} alt="Book Logo" className='w-10 h-9'/>
+                    <img src={BookLogo1} alt="Book Logo" className='w-10 h-9' />
                     <span className="text-base font-semibold text-gray-900">School Management</span>
                   </Link>
                   <button
