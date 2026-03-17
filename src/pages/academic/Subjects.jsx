@@ -436,7 +436,7 @@ const Subjects = () => {
       </section>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/20 px-4 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-50 top-[52px] flex items-center justify-center bg-white/20 px-4 backdrop-blur-[2px]">
           <div className="relative w-full max-w-[512px] rounded-xl border-[3px] border-[#8e8f93] bg-white px-12 py-7 shadow-[0_8px_24px_rgba(15,23,42,0.25)]">
             {/* <button
               type="button"

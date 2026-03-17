@@ -35,10 +35,10 @@ const Modal = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50  overflow-y-auto">
       {/* Overlay */}
       <div 
-        className="fixed inset-0 bg-white/40 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 top-[68px] bg-white/40 backdrop-blur-sm transition-opacity"
         onClick={onClose}
       />
       

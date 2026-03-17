@@ -361,7 +361,7 @@ const Timetables = () => {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/35 px-4 backdrop-blur-[2px]">
+        <div className="fixed inset-0 z-50 top-[52px] flex items-center justify-center bg-white/35 px-4 backdrop-blur-[2px]">
           <div className="relative w-full max-w-[512px] rounded-2xl border-[3px] border-gray-400 bg-white   shadow-[0_10px_24px_rgba(15,23,42,0.3)] sm:p-8">
             {/* <button
               type="button"

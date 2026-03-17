@@ -233,15 +233,15 @@ const Sessions = () => {
       </section>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/20 px-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 top-[52px] flex items-center justify-center bg-white/20 px-4 backdrop-blur-sm">
           <div className="relative w-full max-w-[512px] h-[559px] rounded-xl border-2 border-gray-400 bg-white px-16 py-7 shadow-lg">
-            <button
+            {/* <button
               type="button"
               onClick={closeModal}
               className="absolute right-3 top-3 rounded-full p-1 text-slate-500 transition hover:bg-slate-200 hover:text-slate-700"
             >
               <X className="h-5 w-5" />
-            </button>
+            </button> */}
 
             <div className="flex items-center justify-center gap-3 mt-4">
               {/* <BookOpen className="h-12 w-12 text-[#0f1524]" /> */}

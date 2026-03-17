@@ -20,6 +20,9 @@ import sortVector from '@/assets/sortVector.svg'
 import Trash from '@/assets/Trash.svg'
 import printer from '@/assets/printer.svg'
 import edit from '@/assets/edit.svg'
+import certificateIcon from '@/assets/certificateIcon.svg'
+import edit3 from '@/assets/edit3.svg'
+import notesIcon from '@/assets/notesIcon.svg'
 
 const SESSION_OPTIONS = ['2025-2026', '2024-2025', '2023-2024']
 const ROWS_OPTIONS = [10, 20, 30]
@@ -124,6 +127,48 @@ const INITIAL_CERTIFICATES = [
     templateId: 'template-gold',
     status: 'Draft',
   },
+  {
+    id: 'cert-7',
+    admNo: 'SU128400',
+    name: 'Iqbal Ahmad',
+    type: 'Academic',
+    title: 'Academic Excellence Certificate',
+    className: '9-A',
+    section: 'A',
+    session: '2023-2024',
+    issuedDate: '',
+    signatory: 'Principal',
+    templateId: 'template-gold',
+    status: 'Draft',
+  },
+  {
+    id: 'cert-8',
+    admNo: 'SU128401',
+    name: 'Iqbal Awan',
+    type: 'Academic',
+    title: 'Academic Excellence Certificate',
+    className: '9-A',
+    section: 'A',
+    session: '2023-2024',
+    issuedDate: '',
+    signatory: 'Principal',
+    templateId: 'template-gold',
+    status: 'Draft',
+  },
+  {
+    id: 'cert-9',
+    admNo: 'SU128402',
+    name: 'Iqbal Awan',
+    type: 'Academic',
+    title: 'Academic Excellence Certificate',
+    className: '9-A',
+    section: 'A',
+    session: '2023-2024',
+    issuedDate: '',
+    signatory: 'Principal',
+    templateId: 'template-gold',
+    status: 'Draft',
+  },
 ]
 
 const EMPTY_CERTIFICATE = {
@@ -190,13 +235,13 @@ const StatCard = ({ title, value, subtitle, icon: Icon, iconClass, isActive, onC
 
 const InputField = ({ label, placeholder, value, onChange, type = 'text' }) => (
   <label className="space-y-1">
-    <span className="text-sm font-semibold text-[#111827]">{label}</span>
+    <span className="text-xl font-medium text-[#111827]">{label}</span>
     <input
       type={type}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      className="h-10 w-full rounded-lg bg-[#f2f2f2] px-3 text-sm text-[#111827] outline-none transition focus:ring-2 focus:ring-primary-300"
+      className="h-10 w-full rounded-xl bg-[#f2f2f2] px-3 text-sm text-[#111827] outline-none transition focus:ring-2 focus:ring-primary-300"
     />
   </label>
 )
@@ -478,7 +523,7 @@ const Certificates = () => {
           title="Total Certificates"
           value={String(totalCount)}
           subtitle="10 this month"
-          icon={FileBadge2}
+          icon={()=> <img src={certificateIcon} alt="Total Certificates" className="h-7 w-7 text-white" />}
           iconClass="bg-[#3f7bf5]"
           isActive={activeStatus === 'all'}
           onClick={() => handleStatusFilter('all')}
@@ -487,7 +532,7 @@ const Certificates = () => {
           title="Issued"
           value={String(issuedCount)}
           subtitle="10 this month"
-          icon={ClipboardCheck}
+          icon={() => <img src={notesIcon} alt="Issued Certificates" className="h-7 w-7 text-white" />}
           iconClass="bg-[#22c55e]"
           isActive={activeStatus === 'issued'}
           onClick={() => handleStatusFilter('issued')}
@@ -496,7 +541,7 @@ const Certificates = () => {
           title="Drafts"
           value={String(draftCount)}
           subtitle="Pending"
-          icon={Edit3}
+          icon={() => <img src={edit3} alt="Drafts" className="h-7 w-7" />}
           iconClass="bg-[#1e3a8a]"
           isActive={activeStatus === 'draft'}
           onClick={() => handleStatusFilter('draft')}
@@ -787,13 +832,13 @@ const Certificates = () => {
       </section>
 
       {isGenerateOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-10 backdrop-blur-sm">
-          <div className="w-full max-w-3xl rounded-2xl border-2 border-[#9e9e9e] bg-white p-6 shadow-[0_10px_30px_rgba(15,23,42,0.25)]">
+        <div className="fixed inset-x-0 bottom-0 top-[45px] z-50 flex items-start justify-center overflow-y-auto bg-white/30 px-4 py-10 backdrop-blur-sm">
+          <div className="w-full max-w-3xl rounded-lg border-[3px]  border-gray-400 bg-white py-6 px-12 shadow-2xl shadow-black-500/50  max-h-[calc(100vh-5rem)] overflow-y-auto">
             <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-[#223055]">
+              <h2 className="text-[32px] font-semibold text-[#223055]">
                 {isEditing ? 'Edit Certificate' : 'Generate Certificates'}
               </h2>
-              <p className="text-sm text-[#7b869f]">
+              <p className="text-lg text-gray-800 pb-4 ">
                 {isEditing ? 'Update the certificate details' : 'Create a new certificate for student'}
               </p>
             </div>
@@ -803,6 +848,7 @@ const Certificates = () => {
                 label="Enter Student Name*"
                 value={formValues.name}
                 onChange={handleFormChange('name')}
+        
               />
               <InputField
                 label="Student Admission No."
@@ -831,19 +877,19 @@ const Certificates = () => {
               />
             </div>
 
-            <div className="mt-5 space-y-3">
+            <div className="mt-5 space-y-3 ">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-semibold text-[#111827]">Choose Template</p>
+                <p className="text-xl font-semibold text-[#111827]">Choose Template</p>
                 <button
                   type="button"
                   onClick={() => toast.info('Template import will be added next.')}
-                  className="inline-flex items-center gap-2 rounded-md bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-700"
+                  className="inline-flex items-center gap-2 rounded-md bg-primary-500 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-700"
                 >
-                  <Upload className="h-3.5 w-3.5" />
+                  {/* <Upload className="h-3.5 w-3.5" /> */}
                   Import
                 </button>
               </div>
-              <div className="rounded-xl bg-[#f3f3f3] p-3">
+              <div className="rounded-xl bg-[#f3f3f3] p-5">
                 <div className="grid grid-cols-3 gap-3">
                   {TEMPLATE_OPTIONS.map((template) => {
                     const isSelected = formValues.templateId === template.id
@@ -890,21 +936,21 @@ const Certificates = () => {
               <button
                 type="button"
                 onClick={handleCloseGenerate}
-                className="rounded-lg border border-[#a7acb8] bg-white px-4 py-2 text-sm font-semibold text-[#1f2937] transition hover:bg-[#f3f4f6]"
+                className="rounded border-2 border-gray-500 bg-white px-6 py-3 mt-4 mb-4 text-sm font-semibold text-[#1f2937] transition hover:bg-[#f3f4f6]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleCloseGenerate}
-                className="rounded-lg border border-[#a7acb8] bg-white px-4 py-2 text-sm font-semibold text-[#1f2937] transition hover:bg-[#f3f4f6]"
+                className="rounded border-2 border-gray-500 bg-white px-6 py-3 mt-4 mb-4 text-sm font-semibold text-[#1f2937] transition hover:bg-[#f3f4f6]"
               >
                 Back
               </button>
               <button
                 type="button"
                 onClick={handleSave}
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
+                className="rounded-lg bg-primary-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-700"
               >
                 {isEditing ? 'Update' : 'Save'}
               </button>

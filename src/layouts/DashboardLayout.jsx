@@ -16,9 +16,14 @@ import {
   Settings,
   Menu,
   X,
+  // SettingsIcon,
 } from 'lucide-react'
 import BookLogo1 from '@/assets/BookLogo1.png'
-// import Admission from '@/assets/Admission.svg'
+import Admission from '@/assets/Admission.svg'
+import bookIcon from '@/assets/bookIcon.svg'
+import notes2 from '@/assets/notes2.svg'
+import settingIcon from '@/assets/settingIcon.svg'
+import whatsappIcon from '@/assets/whatsappIcon.svg'
 import { useAuthStore } from '@/store/authStore'
 
 
@@ -38,7 +43,7 @@ const DashboardLayout = () => {
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     {
       name: 'Admissions',
-      icon: BookCopy,
+      icon: Admission,
       children: [
         { name: 'Admission Form', href: 'admissions/form' },
         { name: 'Admissions List', href: 'admissions/list' },
@@ -49,7 +54,7 @@ const DashboardLayout = () => {
     { name: 'Teachers', href: 'teachers', icon: GraduationCap },
     {
       name: 'Academic',
-      icon: BookCopy,
+      icon: bookIcon,
       children: [
         { name: 'Sessions', href: '/academic/sessions' },
         { name: 'Classes', href: '/academic/classes' },
@@ -59,7 +64,7 @@ const DashboardLayout = () => {
     },
     {
       name: 'Attendence',
-      icon: ClipboardCheck,
+      icon: notes2,
       children: [
         { name: 'Student', href: '/attendance/students' },
         { name: 'Teacher', href: '/attendance/teachers' },
@@ -81,7 +86,7 @@ const DashboardLayout = () => {
       ],
     },
     { name: 'Certificates', href: '/certificates',icon: FileText},
-    { name: 'Whatsapp', href: '/communication/announcements', icon: Bell },
+    { name: 'Whatsapp', href: '/communication/announcements', icon: whatsappIcon },
     { name: 'Users', href: '/users', icon: User },
   ]
 
@@ -118,11 +123,18 @@ const DashboardLayout = () => {
               parentActive ? 'text-gray-900' : 'text-gray-700'
             }`}
           >
-            {item.icon && (
-              <item.icon
-                className={`mr-3.5 h-6 w-6 shrink-0 ${parentActive ? 'text-blue-700' : 'text-gray-900'}`}
-              />
-            )}
+            {item.icon &&
+              (typeof item.icon === 'string' ? (
+                <img
+                  src={item.icon}
+                  alt=""
+                  className="mr-3.5 h-6 w-6 shrink-0"
+                />
+              ) : (
+                <item.icon
+                  className={`mr-3.5 h-6 w-6 shrink-0 ${parentActive ? 'text-blue-700' : 'text-gray-900'}`}
+                />
+              ))}
             <span>{item.name}</span>
           </div>
           <div className="space-y-2.5 pl-12">
@@ -156,9 +168,16 @@ const DashboardLayout = () => {
             : 'text-gray-900 hover:text-gray-950'
         }`}
       >
-        {item.icon && (
-          <item.icon className={`mr-3.5 h-6 w-6 shrink-0 ${isActive ? 'text-blue-700' : 'text-gray-900'}`} />
-        )}
+        {item.icon &&
+          (typeof item.icon === 'string' ? (
+            <img
+              src={item.icon}
+              alt=""
+              className="mr-3.5 h-6 w-6 shrink-0"
+            />
+          ) : (
+            <item.icon className={`mr-3.5 h-6 w-6 shrink-0 ${isActive ? 'text-blue-700' : 'text-gray-900'}`} />
+          ))}
         <span>{item.name}</span>
       </Link>
     )
@@ -194,10 +213,10 @@ const DashboardLayout = () => {
                 </Link>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
                 <button className="relative rounded-lg p-2 text-gray-500 hover:bg-gray-100">
                   <Bell className="h-6 w-6" />
-                  <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
+                  <span className="absolute right-[1px] top-1 h-2 w-2 rounded-full bg-red-500" />
                 </button>
 
                 <div className="text-right">
@@ -206,10 +225,11 @@ const DashboardLayout = () => {
                 </div>
 
                 <Link to="/settings/profile" className="rounded-lg p-2 text-gray-900 hover:bg-gray-100" title="Profile">
-                  <User className="h-6 w-6" />
+                  {/* <User className="h-6 w-6" /> */}
+                  <User className="h-7 w-7 " />
                 </Link>
                 <button onClick={handleLogout} className="rounded-lg p-2 text-gray-900 hover:bg-gray-100" title="Logout">
-                  <LogOut className="h-6 w-6" />
+                  <LogOut className="h-7 w-7" />
                 </button>
               </div>
             </div>
@@ -249,7 +269,8 @@ const DashboardLayout = () => {
                   ))}
                 </nav>
                 <div className="border-t border-gray-300 bg-white p-4 flex items-center">
-                  <Settings className="h-6 w-6" />
+                  {/* <Settings className="h-6 w-6" /> */}
+                  <img src={settingIcon} alt="" className='w-6 h-6' />
                   <Link
                     to="/settings/school"
                     onClick={closeMobileSidebar}
@@ -271,7 +292,8 @@ const DashboardLayout = () => {
                 ))}
               </nav>
               <div className="border-t border-gray-300 bg-white p-4 flex items-center">
-                <Settings className="h-6 w-6" />
+                {/* <Settings className="h-6 w-6" /> */}
+                <img src={settingIcon} alt="" className='w-6 h-6' />
                 <Link
                   to="/settings/school"
                   className="flex items-center gap-3 rounded-lg   px-4 py-3 text-2xl font-semibold text-gray-900 hover:bg-gray-50 focus:text-primary-500"

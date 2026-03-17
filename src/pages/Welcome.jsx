@@ -157,7 +157,7 @@ const Welcome = () => {
             <div className="mt-auto flex shrink-0 justify-end pt-2">
               <button
                 onClick={() => navigate('/communication/announcements')}
-                className="rounded-lg bg-[#4281eb] px- py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
+                className="rounded-lg bg-[#4281eb] px-4 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-[#306fe0]"
               >
                 Send Message
               </button>
