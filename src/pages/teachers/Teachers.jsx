@@ -560,8 +560,8 @@ const Teachers = () => {
       </section>
 
       {isEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-10 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-2xl border border-[#d9dde7] bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 top-[52px] z-50 flex items-center justify-center bg-white/40 px-4 py-10 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl border border-[#d9dde7] bg-white py-6 px-8 shadow-xl">
             <h2 className="text-2xl font-bold text-[#253256]">Edit Teacher</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <label className="space-y-1">
@@ -571,7 +571,7 @@ const Teachers = () => {
                   onChange={(event) =>
                     setEditValues((prev) => ({ ...prev, name: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
@@ -581,7 +581,7 @@ const Teachers = () => {
                   onChange={(event) =>
                     setEditValues((prev) => ({ ...prev, subject: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
@@ -591,7 +591,7 @@ const Teachers = () => {
                   onChange={(event) =>
                     setEditValues((prev) => ({ ...prev, classLabel: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
@@ -601,7 +601,7 @@ const Teachers = () => {
                   onChange={(event) =>
                     setEditValues((prev) => ({ ...prev, email: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
@@ -611,7 +611,7 @@ const Teachers = () => {
                   onChange={(event) =>
                     setEditValues((prev) => ({ ...prev, phone: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
@@ -621,7 +621,7 @@ const Teachers = () => {
                   onChange={(event) =>
                     setEditValues((prev) => ({ ...prev, address: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
             </div>
@@ -630,14 +630,14 @@ const Teachers = () => {
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
-                className="rounded-lg border border-[#d4d8e3] px-4 py-2 text-sm font-semibold text-[#4c5877] hover:bg-slate-50"
+                className="rounded border-2 border-gray-600 mt-4 px-4 py-2 text-sm font-semibold text-[#4c5877] hover:bg-slate-50"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveEdit}
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+                className="rounded bg-primary-600 px-4 py-2 mt-4 text-sm font-semibold text-white hover:bg-primary-700"
               >
                 Save
               </button>
