@@ -16,7 +16,7 @@ const students = [
   {
     id: '1',
     admissionNumber: '101',
-    name: 'Alina',
+    name: 'Ayesha',
     className: 'III',
     section: 'A',
     rollNo: '03',

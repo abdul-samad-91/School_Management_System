@@ -175,7 +175,7 @@ const StudentDetails = () => {
                     <Phone className="h-4 w-4" />
                     Phone Number
                   </div>
-                  <span className="font-medium text-gray-900">N/A</span>
+                  <span className="font-medium text-gray-900">N/a</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex  items-center gap-2 text-gray-400 text-base">
