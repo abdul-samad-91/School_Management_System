@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Filter, Mail, MoreVertical, Phone, Plus, Search } from 'lucide-react'
+import { toast } from 'sonner'
 import { Card, CardContent } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -104,23 +105,78 @@ const students = [
 
 const Students = () => {
   const [search, setSearch] = useState('')
+  const [sortOrder, setSortOrder] = useState('az')
   const filteredStudents = useMemo(() => {
-    if (!search.trim()) return students
-    const needle = search.toLowerCase()
-    return students.filter((student) => {
-      return (
-        student.name.toLowerCase().includes(needle) ||
-        student.admissionNumber.toLowerCase().includes(needle)
-      )
+    const needle = search.trim().toLowerCase()
+    const filtered = needle
+      ? students.filter((student) => {
+          return (
+            student.name.toLowerCase().includes(needle) ||
+            student.admissionNumber.toLowerCase().includes(needle)
+          )
+        })
+      : [...students]
+
+    return filtered.sort((current, next) => {
+      if (sortOrder === 'za') {
+        return next.name.localeCompare(current.name)
+      }
+      return current.name.localeCompare(next.name)
     })
-  }, [search])
+  }, [search, sortOrder])
+
+  const handleSortToggle = () => {
+    setSortOrder((previous) => (previous === 'az' ? 'za' : 'az'))
+  }
+
+  const handleExport = (list) => {
+    if (!list.length) {
+      toast.info('No student records to export.')
+      return
+    }
+
+    const header = [
+      'ID',
+      'Admission Number',
+      'Name',
+      'Class',
+      'Section',
+      'Roll No',
+      'Gender',
+      'Father Name',
+      'Status',
+    ]
+    const rows = list.map((student) => [
+      student.id,
+      student.admissionNumber,
+      student.name,
+      student.className,
+      student.section,
+      student.rollNo,
+      student.gender,
+      student.fatherName,
+      student.status,
+    ])
+    const csvContent = [header, ...rows]
+      .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(','))
+      .join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'students.csv'
+    link.click()
+    URL.revokeObjectURL(url)
+    toast.success('Students list exported.')
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold text-gray-900">Students</h1>
         <div className="flex items-center gap-2">
-          <Button variant="secondary" className="gap-2">
+          <Button variant="secondary" className="gap-2" onClick={() => handleExport(filteredStudents)}>
             Export
           </Button>
           <Link to="/students/add">
@@ -148,10 +204,14 @@ const Students = () => {
             <Filter className="h-4 w-4" />
             Filter
           </button>
-          <button className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm text-gray-600 hover:bg-gray-50">
+          <button
+            className="inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm text-gray-600 hover:bg-gray-50"
+            onClick={handleSortToggle}
+            type="button"
+          >
             {/* <SortAsc className="h-4 w-4" /> */}
             <img src={SortVector} alt="" />
-            Sort By A-Z 
+            Sort By {sortOrder === 'az' ? 'A-Z' : 'Z-A'}
           </button>
         </div>
       </div>
