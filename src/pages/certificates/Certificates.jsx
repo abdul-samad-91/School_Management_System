@@ -219,7 +219,7 @@ const StatCard = ({ title, value, subtitle, icon: Icon, iconClass, isActive, onC
     <div
       className={`rounded-2xl border-[3px] bg-white px-6 py-10  shadow-lg border-gray-200 transition `}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <p className="text-2xl font-semibold text-[#141b34]">{title}</p>
           <p className="mt-2 text-3xl font-semibold text-[#0f172a]">{value}</p>

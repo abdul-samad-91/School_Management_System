@@ -220,9 +220,13 @@ const Students = () => {
                     </button>
                   </div>
                  
-                   <button className="rounded-md mt-4 bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200">
-                   View Details
-                  </button>
+                   <Link
+                     to={`/students/${student.id}`}
+                     state={{ student }}
+                     className="rounded-md mt-4 bg-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200"
+                   >
+                     View Details
+                   </Link>
                  </div>
                
               </CardContent>

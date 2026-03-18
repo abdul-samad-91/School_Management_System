@@ -345,7 +345,7 @@ const TeacherDetails = () => {
       <img src={genderIcon} alt="Gender Icon" className="w-5 h-5 opacity-70"/>
       <span>Gender</span>
     </div>
-    <span className="font-medium text-gray-900">
+    <span className="font-medium text-gray-900 text-sm">
       {teacher.gender || "Male"}
     </span>
   </div>
@@ -356,7 +356,7 @@ const TeacherDetails = () => {
       <CalendarDays className="w-5 h-5 text-gray-400"/>
       <span>Date of Birth</span>
     </div>
-    <span className="font-medium text-gray-900">
+    <span className="font-medium text-gray-900 text-right text-sm">
       {teacher.dob || "May 18, 2005"}
     </span>
   </div>
@@ -364,10 +364,10 @@ const TeacherDetails = () => {
   {/* Phone */}
   <div className="flex items-center justify-between">
     <div className="flex items-center gap-3 text-gray-500">
-      <Phone className="w-5 h-5 text-gray-400"/>
+      <Phone className=" text-gray-400"/>
       <span>Phone Number</span>
     </div>
-    <span className="font-medium text-gray-900">
+    <span className="font-medium text-gray-900 text-right text-sm">
       {teacher.phone || "02687996746"}
     </span>
   </div>
@@ -378,7 +378,7 @@ const TeacherDetails = () => {
       <img src={emaiIcon} alt="Email Icon" className="w-5 h-5 opacity-70"/>
       <span>Email</span>
     </div>
-    <span className="font-medium text-gray-900">
+    <span className="font-medium text-gray-900 text-right  text-sm">
       {teacher.email || "xyz@gmail.com"}
     </span>
   </div>
@@ -389,7 +389,7 @@ const TeacherDetails = () => {
       <MapPin className="w-5 h-5 text-gray-400"/>
       <span>Address</span>
     </div>
-    <span className="font-medium text-gray-900">
+    <span className="font-medium text-gray-900 text-sm">
       {teacher.address || "Peshawar, Pakistan"}
     </span>
   </div>
@@ -702,7 +702,7 @@ const TeacherDetails = () => {
                   aria-label="Edit teacher performance"
                 >
                   {/* <PencilLine className="h-4 w-4" /> */}
-                  <img src={edit} alt="Edit button" />
+                   <img src={edit} alt="Edit button"  className='w-4 h-4'/>
                 </button>
               </div>
 
@@ -746,82 +746,82 @@ const TeacherDetails = () => {
       </div>
 
       {isProfileEditOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-10 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-2xl border border-[#d9dde7] bg-white p-6 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center mt-[68px] bg-white/40 px-4 py-10 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl border border-[#d9dde7] bg-white py-6 px-8 shadow-xl">
             <h2 className="text-2xl font-bold text-[#253256]">Edit Teacher Profile</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Name</span>
+                <span className="text-base font-semibold text-[#111827]">Name</span>
                 <input
                   value={editProfileValues?.name ?? ''}
                   onChange={(event) =>
                     setEditProfileValues((prev) => ({ ...prev, name: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Subject</span>
+                <span className="text-base font-semibold text-[#111827]">Subject</span>
                 <input
                   value={editProfileValues?.subject ?? ''}
                   onChange={(event) =>
                     setEditProfileValues((prev) => ({ ...prev, subject: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Class</span>
+                <span className="text-base font-semibold text-[#111827]">Class</span>
                 <input
                   value={editProfileValues?.classLabel ?? ''}
                   onChange={(event) =>
                     setEditProfileValues((prev) => ({ ...prev, classLabel: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Phone</span>
+                <span className="text-base font-semibold text-[#111827]">Phone</span>
                 <input
                   value={editProfileValues?.phone ?? ''}
                   onChange={(event) =>
                     setEditProfileValues((prev) => ({ ...prev, phone: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Email</span>
+                <span className="text-base font-semibold text-[#111827]">Email</span>
                 <input
                   value={editProfileValues?.email ?? ''}
                   onChange={(event) =>
                     setEditProfileValues((prev) => ({ ...prev, email: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Gender</span>
+                <span className="text-base font-semibold text-[#111827]">Gender</span>
                 <input
                   value={editProfileValues?.gender ?? ''}
                   onChange={(event) =>
                     setEditProfileValues((prev) => ({ ...prev, gender: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Date of Birth</span>
+                <span className="text-base font-semibold text-[#111827]">Date of Birth</span>
                 <input
                   value={editProfileValues?.dob ?? ''}
                   onChange={(event) =>
                     setEditProfileValues((prev) => ({ ...prev, dob: event.target.value }))
                   }
-                  className="h-10 w-full rounded-lg border border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
+                  className="h-10 w-full rounded border-2 border-[#d4d8e3] bg-white px-3 text-sm text-[#111827]"
                 />
               </label>
               <label className="space-y-1">
-                <span className="text-sm font-semibold text-[#111827]">Address</span>
+                <span className="text-base font-semibold text-[#111827]">Address</span>
                 <input
                   value={editProfileValues?.address ?? ''}
                   onChange={(event) =>
@@ -836,14 +836,14 @@ const TeacherDetails = () => {
               <button
                 type="button"
                 onClick={() => setIsProfileEditOpen(false)}
-                className="rounded-lg border border-[#d4d8e3] px-4 py-2 text-sm font-semibold text-[#4c5877] hover:bg-slate-50"
+                className="rounded border-2 mt-4 border-gray-600 px-4 py-2 text-sm font-semibold text-[#4c5877] hover:bg-slate-50"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSaveProfile}
-                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+                className="rounded mt-4 bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
               >
                 Save
               </button>

@@ -15,12 +15,17 @@ const Login = () => {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    mode: 'onTouched',
+  })
 
   const onSubmit = async (data) => {
     try {
       setLoading(true)
-      const response = await authAPI.login(data)
+      const response = await authAPI.login({
+        email: data.email.trim().toLowerCase(),
+        password: data.password,
+      })
       
       if (response.data.success) {
         setAuth(response.data.data, response.data.token)
@@ -44,11 +49,18 @@ const Login = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
           label="Email Address"
-          // placeholder="Enter your username"
+          type="email"
           labelClassName="mb-2"
-          error={errors.username?.message}
+          error={errors.email?.message}
           rightIcon={<Mail className="h-4 w-4 text-gray-900" />}
-          {...register('username', { required: 'Username is required' })}
+          {...register('email', {
+            required: 'Email is required',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Invalid email address'
+            },
+            validate: (value) => value.trim().length > 0 || 'Email is required',
+          })}
         />
 
         <Input

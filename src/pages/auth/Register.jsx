@@ -15,7 +15,9 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  const { register, handleSubmit, watch, formState: { errors } } = useForm()
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
+    mode: 'onTouched',
+  })
   const password = watch('password')
 
   const onSubmit = async (data) => {
@@ -27,8 +29,8 @@ const Register = () => {
     try {
       setLoading(true)
       const response = await authAPI.register({
-        name: data.name,
-        email: data.email,
+        name: data.name.trim(),
+        email: data.email.trim().toLowerCase(),
         password: data.password,
       })
       
@@ -57,7 +59,18 @@ const Register = () => {
           labelClassName="mb-2"
           error={errors.name?.message}
           rightIcon={<User className="h-4 w-4 text-gray-900" />}
-          {...register('name', { required: 'Name is required' })}
+          {...register('name', {
+            required: 'Name is required',
+            minLength: {
+              value: 2,
+              message: 'Name must be at least 2 characters',
+            },
+            maxLength: {
+              value: 50,
+              message: 'Name must be 50 characters or less',
+            },
+            validate: (value) => value.trim().length > 0 || 'Name is required',
+          })}
         />
 
         <Input
@@ -72,7 +85,8 @@ const Register = () => {
             pattern: {
               value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
               message: 'Invalid email address'
-            }
+            },
+            validate: (value) => value.trim().length > 0 || 'Email is required',
           })}
         />
 
@@ -88,9 +102,18 @@ const Register = () => {
           {...register('password', { 
             required: 'Password is required',
             minLength: {
-              value: 6,
-              message: 'Password must be at least 6 characters'
-            }
+              value: 8,
+              message: 'Password must be at least 8 characters'
+            },
+            validate: (value) => {
+              const hasUpper = /[A-Z]/.test(value)
+              const hasLower = /[a-z]/.test(value)
+              const hasNumber = /\d/.test(value)
+              if (!hasUpper || !hasLower || !hasNumber) {
+                return 'Password must include upper, lower, and number'
+              }
+              return true
+            },
           })}
         />
 

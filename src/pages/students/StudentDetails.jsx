@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { toast } from 'sonner'
 import edit from '@/assets/edit.svg'
 import Customer from '@/assets/Customer.svg'
 import genderIcon from '@/assets/genderIcon.svg'
@@ -53,6 +54,50 @@ const yearOptions = Array.from({ length: 11 }, (_, index) => 2020 + index)
 const StudentDetails = () => {
   const [selectedMonth, setSelectedMonth] = useState('Sep')
   const [selectedYear, setSelectedYear] = useState(2025)
+  const location = useLocation()
+  const student = location.state?.student
+  const [studentData, setStudentData] = useState(() => ({
+    name: student?.name || 'Student',
+    admissionNumber: student?.admissionNumber || 'N/A',
+    className: student?.className || '',
+    section: student?.section || '',
+    rollNo: student?.rollNo || 'N/A',
+    gender: student?.gender || 'N/A',
+    fatherName: student?.fatherName || 'N/A',
+    status: student?.status || 'Unknown',
+  }))
+  const [isProfileEditOpen, setIsProfileEditOpen] = useState(false)
+  const [editProfileValues, setEditProfileValues] = useState(null)
+
+  const classLabel = studentData.className
+    ? `${studentData.className}-${studentData.section || ''}`.trim()
+    : 'N/A'
+
+  const handleOpenProfileEdit = () => {
+    setEditProfileValues({
+      name: studentData.name,
+      className: studentData.className,
+      section: studentData.section,
+      rollNo: studentData.rollNo,
+      gender: studentData.gender,
+      fatherName: studentData.fatherName,
+      status: studentData.status,
+    })
+    setIsProfileEditOpen(true)
+  }
+
+  const handleSaveProfile = () => {
+    if (!editProfileValues?.name?.trim()) {
+      toast.error('Name is required.')
+      return
+    }
+    setStudentData((prev) => ({
+      ...prev,
+      ...editProfileValues,
+    }))
+    setIsProfileEditOpen(false)
+    toast.success('Student profile updated.')
+  }
 
   const percent = 84
   const clampedPercent = Math.min(Math.max(percent, 0), 100)
@@ -92,14 +137,18 @@ const StudentDetails = () => {
                     <img src={Customer} alt="Customer" className="h-12 w-12" />
                   </div>
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 text-center mb-1">Amna Malik</h2>
+                    <h2 className="text-lg font-semibold text-gray-900 text-center mb-1">{studentData.name}</h2>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <Badge variant="primary" className="bg-gray-200 rounded text-gray-900">Adm.101</Badge>
-                      <Badge variant="default" className="bg-gray-200 rounded text-gray-900">Class 9-A</Badge>
-                      <Badge variant="success" className="bg-green-100 rounded ">Active</Badge>
+                      <Badge variant="primary" className="bg-gray-200 rounded text-gray-900">Adm.{studentData.admissionNumber}</Badge>
+                      <Badge variant="default" className="bg-gray-200 rounded text-gray-900">Class {classLabel}</Badge>
+                      <Badge variant="success" className="bg-green-100 rounded ">{studentData.status}</Badge>
                     </div>
                   </div>
-                  <button className="rounded-md border border-gray-200 absolute  top-0 right-0 p-2 text-gray-500 hover:bg-gray-50 flex items-center justify-center h-8">
+                  <button
+                    type="button"
+                    onClick={handleOpenProfileEdit}
+                    className="rounded-md border border-gray-200 absolute  top-0 right-0 p-2 text-gray-500 hover:bg-gray-50 flex items-center justify-center h-8"
+                  >
                     <img src={edit} alt="Edit" className="h-4 w-4" />
                   </button>
                 </div>
@@ -112,28 +161,28 @@ const StudentDetails = () => {
                     <img src={genderIcon} alt="Gender" className="h-5 w-5 text-gray-400" />
                     Gender
                   </div>
-                  <span className="font-medium text-gray-900">Female</span>
+                  <span className="font-medium text-gray-900">{studentData.gender}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-gray-400 text-base">
                     <CalendarDays className="h-4 w-4" />
                     Date of Birth
                   </div>
-                  <span className="font-medium text-gray-900">May 18, 2005</span>
+                  <span className="font-medium text-gray-900">N/A</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-gray-400 text-base">
                     <Phone className="h-4 w-4" />
                     Phone Number
                   </div>
-                  <span className="font-medium text-gray-900">0268799646</span>
+                  <span className="font-medium text-gray-900">N/A</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex  items-center gap-2 text-gray-400 text-base">
                     <MapPin className="h-4 w-4" />
                     Address
                   </div>
-                  <span className="font-medium text-gray-900">Peshawar, Pakistan</span>
+                  <span className="font-medium text-gray-900">N/A</span>
                 </div>
               </div>
             </CardContent>
@@ -147,24 +196,24 @@ const StudentDetails = () => {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Father</span>
                 <div className="text-right">
-                  <p className="font-medium text-gray-900">Ali Ahmad</p>
-                  <p className="text-xs text-gray-500">03639192490</p>
+                  <p className="font-medium text-gray-900">{studentData.fatherName}</p>
+                  <p className="text-xs text-gray-500">N/A</p>
                 </div>
               </div>
               <hr />
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Mother</span>
                 <div className="text-right">
-                  <p className="font-medium text-gray-900">Kalsoom Bibi</p>
-                  <p className="text-xs text-gray-500">03639192490</p>
+                  <p className="font-medium text-gray-900">N/A</p>
+                  <p className="text-xs text-gray-500">N/A</p>
                 </div>
               </div>
               <hr />
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Alternative Guardian</span>
                 <div className="text-right">
-                  <p className="font-medium text-gray-900">Ali Ahmad</p>
-                  <p className="text-xs text-gray-500">03639192490</p>
+                  <p className="font-medium text-gray-900">N/A</p>
+                  <p className="text-xs text-gray-500">N/A</p>
                 </div>
               </div>
             </CardContent>
@@ -175,8 +224,8 @@ const StudentDetails = () => {
               <CardTitle className="text-base">Additional Info</CardTitle>
             </CardHeader>
             <CardContent className="bg-[#F8F8F8] rounded ">
-              <p className="text-sm font-medium text-gray-900">Hobbies</p>
-              <p className="text-sm text-gray-500">Running, Reading</p>
+              <p className="text-sm font-medium text-gray-900">Roll No</p>
+              <p className="text-sm text-gray-500">{studentData.rollNo}</p>
             </CardContent>
           </Card>
 
@@ -356,6 +405,102 @@ const StudentDetails = () => {
           <Calendar />
         </div>
       </div>
+      {isProfileEditOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-10 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl border border-[#d9dde7] bg-white py-6 px-8 shadow-xl">
+            <h2 className="text-2xl font-bold text-[#253256]">Edit Student Profile</h2>
+            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+              <label className="space-y-1">
+                <span className="text-base font-semibold text-[#111827]">Name</span>
+                <input
+                  value={editProfileValues?.name ?? ''}
+                  onChange={(event) =>
+                    setEditProfileValues((prev) => ({ ...prev, name: event.target.value }))
+                  }
+                  className="h-10 w-full rounded border-2 border-gray-300 bg-white px-3 text-sm text-[#111827]"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-base font-semibold text-[#111827]">Class</span>
+                <input
+                  value={editProfileValues?.className ?? ''}
+                  onChange={(event) =>
+                    setEditProfileValues((prev) => ({ ...prev, className: event.target.value }))
+                  }
+                  className="h-10 w-full rounded border-2 border-gray-300 bg-white px-3 text-sm text-[#111827]"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-base font-semibold text-[#111827]">Section</span>
+                <input
+                  value={editProfileValues?.section ?? ''}
+                  onChange={(event) =>
+                    setEditProfileValues((prev) => ({ ...prev, section: event.target.value }))
+                  }
+                  className="h-10 w-full rounded border-2 border-gray-300 bg-white px-3 text-sm text-[#111827]"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-base font-semibold text-[#111827]">Roll No</span>
+                <input
+                  value={editProfileValues?.rollNo ?? ''}
+                  onChange={(event) =>
+                    setEditProfileValues((prev) => ({ ...prev, rollNo: event.target.value }))
+                  }
+                  className="h-10 w-full rounded border-2 border-gray-300 bg-white px-3 text-sm text-[#111827]"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-base font-semibold text-[#111827]">Gender</span>
+                <input
+                  value={editProfileValues?.gender ?? ''}
+                  onChange={(event) =>
+                    setEditProfileValues((prev) => ({ ...prev, gender: event.target.value }))
+                  }
+                  className="h-10 w-full rounded border-2 border-gray-300 bg-white px-3 text-sm text-[#111827]"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-base font-semibold text-[#111827]">Father Name</span>
+                <input
+                  value={editProfileValues?.fatherName ?? ''}
+                  onChange={(event) =>
+                    setEditProfileValues((prev) => ({ ...prev, fatherName: event.target.value }))
+                  }
+                  className="h-10 w-full rounded border-2 border-gray-300 bg-white px-3 text-sm text-[#111827]"
+                />
+              </label>
+              <label className="space-y-1">
+                <span className="text-base font-semibold text-[#111827]">Status</span>
+                <input
+                  value={editProfileValues?.status ?? ''}
+                  onChange={(event) =>
+                    setEditProfileValues((prev) => ({ ...prev, status: event.target.value }))
+                  }
+                  className="h-10 w-full rounded border-2 border-gray-300 bg-white px-3 text-sm text-[#111827]"
+                />
+              </label>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsProfileEditOpen(false)}
+                className="rounded border-2 border-gray-600 px-4 py-2 text-sm font-semibold text-[#4c5877] hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveProfile}
+                className="rounded bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
