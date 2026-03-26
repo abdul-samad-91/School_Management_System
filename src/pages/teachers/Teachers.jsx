@@ -15,138 +15,17 @@ import dotsVertical from '@/assets/dotsVertical.svg'
 import fileExport2 from '@/assets/fileExport2.svg'
 import printer from '@/assets/printer.svg'
 import SortVector from '@/assets/SortVector.svg'
+import { teachersAPI } from '@/lib/api'
 
-const TEACHERS_STORAGE_KEY = 'sms_teachers'
-
-const INITIAL_TEACHERS = [
-  {
-    id: '0001',
-    name: 'Tania',
-    classLabel: 'III A',
-    email: 'tania.physics@school.edu.pk',
-    phone: '+92 300 1112233',
-    subject: 'Physics',
-    initials: 'TA',
-    avatarTone: 'bg-[#1f355f]',
-    status: 'Active',
-    gender: 'Female',
-    dob: '2005-05-18',
-    address: 'Peshawar, Pakistan',
-    documents: ['CV', 'Cover letter', 'Degrees'],
-    performance: [],
-  },
-  {
-    id: '0002',
-    name: 'Danial',
-    classLabel: 'II (A)',
-    email: 'danial.cs@academy.com',
-    phone: '+92 301 2223344',
-    subject: 'Computer',
-    initials: 'DA',
-    avatarTone: 'bg-[#704132]',
-    status: 'Active',
-    gender: 'Male',
-    dob: '2004-10-12',
-    address: 'Lahore, Pakistan',
-    documents: ['CV', 'Degrees'],
-    performance: [],
-  },
-  {
-    id: '0003',
-    name: 'Hania',
-    classLabel: 'VI (A)',
-    email: 'hania.english@schoolmail.pk',
-    phone: '+92 302 3334455',
-    subject: 'English',
-    initials: 'HA',
-    avatarTone: 'bg-[#7b5b45]',
-    status: 'Active',
-    gender: 'Female',
-    dob: '2006-02-03',
-    address: 'Islamabad, Pakistan',
-    documents: ['CV', 'Cover letter'],
-    performance: [],
-  },
-  {
-    id: '0004',
-    name: 'Ahsan',
-    classLabel: 'VI (B) , V (A)',
-    email: 'ahsan.urdu@eduportal.pk',
-    phone: '+92 303 4445566',
-    subject: 'Urdu',
-    initials: 'AH',
-    avatarTone: 'bg-[#41516f]',
-    status: 'Active',
-    gender: 'Male',
-    dob: '2003-08-28',
-    address: 'Karachi, Pakistan',
-    documents: ['CV', 'Cover letter', 'Degrees'],
-    performance: [],
-  },
-  {
-    id: '0005',
-    name: 'Momina',
-    classLabel: 'VIII',
-    email: 'momina.science@brightfuture.pk',
-    phone: '+92 304 5556677',
-    subject: 'Science',
-    initials: 'MO',
-    avatarTone: 'bg-[#5e4435]',
-    status: 'Active',
-    gender: 'Female',
-    dob: '2005-11-21',
-    address: 'Quetta, Pakistan',
-    documents: ['CV'],
-    performance: [],
-  },
-  {
-    id: '0006',
-    name: 'Ahmad',
-    classLabel: 'I (A)',
-    email: 'ahmad.chem@labschool.pk',
-    phone: '+92 305 6667788',
-    subject: 'Chemistry',
-    initials: 'AM',
-    avatarTone: 'bg-[#263446]',
-    status: 'Active',
-    gender: 'Male',
-    dob: '2004-03-06',
-    address: 'Multan, Pakistan',
-    documents: ['CV', 'Degrees'],
-    performance: [],
-  },
-  {
-    id: '0007',
-    name: 'Fariya',
-    classLabel: 'IV',
-    email: 'fariya.maths@educare.pk',
-    phone: '+92 306 7778899',
-    subject: 'Maths',
-    initials: 'FA',
-    avatarTone: 'bg-[#294964]',
-    status: 'Active',
-    gender: 'Female',
-    dob: '2006-01-14',
-    address: 'Rawalpindi, Pakistan',
-    documents: ['CV', 'Cover letter'],
-    performance: [],
-  },
-  {
-    id: '0008',
-    name: 'Zeeshan',
-    classLabel: 'IX',
-    email: 'zeeshan.bio@scholars.edu',
-    phone: '+92 307 8889900',
-    subject: 'Biology',
-    initials: 'ZE',
-    avatarTone: 'bg-[#3d2b68]',
-    status: 'Active',
-    gender: 'Male',
-    dob: '2003-12-09',
-    address: 'Faisalabad, Pakistan',
-    documents: ['CV', 'Degrees'],
-    performance: [],
-  },
+const AVATAR_TONES = [
+  'bg-[#1f355f]',
+  'bg-[#704132]',
+  'bg-[#7b5b45]',
+  'bg-[#41516f]',
+  'bg-[#5e4435]',
+  'bg-[#263446]',
+  'bg-[#294964]',
+  'bg-[#3d2b68]',
 ]
 const subjectStyles = {
   Physics: 'bg-rose-100 text-rose-600',
@@ -159,16 +38,48 @@ const subjectStyles = {
   Biology: 'bg-rose-100 text-rose-600',
 }
 
+const buildInitials = (name) => {
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (!parts.length) return 'NA'
+  const initials = parts.slice(0, 2).map((part) => part[0]).join('')
+  return initials.toUpperCase()
+}
+
+const formatStatus = (status) => {
+  if (!status) return 'Active'
+  return status.charAt(0).toUpperCase() + status.slice(1)
+}
+
+const normalizeTeacher = (teacher, index) => {
+  const firstName = teacher?.profile?.firstName || ''
+  const lastName = teacher?.profile?.lastName || ''
+  const name = `${firstName} ${lastName}`.trim() || teacher?.fullName || 'Unknown'
+  const subject = teacher?.subjectName || teacher?.subjects?.[0]?.name || 'General'
+  const classLabel = teacher?.classLabel || teacher?.classes?.[0]?.classId?.name || 'N/A'
+
+  return {
+    id: teacher?._id,
+    employeeId: teacher?.employeeId,
+    name,
+    classLabel,
+    email: teacher?.profile?.email || '',
+    phone: teacher?.profile?.phone || '',
+    subject,
+    initials: buildInitials(name),
+    photo: teacher?.profile?.photo || '',
+    avatarTone: AVATAR_TONES[index % AVATAR_TONES.length],
+    status: formatStatus(teacher?.status),
+    gender: teacher?.profile?.gender,
+    dob: teacher?.profile?.dateOfBirth,
+    address: teacher?.profile?.address?.current?.street || '',
+    documents: teacher?.documents || [],
+    performance: [],
+  }
+}
+
 const Teachers = () => {
-  const [teachers, setTeachers] = useState(() => {
-    if (typeof window === 'undefined') return INITIAL_TEACHERS
-    try {
-      const stored = window.localStorage.getItem(TEACHERS_STORAGE_KEY)
-      return stored ? JSON.parse(stored) : INITIAL_TEACHERS
-    } catch (error) {
-      return INITIAL_TEACHERS
-    }
-  })
+  const [teachers, setTeachers] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOrder, setSortOrder] = useState('az')
   const [filterSubject, setFilterSubject] = useState('')
@@ -179,12 +90,30 @@ const Teachers = () => {
   const [editValues, setEditValues] = useState(null)
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(teachers))
-    } catch (error) {
-      // ignore storage failures
+    let isMounted = true
+
+    const loadTeachers = async () => {
+      setIsLoading(true)
+      try {
+        const response = await teachersAPI.getAll()
+        const list = response?.data?.data || []
+        if (isMounted) {
+          setTeachers(list.map((teacher, index) => normalizeTeacher(teacher, index)))
+        }
+      } catch (error) {
+        toast.error('Failed to load teachers.')
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
     }
-  }, [teachers])
+
+    loadTeachers()
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const subjectOptions = useMemo(
     () => Array.from(new Set(teachers.map((teacher) => teacher.subject).filter(Boolean))),
@@ -318,22 +247,51 @@ const Teachers = () => {
     setIsEditOpen(true)
   }
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editValues?.name?.trim()) {
       toast.error('Teacher name is required.')
       return
     }
 
-    setTeachers((prev) =>
-      prev.map((teacher) => (teacher.id === editValues.id ? { ...teacher, ...editValues } : teacher))
-    )
-    setIsEditOpen(false)
-    toast.success('Teacher updated successfully.')
+    const nameParts = editValues.name.trim().split(/\s+/)
+    const firstName = nameParts.shift() || ''
+    const lastName = nameParts.join(' ')
+
+    const payload = {
+      subjectName: editValues.subject,
+      classLabel: editValues.classLabel,
+      'profile.firstName': firstName,
+      'profile.lastName': lastName,
+      'profile.email': editValues.email,
+      'profile.phone': editValues.phone,
+      'profile.address.current.street': editValues.address,
+    }
+
+    try {
+      const response = await teachersAPI.update(editValues.id, payload)
+      const updated = response?.data?.data
+      if (updated) {
+        setTeachers((prev) =>
+          prev.map((teacher, index) =>
+            teacher.id === editValues.id ? normalizeTeacher(updated, index) : teacher
+          )
+        )
+      }
+      setIsEditOpen(false)
+      toast.success('Teacher updated successfully.')
+    } catch (error) {
+      toast.error('Failed to update teacher.')
+    }
   }
 
-  const handleDeleteTeacher = (id) => {
-    setTeachers((prev) => prev.filter((teacher) => teacher.id !== id))
-    toast.success('Teacher removed successfully.')
+  const handleDeleteTeacher = async (id) => {
+    try {
+      await teachersAPI.delete(id)
+      setTeachers((prev) => prev.filter((teacher) => teacher.id !== id))
+      toast.success('Teacher removed successfully.')
+    } catch (error) {
+      toast.error('Failed to remove teacher.')
+    }
   }
 
   return (
@@ -456,13 +414,25 @@ const Teachers = () => {
         <div className="my-4 h-px bg-[#d9dde7]" />
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-4">
+          {isLoading && (
+            <div className="col-span-full flex items-center justify-center rounded-2xl border border-dashed border-[#d4d8e3] bg-white px-6 py-10 text-[#6b7280]">
+              Loading teachers...
+            </div>
+          )}
+          {!isLoading && !filteredTeachers.length && (
+            <div className="col-span-full rounded-2xl border border-dashed border-[#d4d8e3] bg-white px-6 py-10 text-center text-[#6b7280]">
+              No teachers found yet.
+            </div>
+          )}
           {filteredTeachers.map((teacher) => (
             <article
               key={teacher.id}
               className="overflow-hidden rounded shadow-lg bg-white"
             >
               <header className="relative flex items-center justify-between border-b border-[#e6e9ef] px-5 py-3">
-                <p className="text-base font-medium text-primary-600">ID.{teacher.id}</p>
+                <p className="text-base font-medium text-primary-600">
+                  ID.{teacher.employeeId || teacher.id}
+                </p>
                 <div className="flex items-center gap-2">
                   <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-sm font-semibold text-green-700">
                     <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
@@ -521,7 +491,15 @@ const Teachers = () => {
                   <div
                     className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${teacher.avatarTone}`}
                   >
-                    {teacher.initials}
+                    {teacher.photo ? (
+                      <img
+                        src={teacher.photo}
+                        alt={teacher.name}
+                        className="h-full w-full rounded-full object-cover"
+                      />
+                    ) : (
+                      teacher.initials
+                    )}
                   </div>
                   <div>
                     <p className="text-base font-semibold leading-none text-[#263355]">{teacher.name}</p>

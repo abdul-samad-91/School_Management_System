@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard,
@@ -35,6 +35,9 @@ const DashboardLayout = () => {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const desktopNavRef = useRef(null)
+  const mobileNavRef = useRef(null)
+  const sidebarScrollKey = 'sms_sidebar_scroll'
   const isWelcomePage = location.pathname === '/'
   const hideSidebar =
     location.pathname === '/students/add' ||
@@ -113,6 +116,25 @@ const DashboardLayout = () => {
     setIsMobileSidebarOpen(false)
   }
 
+  const saveSidebarScroll = () => {
+    const desktopScroll = desktopNavRef.current?.scrollTop
+    const mobileScroll = mobileNavRef.current?.scrollTop
+    const scrollTop = typeof desktopScroll === 'number' ? desktopScroll : mobileScroll || 0
+    sessionStorage.setItem(sidebarScrollKey, String(scrollTop))
+  }
+
+  useEffect(() => {
+    const savedScroll = Number(sessionStorage.getItem(sidebarScrollKey))
+    if (!Number.isNaN(savedScroll)) {
+      if (desktopNavRef.current) {
+        desktopNavRef.current.scrollTop = savedScroll
+      }
+      if (mobileNavRef.current) {
+        mobileNavRef.current.scrollTop = savedScroll
+      }
+    }
+  }, [location.pathname])
+
   const NavLink = ({ item }) => {
     const isActive = isRouteActive(item.href)
 
@@ -146,6 +168,7 @@ const DashboardLayout = () => {
                 <Link
                   key={child.name}
                   to={child.href}
+                  onClick={saveSidebarScroll}
                   className={`block rounded-lg px-2 py-1.5 text-sm ${childActive
                       ? 'bg-blue-100 font-semibold text-blue-700'
                       : 'text-gray-800 hover:text-gray-900'
@@ -163,6 +186,7 @@ const DashboardLayout = () => {
     return (
       <Link
         to={item.href}
+        onClick={saveSidebarScroll}
         className={`flex items-center rounded-lg px-3 py-2 text-base font-semibold ${isActive
             ? 'bg-blue-100 text-blue-700'
             : 'text-gray-900 hover:text-gray-950'
@@ -265,7 +289,10 @@ const DashboardLayout = () => {
                     <X className="h-5 w-5" />
                   </button>
                 </div>
-                <nav className="flex-1 min-h-0 space-y-2 overflow-y-auto px-4 py-4 pb-6">
+                <nav
+                  ref={mobileNavRef}
+                  className="flex-1 min-h-0 space-y-2 overflow-y-auto px-4 py-4 pb-6"
+                >
                   {navigation.map((item) => (
                     <NavLink key={item.name} item={item} />
                   ))}
@@ -288,7 +315,10 @@ const DashboardLayout = () => {
           {/* Desktop sidebar */}
           {!hideSidebar && (
             <aside className="fixed bottom-0 left-0 top-[68px] hidden w-[240px] flex-col border-r border-gray-300 bg-white lg:flex">
-              <nav className="flex-1 min-h-0 space-y-2 overflow-y-auto px-5 py-4 pb-6">
+              <nav
+                ref={desktopNavRef}
+                className="flex-1 min-h-0 space-y-2 overflow-y-auto px-5 py-4 pb-6"
+              >
                 {navigation.map((item) => (
                   <NavLink key={item.name} item={item} />
                 ))}

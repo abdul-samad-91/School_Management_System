@@ -225,6 +225,8 @@ const Dashboard = () => {
   const announcementsSource = announcementsRaw?.length ? announcementsRaw : DUMMY_ANNOUNCEMENTS
 
   const fullName = [user?.profile?.firstName, user?.profile?.lastName].filter(Boolean).join(' ') || 'Admin'
+  const rawName = user?.profile?.firstName || fullName
+  const displayName = rawName ? rawName.charAt(0).toUpperCase() + rawName.slice(1) : rawName
   const studentsCount = stats?.students?.total ?? 0
   const teachersCount = stats?.teachers?.total ?? 0
   const classesCount = stats?.classes?.total ?? 0
@@ -420,7 +422,7 @@ const Dashboard = () => {
       <section className="rounded bg-[#112b98] px-4 py-3 text-white">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-2xl font-bold flex items-center justify-center gap-3">Welcome Back, Mr. {fullName} 
+            <h2 className="text-2xl font-bold flex items-center justify-center gap-3">Welcome Back, Mr. {displayName} 
               <span className="bg-gray-800 p-1 rounded "><img src={edit2} alt="image for edit" className="cursor-pointer" /></span>
             </h2>
             <p className="mt-1 text-sm text-white">Have a Good day at work</p>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   CalendarDays,
@@ -32,8 +32,7 @@ import Customer from '@/assets/Customer.svg'
 import genderIcon from '@/assets/genderIcon.svg'
 import emaiIcon from '@/assets/emaiIcon.svg'
 import pdfIcon from '@/assets/pdfIcon.svg'
-
-const TEACHERS_STORAGE_KEY = 'sms_teachers'
+import { teachersAPI } from '@/lib/api'
 
 const WORKLOAD_DATA = [
   { month: 'Jul', totalClasses: 72, teachingHours: 30, extraDuties: 28 },
@@ -71,19 +70,47 @@ const DEFAULT_PERFORMANCE_ROWS = Array.from({ length: 4 }).map((_, index) => ({
   note: 'Shows Positive behavior in class',
 }))
 
-const DEFAULT_TEACHER = {
-  id: '0000',
-  name: 'Asif Ali',
-  classLabel: '9A - 10A - 11A',
-  subject: 'English Language',
+const EMPTY_TEACHER = {
+  id: '',
+  employeeId: '',
+  name: '',
+  classLabel: 'N/A',
+  subject: 'General',
   status: 'Active',
-  gender: 'Male',
-  dob: '2005-05-18',
-  phone: '02687996746',
-  email: 'xyz@gmail.com',
-  address: 'Peshawar, Pakistan',
-  documents: ['CV', 'Cover letter', 'Degrees'],
+  gender: '',
+  dob: '',
+  phone: '',
+  email: '',
+  address: '',
+  documents: [],
   performance: DEFAULT_PERFORMANCE_ROWS,
+}
+
+const normalizeTeacher = (teacher) => {
+  const firstName = teacher?.profile?.firstName || ''
+  const lastName = teacher?.profile?.lastName || ''
+  const name = `${firstName} ${lastName}`.trim() || teacher?.fullName || 'Unknown'
+  const subject = teacher?.subjectName || teacher?.subjects?.[0]?.name || ''
+  const classLabel = teacher?.classLabel || teacher?.classes?.[0]?.classId?.name || 'N/A'
+
+  return {
+    id: teacher?._id,
+    employeeId: teacher?.employeeId,
+    name,
+    classLabel,
+    subject,
+    status: teacher?.status || 'active',
+    photo: teacher?.profile?.photo || '',
+    gender: teacher?.profile?.gender || '',
+    dob: teacher?.profile?.dateOfBirth || '',
+    phone: teacher?.profile?.phone || '',
+    email: teacher?.profile?.email || '',
+    address: teacher?.profile?.address?.current?.street || '',
+    documents: Array.isArray(teacher?.documents)
+      ? teacher.documents.map((doc) => doc?.name).filter(Boolean)
+      : [],
+    performance: DEFAULT_PERFORMANCE_ROWS,
+  }
 }
 
 const workloadTooltip = ({ active, payload }) => {
@@ -116,16 +143,10 @@ const workloadTooltip = ({ active, payload }) => {
 
 const TeacherDetails = () => {
   const { id } = useParams()
-  const normalizedId = id ? String(id).replace('ID.', '').padStart(4, '0') : ''
-  const teacherIdLabel = normalizedId ? `ID.${normalizedId}` : 'ID.111'
-  const fallbackTeacher = useMemo(
-    () => ({ ...DEFAULT_TEACHER, id: normalizedId || DEFAULT_TEACHER.id }),
-    [normalizedId]
-  )
-
-  const [teacher, setTeacher] = useState(fallbackTeacher)
-  const [documents, setDocuments] = useState(fallbackTeacher.documents)
+  const [teacher, setTeacher] = useState(EMPTY_TEACHER)
+  const [documents, setDocuments] = useState([])
   const [performanceRows, setPerformanceRows] = useState(DEFAULT_PERFORMANCE_ROWS)
+  const [isLoading, setIsLoading] = useState(true)
   const [isProfileEditOpen, setIsProfileEditOpen] = useState(false)
   const [isDocumentsEditOpen, setIsDocumentsEditOpen] = useState(false)
   const [isPerformanceEditOpen, setIsPerformanceEditOpen] = useState(false)
@@ -138,46 +159,67 @@ const TeacherDetails = () => {
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [scheduleView, setScheduleView] = useState('last')
+  const hasNotifiedRef = useRef(false)
+
+  const teacherIdLabel =
+    teacher?.employeeId || teacher?.id ? `ID.${teacher?.employeeId || teacher?.id}` : 'ID.-'
 
   useEffect(() => {
-    if (!normalizedId) return
-    try {
-      const stored = window.localStorage.getItem(TEACHERS_STORAGE_KEY)
-      const list = stored ? JSON.parse(stored) : []
-      const found = list.find((item) => item.id === normalizedId)
-      if (found) {
-        setTeacher({ ...DEFAULT_TEACHER, ...found, id: normalizedId })
-        setDocuments(found.documents || DEFAULT_TEACHER.documents)
-        setPerformanceRows(
-          Array.isArray(found.performance) && found.performance.length
-            ? found.performance
-            : DEFAULT_PERFORMANCE_ROWS
-        )
-      } else {
-        setTeacher(fallbackTeacher)
-        setDocuments(fallbackTeacher.documents)
-        setPerformanceRows(DEFAULT_PERFORMANCE_ROWS)
-      }
-    } catch (error) {
-      // ignore storage errors
-    }
-  }, [fallbackTeacher, normalizedId])
+    if (!id) return
+    let isMounted = true
 
-  const saveTeacherToStorage = (updates) => {
-    try {
-      const stored = window.localStorage.getItem(TEACHERS_STORAGE_KEY)
-      const list = stored ? JSON.parse(stored) : []
-      let nextList = list.map((item) =>
-        item.id === normalizedId ? { ...item, ...updates } : item
-      )
-      if (!nextList.find((item) => item.id === normalizedId)) {
-        nextList = [...nextList, { ...fallbackTeacher, ...updates, id: normalizedId }]
+    const loadTeacher = async () => {
+      setIsLoading(true)
+      try {
+        let data = null
+        try {
+          const response = await teachersAPI.getById(id)
+          data = response?.data?.data || null
+        } catch (error) {
+          if (error?.response?.data?.message && !hasNotifiedRef.current) {
+            toast.error(error.response.data.message)
+            hasNotifiedRef.current = true
+          }
+        }
+
+        if (!data) {
+          const searchResponse = await teachersAPI.getAll({ search: id })
+          const list = searchResponse?.data?.data || []
+          data = list.find((item) => item.employeeId === id) || list[0] || null
+        }
+
+        if (!data) {
+          if (!hasNotifiedRef.current) {
+            toast.error('Teacher not found.')
+            hasNotifiedRef.current = true
+          }
+          return
+        }
+
+        if (isMounted) {
+          const normalized = normalizeTeacher(data)
+          setTeacher(normalized)
+          setDocuments(normalized.documents)
+          setPerformanceRows(DEFAULT_PERFORMANCE_ROWS)
+        }
+      } catch (error) {
+        const message = error?.response?.data?.message || 'Failed to load teacher details.'
+        if (!hasNotifiedRef.current) {
+          toast.error(message)
+          hasNotifiedRef.current = true
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
       }
-      window.localStorage.setItem(TEACHERS_STORAGE_KEY, JSON.stringify(nextList))
-    } catch (error) {
-      // ignore storage errors
     }
-  }
+
+    loadTeacher()
+    return () => {
+      isMounted = false
+    }
+  }, [id])
 
   const handleOpenProfileEdit = () => {
     setEditProfileValues({
@@ -206,7 +248,6 @@ const TeacherDetails = () => {
       performance: performanceRows,
     }
     setTeacher(nextTeacher)
-    saveTeacherToStorage(nextTeacher)
     setIsProfileEditOpen(false)
     toast.success('Teacher profile updated.')
   }
@@ -219,7 +260,6 @@ const TeacherDetails = () => {
     setNewDocument('')
     const nextTeacher = { ...teacher, documents: nextDocs, performance: performanceRows }
     setTeacher(nextTeacher)
-    saveTeacherToStorage(nextTeacher)
   }
 
   const handleRemoveDocument = (doc) => {
@@ -227,7 +267,6 @@ const TeacherDetails = () => {
     setDocuments(nextDocs)
     const nextTeacher = { ...teacher, documents: nextDocs, performance: performanceRows }
     setTeacher(nextTeacher)
-    saveTeacherToStorage(nextTeacher)
   }
 
   const handleAddPerformance = () => {
@@ -248,7 +287,6 @@ const TeacherDetails = () => {
     setNewPerformanceNote('')
     const nextTeacher = { ...teacher, performance: nextRows, documents }
     setTeacher(nextTeacher)
-    saveTeacherToStorage(nextTeacher)
     toast.success('Performance note added.')
   }
 
@@ -310,9 +348,16 @@ const TeacherDetails = () => {
             </div>
 
             <div className="-mt-2 flex flex-col items-center">
-              <div className="flex h-32 w-32 items-center justify-center rounded-full bg-[#c7c9cd] text-[#565a64]">
-                {/* <UserRound className="h-16 w-16" /> */}
-                <img src={Customer} alt="User logo"  />
+              <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-[#c7c9cd] text-[#565a64]">
+                {teacher.photo ? (
+                  <img
+                    src={teacher.photo}
+                    alt={teacher.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <img src={Customer} alt="User logo" className="h-full w-full object-cover" />
+                )}
               </div>
               <h2 className="mt-3 text-2xl font-bold leading-none text-[#11131a]">{teacher.name}</h2>
               <div className="mt-2 flex items-center gap-2">
@@ -346,7 +391,7 @@ const TeacherDetails = () => {
       <span>Gender</span>
     </div>
     <span className="font-medium text-gray-900 text-sm">
-      {teacher.gender || "Male"}
+      {teacher.gender || '-'}
     </span>
   </div>
 
@@ -357,7 +402,7 @@ const TeacherDetails = () => {
       <span>Date of Birth</span>
     </div>
     <span className="font-medium text-gray-900 text-right text-sm">
-      {teacher.dob || "May 18, 2005"}
+      {teacher.dob ? format(new Date(teacher.dob), 'dd-MM-yyyy') : '-'}
     </span>
   </div>
 
@@ -368,7 +413,7 @@ const TeacherDetails = () => {
       <span>Phone Number</span>
     </div>
     <span className="font-medium text-gray-900 text-right text-sm">
-      {teacher.phone || "02687996746"}
+      {teacher.phone || '-'}
     </span>
   </div>
 
@@ -379,7 +424,7 @@ const TeacherDetails = () => {
       <span>Email</span>
     </div>
     <span className="font-medium text-gray-900 text-right  text-sm">
-      {teacher.email || "xyz@gmail.com"}
+      {teacher.email || '-'}
     </span>
   </div>
 
@@ -390,7 +435,7 @@ const TeacherDetails = () => {
       <span>Address</span>
     </div>
     <span className="font-medium text-gray-900 text-sm">
-      {teacher.address || "Peshawar, Pakistan"}
+      {teacher.address || '-'}
     </span>
   </div>
 

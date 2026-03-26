@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft, PlusCircle, Image, Upload } from 'lucide-react'
+import { toast } from 'sonner'
 import Icons from '@/assets/Icons.svg'
+import { teachersAPI } from '@/lib/api'
 
 const createScheduleRow = (id) => ({
   id,
@@ -68,19 +70,36 @@ const DropZone = ({ title, helperText, accept, multiple = false, selectedFiles, 
   )
 }
 
+const generateEmployeeId = () => {
+  const year = new Date().getFullYear()
+  const timestamp = Date.now().toString().slice(-5)
+  return `EMP${year}${timestamp}`
+}
+
+const buildScheduleSummary = (rows, key) => {
+  const values = rows
+    .map((row) => row[key]?.trim())
+    .filter(Boolean)
+  return Array.from(new Set(values)).join(', ')
+}
+
 const AddTeacher = () => {
   const [teacher, setTeacher] = useState({
-    teacherId: 'Auto-Generated',
+    teacherId: generateEmployeeId(),
     fullName: '',
     dateOfBirth: '',
     gender: 'male',
     email: '',
     phoneNumber: '',
     address: '',
+    designation: 'Teacher',
+    joiningDate: '',
   })
   const [profilePhoto, setProfilePhoto] = useState(null)
   const [documents, setDocuments] = useState([])
   const [scheduleRows, setScheduleRows] = useState([createScheduleRow(1), createScheduleRow(2)])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
 
   const updateTeacher = (field, value) => {
     setTeacher((previous) => ({ ...previous, [field]: value }))
@@ -96,8 +115,103 @@ const AddTeacher = () => {
     setScheduleRows((previousRows) => [...previousRows, createScheduleRow(previousRows.length + 1)])
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    if (isSubmitting) return
+
+    const fullName = teacher.fullName.trim()
+    if (!fullName) {
+      toast.error('Full name is required.')
+      return
+    }
+
+    const nameParts = fullName.split(/\s+/)
+    if (nameParts.length < 2) {
+      toast.error('Please enter both first and last name.')
+      return
+    }
+
+    if (!teacher.dateOfBirth) {
+      toast.error('Date of birth is required.')
+      return
+    }
+
+    if (!teacher.email || !teacher.phoneNumber) {
+      toast.error('Email and phone number are required.')
+      return
+    }
+
+    if (!teacher.designation || !teacher.joiningDate) {
+      toast.error('Designation and joining date are required.')
+      return
+    }
+
+    if (!profilePhoto) {
+      toast.error('Profile photo is required.')
+      return
+    }
+
+    if (!documents.length) {
+      toast.error('At least one document is required.')
+      return
+    }
+
+    const [firstName, ...lastNameParts] = nameParts
+    const lastName = lastNameParts.join(' ')
+    const classLabel = buildScheduleSummary(scheduleRows, 'className')
+    const subjectName = buildScheduleSummary(scheduleRows, 'subject')
+
+    const formData = new FormData()
+    formData.append('firstName', firstName)
+    formData.append('lastName', lastName)
+    formData.append('employeeId', teacher.teacherId)
+    formData.append('dateOfBirth', teacher.dateOfBirth)
+    formData.append('gender', teacher.gender)
+    formData.append('email', teacher.email)
+    formData.append('phone', teacher.phoneNumber)
+    formData.append('designation', teacher.designation)
+    formData.append('joiningDate', teacher.joiningDate)
+    if (classLabel) {
+      formData.append('classLabel', classLabel)
+    }
+    if (subjectName) {
+      formData.append('subjectName', subjectName)
+    }
+    if (teacher.address.trim()) {
+      formData.append(
+        'profile',
+        JSON.stringify({
+          address: {
+            current: {
+              street: teacher.address.trim(),
+            },
+          },
+        })
+      )
+    }
+
+    formData.append('photo', profilePhoto)
+    documents.forEach((file) => {
+      formData.append('documents', file)
+    })
+
+    setIsSubmitting(true)
+    try {
+      const response = await teachersAPI.create(formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      const generatedId = response?.data?.data?.employeeId
+      if (generatedId) {
+        setTeacher((previous) => ({ ...previous, teacherId: generatedId }))
+      }
+      toast.success('Teacher added successfully.')
+      navigate('/teachers')
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to add teacher.'
+      toast.error(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const inputStyles =
@@ -152,6 +266,25 @@ const AddTeacher = () => {
                     type="text"
                     value={teacher.dateOfBirth}
                     onChange={(event) => updateTeacher('dateOfBirth', event.target.value)}
+                    className={inputStyles}
+                  />
+                </label>
+
+                <label className="space-y-2">
+                  <span className={labelStyles}>Designation</span>
+                  <input
+                    value={teacher.designation}
+                    onChange={(event) => updateTeacher('designation', event.target.value)}
+                    className={inputStyles}
+                  />
+                </label>
+
+                <label className="space-y-2">
+                  <span className={labelStyles}>Joining Date</span>
+                  <input
+                    type="date"
+                    value={teacher.joiningDate}
+                    onChange={(event) => updateTeacher('joiningDate', event.target.value)}
                     className={inputStyles}
                   />
                 </label>
@@ -308,10 +441,11 @@ const AddTeacher = () => {
           </Link>
           <button
             type="submit"
+            disabled={isSubmitting}
             className="inline-flex h-12 items-center rounded-lg bg-primary-600 px-6 text-base font-medium text-white transition hover:bg-primary-700"
           >
             {/* <Upload className="mr-2 h-4 w-4" /> */}
-            Save &amp; Add
+            {isSubmitting ? 'Saving...' : 'Save & Add'}
           </button>
         </div>
       </form>
