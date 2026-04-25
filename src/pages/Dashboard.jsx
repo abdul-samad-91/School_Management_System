@@ -282,7 +282,24 @@ const Dashboard = () => {
 
     const valueMap = new Map()
     feeChartSource.forEach((entry) => {
-      const date = new Date(entry._id.year, entry._id.month - 1, 1)
+      let date = null
+
+      if (entry?._id?.year && entry?._id?.month) {
+        date = new Date(entry._id.year, entry._id.month - 1, 1)
+      } else if (typeof entry?.month === 'string') {
+        const [yearString, monthString] = entry.month.split('-')
+        const year = Number.parseInt(yearString, 10)
+        const month = Number.parseInt(monthString, 10)
+
+        if (!Number.isNaN(year) && !Number.isNaN(month)) {
+          date = new Date(year, month - 1, 1)
+        }
+      }
+
+      if (!date || Number.isNaN(date.getTime())) {
+        return
+      }
+
       const key = format(date, 'MMM yy')
       const collectedInLakh = Number((entry.totalCollected / 100000).toFixed(1))
       valueMap.set(key, collectedInLakh)

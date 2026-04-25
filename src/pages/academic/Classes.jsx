@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import {
   ArrowDownUp,
   BookOpen,
@@ -20,6 +22,7 @@ import filterIcon from '@/assets/filterIcon.svg'
 import edit from '@/assets/edit.svg'
 import Trash from '@/assets/Trash.svg'
 import BookLogo1 from '@/assets/BookLogo1.png'
+import { academicAPI } from '@/lib/api'
 
 
 
@@ -47,6 +50,38 @@ const INITIAL_CLASSES = Array.from({ length: 200 }, (_, index) => {
 
 const ROWS_PER_PAGE = 10
 
+const LEVEL_BY_CLASS_NAME = {
+  I: 1,
+  II: 2,
+  III: 3,
+  IV: 4,
+  V: 5,
+  VI: 6,
+  VII: 7,
+  VIII: 8,
+  IX: 9,
+  X: 10,
+  XI: 11,
+  XII: 12,
+}
+
+const resolveClassLevel = (name = '') => {
+  const trimmedName = String(name).trim()
+  if (!trimmedName) return null
+
+  const upperValue = trimmedName.toUpperCase()
+  if (LEVEL_BY_CLASS_NAME[upperValue]) {
+    return LEVEL_BY_CLASS_NAME[upperValue]
+  }
+
+  const numericLevel = Number.parseInt(trimmedName, 10)
+  if (!Number.isNaN(numericLevel) && numericLevel > 0) {
+    return numericLevel
+  }
+
+  return null
+}
+
 const createEmptyForm = () => ({
   id: '',
   name: '',
@@ -65,6 +100,20 @@ const Classes = () => {
   const [isEditEnabled, setIsEditEnabled] = useState(true)
   const [formData, setFormData] = useState(createEmptyForm())
   const [formError, setFormError] = useState('')
+  const [isCreatingClass, setIsCreatingClass] = useState(false)
+
+  const { data: sessionsRaw } = useQuery({
+    queryKey: ['academic-sessions-for-classes-page'],
+    queryFn: async () => {
+      const response = await academicAPI.getSessions()
+      return response.data?.data || []
+    },
+  })
+
+  const activeSessionId = useMemo(() => {
+    const sessions = Array.isArray(sessionsRaw) ? sessionsRaw : []
+    return sessions.find((session) => session.isActive)?._id || sessions[0]?._id || null
+  }, [sessionsRaw])
 
   const filteredClasses = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
@@ -187,21 +236,61 @@ const Classes = () => {
     return true
   }
 
-  const handleAddClass = () => {
+  const handleAddClass = async () => {
     if (!validateForm()) return
 
-    const newClass = {
-      id: formData.id.trim().toUpperCase(),
-      name: formData.name.trim(),
-      section: formData.section.trim().toUpperCase(),
-      students: Number(formData.students),
-      subjects: Number(formData.subjects),
-      status: 'Active',
+    if (!activeSessionId) {
+      setFormError('No academic session found. Create or activate a session first.')
+      return
     }
 
-    setClasses((previous) => [newClass, ...previous])
-    setPage(1)
-    closeModal()
+    const resolvedLevel = resolveClassLevel(formData.name)
+    if (!resolvedLevel) {
+      setFormError('Class must be a valid numeric or roman level (e.g., 1, 2, I, II, X).')
+      return
+    }
+
+    if (isCreatingClass) return
+
+    setIsCreatingClass(true)
+
+    try {
+      const payload = {
+        name: formData.name.trim(),
+        level: resolvedLevel,
+        session: activeSessionId,
+        sections: [
+          {
+            name: formData.section.trim().toUpperCase(),
+            capacity: Number(formData.students) || 40,
+          },
+        ],
+      }
+
+      const response = await academicAPI.createClass(payload)
+      const createdClass = response?.data?.data
+
+      const createdSection = createdClass?.sections?.[0]
+      const newClass = {
+        id: createdClass?._id || formData.id.trim().toUpperCase(),
+        name: createdClass?.name || formData.name.trim(),
+        section: createdSection?.name || formData.section.trim().toUpperCase(),
+        students: createdSection?.students?.length || Number(formData.students),
+        subjects: Number(formData.subjects),
+        status: createdClass?.isActive ? 'Active' : 'Inactive',
+      }
+
+      setClasses((previous) => [newClass, ...previous])
+      setPage(1)
+      toast.success('Class added successfully.')
+      closeModal()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to add class.'
+      setFormError(message)
+      toast.error(message)
+    } finally {
+      setIsCreatingClass(false)
+    }
   }
 
   const handleSaveClass = () => {
@@ -531,9 +620,10 @@ const Classes = () => {
                 <button
                   type="button"
                   onClick={handleAddClass}
+                  disabled={isCreatingClass}
                   className="rounded bg-primary-500 px-6 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
                 >
-                  Add Class
+                  {isCreatingClass ? 'Adding...' : 'Add Class'}
                 </button>
               ) : (
                 <>

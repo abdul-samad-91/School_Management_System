@@ -1,33 +1,9 @@
 import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { BookOpen, PlusCircle, X , Plus} from 'lucide-react'
 import BookLogo1 from '@/assets/BookLogo1.png'
-
-const INITIAL_SESSIONS = [
-  {
-    id: 'session-2025-2026',
-    name: '2025-2026',
-    startDate: '2025-01-01',
-    endDate: '2026-01-01',
-  },
-  {
-    id: 'session-2024-2025',
-    name: '2024-2025',
-    startDate: '2024-01-01',
-    endDate: '2025-01-01',
-  },
-  {
-    id: 'session-2023-2024',
-    name: '2023-2024',
-    startDate: '2023-01-01',
-    endDate: '2024-01-01',
-  },
-  {
-    id: 'session-2022-2023',
-    name: '2022-2023',
-    startDate: '2022-01-01',
-    endDate: '2023-01-01',
-  },
-]
+import { academicAPI } from '@/lib/api'
 
 const createEmptyForm = () => ({
   id: null,
@@ -94,16 +70,44 @@ const SessionCard = ({ session, isCurrent, onEdit }) => {
 }
 
 const Sessions = () => {
-  const [sessions, setSessions] = useState(INITIAL_SESSIONS)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState('add')
   const [isEditEnabled, setIsEditEnabled] = useState(true)
   const [formData, setFormData] = useState(createEmptyForm())
   const [formError, setFormError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const {
+    data: sessionsRaw,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['academic-sessions-page-list'],
+    queryFn: async () => {
+      const response = await academicAPI.getSessions()
+      return response.data?.data || []
+    },
+  })
+
+  const sessions = useMemo(() => {
+    const source = Array.isArray(sessionsRaw) ? sessionsRaw : []
+    return source.map((session) => ({
+      id: session._id,
+      name: session.name,
+      startDate: session.startDate,
+      endDate: session.endDate,
+      isActive: Boolean(session.isActive),
+    }))
+  }, [sessionsRaw])
 
   const orderedSessions = useMemo(() => sortSessionsByStartDate(sessions), [sessions])
-  const currentSession = orderedSessions[0] || null
-  const previousSessions = orderedSessions.slice(1)
+  const currentSession = useMemo(() => {
+    return orderedSessions.find((session) => session.isActive) || orderedSessions[0] || null
+  }, [orderedSessions])
+  const previousSessions = useMemo(() => {
+    if (!currentSession) return []
+    return orderedSessions.filter((session) => session.id !== currentSession.id)
+  }, [currentSession, orderedSessions])
 
   const openAddSessionModal = () => {
     setModalMode('add')
@@ -153,38 +157,53 @@ const Sessions = () => {
     return true
   }
 
-  const handleAddSession = () => {
+  const handleAddSession = async () => {
     if (!validateForm()) return
 
-    const newSession = {
-      id: `session-${Date.now()}`,
-      name: formData.name.trim(),
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-    }
+    if (isSubmitting) return
+    setIsSubmitting(true)
 
-    setSessions((previous) => [...previous, newSession])
-    closeModal()
+    try {
+      await academicAPI.createSession({
+        name: formData.name.trim(),
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+      })
+      toast.success('Session added successfully.')
+      await refetch()
+      closeModal()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to add session.'
+      setFormError(message)
+      toast.error(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleSaveSession = () => {
+  const handleSaveSession = async () => {
     if (!isEditEnabled) return
     if (!validateForm()) return
 
-    setSessions((previous) =>
-      previous.map((session) =>
-        session.id === formData.id
-          ? {
-              ...session,
-              name: formData.name.trim(),
-              startDate: formData.startDate,
-              endDate: formData.endDate,
-            }
-          : session
-      )
-    )
+    if (isSubmitting) return
+    setIsSubmitting(true)
 
-    closeModal()
+    try {
+      await academicAPI.updateSession(formData.id, {
+        name: formData.name.trim(),
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+      })
+      toast.success('Session updated successfully.')
+      await refetch()
+      closeModal()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to update session.'
+      setFormError(message)
+      toast.error(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const isReadOnly = modalMode === 'details' && !isEditEnabled
@@ -209,7 +228,11 @@ const Sessions = () => {
 
       <section>
         <h2 className="mb-3 text-2xl font-semibold text-[#253256]">Current Sessions</h2>
-        {currentSession ? (
+        {isLoading ? (
+          <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-lg text-slate-500">
+            Loading sessions...
+          </div>
+        ) : currentSession ? (
           <SessionCard session={currentSession} isCurrent onEdit={openSessionDetails} />
         ) : (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-lg text-slate-500">
@@ -315,9 +338,10 @@ const Sessions = () => {
                 <button
                   type="button"
                   onClick={handleAddSession}
+                  disabled={isSubmitting}
                   className="rounded bg-primary-500 px-7  py-2 text-lg font-semibold text-white transition hover:bg-primary-700"
                 >
-                  Add Session
+                  {isSubmitting ? 'Adding...' : 'Add Session'}
                 </button>
               ) : (
                 <>
@@ -331,13 +355,14 @@ const Sessions = () => {
                   <button
                     type="button"
                     onClick={handleSaveSession}
+                    disabled={!isEditEnabled || isSubmitting}
                     className={`rounded px-5 py-2 text-lg font-semibold text-white transition ${
-                      isEditEnabled
+                      isEditEnabled && !isSubmitting
                         ? 'bg-primary-500 hover:bg-primary-700'
                         : 'cursor-not-allowed bg-primary-300'
                     }`}
                   >
-                    Save
+                    {isSubmitting ? 'Saving...' : 'Save'}
                   </button>
                 </>
               )}
