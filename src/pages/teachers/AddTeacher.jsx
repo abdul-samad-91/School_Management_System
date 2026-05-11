@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ChevronLeft, PlusCircle, Image, Upload } from 'lucide-react'
 import { toast } from 'sonner'
-import Icons from '@/Assets/Icons.svg'
+import Icons from '@/assets/Icons.svg'
 import { teachersAPI } from '@/lib/api'
 
 const createScheduleRow = (id) => ({
