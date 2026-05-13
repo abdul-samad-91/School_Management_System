@@ -9,7 +9,7 @@ import {
   FileText,
 } from 'lucide-react'
 import { dashboardAPI } from '@/lib/api'
-import Book from '@/assets/Book.svg'
+import Book from '@/assets/book.svg'
 import userLogo from '@/assets/users.svg'
 import messageLogo from '@/assets/messageLogo.svg'
 import certificateIcon from '@/assets/certificateIcon.svg'
