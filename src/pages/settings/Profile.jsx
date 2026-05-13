@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { User, Plus } from 'lucide-react'
+// import { User, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/store/authStore'
 import UserLogo from '@/assets/AddUserMale.svg'
