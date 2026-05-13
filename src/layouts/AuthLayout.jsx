@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 import { Outlet, Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import logo from '@/assets/logo.svg'
+// import logo from '@/assets/logo.svg'
 import BookLogo1 from '@/assets/BookLogo1.png'
+import imageSchool from '@/assets/loginSignup.png'
 
 const AuthLayout = () => {
   const year = new Date().getFullYear()
@@ -25,7 +26,7 @@ const AuthLayout = () => {
   return (
     <div className='grid min-h-screen grid-cols-[30%_70%]'>
       <div >
-        <img src="./src/Assets/loginSignup.png" alt="Login/Signup" className="w-full h-full object-cover" />
+        <img src={imageSchool} alt="Login/Signup" className="w-full h-full object-cover" />
       </div>
       <div className="min-h-screen overflow-y-auto bg-gradient-to-b from-[#ffff] to-[#506EE4] flex items-center justify-center p-4 ">
       <div className="w-full max-w-lg  ">
