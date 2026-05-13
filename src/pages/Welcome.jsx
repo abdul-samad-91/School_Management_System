@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
-  Users,
+  // Users,
   GraduationCap,
-  MessageSquare,
-  DollarSign,
-  ClipboardCheck,
-  FileText,
+  // MessageSquare,
+  // DollarSign,
+  // ClipboardCheck,
+  // FileText,
 } from 'lucide-react'
 import { dashboardAPI } from '@/lib/api'
 import Book from '@/assets/book.svg'
