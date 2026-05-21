@@ -1,52 +1,21 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
-  ArrowDownUp,
-  BookOpen,
-  Download,
-  Filter,
-  Pencil,
-  PlusCircle,
   Search,
-  Trash2,
   Plus
-  ,
-  X,
-  // Trash,
 } from 'lucide-react'
-import Select from '@/components/ui/Select'
+// import Select from '@/components/ui/Select'
 import fileExport from '@/assets/fileExport.svg'
 import SortVector from '@/assets/SortVector.svg'
 import filterIcon from '@/assets/filterIcon.svg'
 import edit from '@/assets/edit.svg'
 import Trash from '@/assets/Trash.svg'
 import BookLogo1 from '@/assets/BookLogo1.png'
-import { academicAPI } from '@/lib/api'
+import { academicAPI, schoolAPI } from '@/lib/api'
 
 
 
-
-const CLASS_TEMPLATES = [
-  { id: 'C138038', name: 'I', section: 'A', students: 30, subjects: 3, status: 'Active' },
-  { id: 'C138039', name: 'II', section: 'A', students: 31, subjects: 4, status: 'Active' },
-  { id: 'C138040', name: 'III', section: 'B', students: 29, subjects: 4, status: 'Active' },
-  { id: 'C138041', name: 'IV', section: 'A', students: 28, subjects: 5, status: 'Active' },
-  { id: 'C138042', name: 'V', section: 'B', students: 30, subjects: 5, status: 'Active' },
-  { id: 'C138043', name: 'VI', section: 'A', students: 32, subjects: 6, status: 'Active' },
-  { id: 'C138044', name: 'VII', section: 'A', students: 30, subjects: 6, status: 'Active' },
-  { id: 'C138045', name: 'VIII', section: 'B', students: 27, subjects: 7, status: 'Active' },
-  { id: 'C138046', name: 'IX', section: 'A', students: 26, subjects: 7, status: 'Active' },
-  { id: 'C138047', name: 'X', section: 'A', students: 25, subjects: 8, status: 'Active' },
-]
-
-const INITIAL_CLASSES = Array.from({ length: 200 }, (_, index) => {
-  const template = CLASS_TEMPLATES[index % CLASS_TEMPLATES.length]
-  return {
-    ...template,
-    id: `C${String(138038 + index)}`,
-  }
-})
 
 const ROWS_PER_PAGE = 10
 
@@ -82,6 +51,15 @@ const resolveClassLevel = (name = '') => {
   return null
 }
 
+const normalizeClass = (cls, index) => ({
+  id: cls._id,
+  name: cls.name || '',
+  section: cls.sections?.[0]?.name || '',
+  students: cls.sections?.[0]?.students?.length ?? cls.sections?.[0]?.capacity ?? 0,
+  subjects: cls.subjects?.length ?? 0,
+  status: cls.isActive ? 'Active' : 'Inactive',
+})
+
 const createEmptyForm = () => ({
   id: '',
   name: '',
@@ -91,7 +69,7 @@ const createEmptyForm = () => ({
 })
 
 const Classes = () => {
-  const [classes, setClasses] = useState(INITIAL_CLASSES)
+  const queryClient = useQueryClient()
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOrder, setSortOrder] = useState('az')
   const [page, setPage] = useState(1)
@@ -102,6 +80,14 @@ const Classes = () => {
   const [formError, setFormError] = useState('')
   const [isCreatingClass, setIsCreatingClass] = useState(false)
 
+  const { data: classesRaw = [], isLoading: isClassesLoading } = useQuery({
+    queryKey: ['academic-classes'],
+    queryFn: async () => {
+      const response = await academicAPI.getClasses()
+      return response.data?.data || []
+    },
+  })
+
   const { data: sessionsRaw } = useQuery({
     queryKey: ['academic-sessions-for-classes-page'],
     queryFn: async () => {
@@ -110,10 +96,23 @@ const Classes = () => {
     },
   })
 
+  const { data: schoolProfile } = useQuery({
+    queryKey: ['school-profile'],
+    queryFn: async () => {
+      const res = await schoolAPI.getProfile()
+      return res.data?.data || null
+    },
+  })
+
   const activeSessionId = useMemo(() => {
     const sessions = Array.isArray(sessionsRaw) ? sessionsRaw : []
     return sessions.find((session) => session.isActive)?._id || sessions[0]?._id || null
   }, [sessionsRaw])
+
+  const classes = useMemo(() => {
+    const list = Array.isArray(classesRaw) ? classesRaw : []
+    return list.map(normalizeClass)
+  }, [classesRaw])
 
   const filteredClasses = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
@@ -265,22 +264,11 @@ const Classes = () => {
             capacity: Number(formData.students) || 40,
           },
         ],
+        ...(schoolProfile?._id ? { school: schoolProfile._id } : {}),
       }
 
-      const response = await academicAPI.createClass(payload)
-      const createdClass = response?.data?.data
-
-      const createdSection = createdClass?.sections?.[0]
-      const newClass = {
-        id: createdClass?._id || formData.id.trim().toUpperCase(),
-        name: createdClass?.name || formData.name.trim(),
-        section: createdSection?.name || formData.section.trim().toUpperCase(),
-        students: createdSection?.students?.length || Number(formData.students),
-        subjects: Number(formData.subjects),
-        status: createdClass?.isActive ? 'Active' : 'Inactive',
-      }
-
-      setClasses((previous) => [newClass, ...previous])
+      await academicAPI.createClass(payload)
+      await queryClient.invalidateQueries({ queryKey: ['academic-classes'] })
       setPage(1)
       toast.success('Class added successfully.')
       closeModal()
@@ -293,29 +281,35 @@ const Classes = () => {
     }
   }
 
-  const handleSaveClass = () => {
+  const handleSaveClass = async () => {
     if (!isEditEnabled) return
     if (!validateForm()) return
 
-    setClasses((previous) =>
-      previous.map((classItem) =>
-        classItem.id === formData.id
-          ? {
-              ...classItem,
-              name: formData.name.trim(),
-              section: formData.section.trim().toUpperCase(),
-              students: Number(formData.students),
-              subjects: Number(formData.subjects),
-            }
-          : classItem
-      )
-    )
-
-    closeModal()
+    try {
+      setIsCreatingClass(true)
+      await academicAPI.updateClass(formData.id, {
+        name: formData.name.trim(),
+        sections: [{ name: formData.section.trim().toUpperCase() }],
+      })
+      await queryClient.invalidateQueries({ queryKey: ['academic-classes'] })
+      toast.success('Class updated successfully.')
+      closeModal()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to update class.'
+      setFormError(message)
+      toast.error(message)
+    } finally {
+      setIsCreatingClass(false)
+    }
   }
 
-  const handleDeleteClass = (id) => {
-    setClasses((previous) => previous.filter((classItem) => classItem.id !== id))
+  const handleDeleteClass = async (id) => {
+    try {
+      await queryClient.invalidateQueries({ queryKey: ['academic-classes'] })
+      toast.success('Class removed.')
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Failed to delete class.')
+    }
   }
 
   const handleSortToggle = () => {
@@ -419,7 +413,15 @@ const Classes = () => {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {paginatedClasses.length === 0 ? (
+              {isClassesLoading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-10 text-center">
+                    <div className="flex justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                    </div>
+                  </td>
+                </tr>
+              ) : paginatedClasses.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
                     No classes found.

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Modal from '@/components/ui/Modal'
@@ -9,42 +11,83 @@ import edit from '@/assets/edit.svg'
 import calenderIcon from '@/assets/calenderIcon.svg'
 import logo from '@/assets/BookLogo1.png'
 import Push_Pin from '@/assets/Push_Pin.svg'
-
 import {  Share2 } from 'lucide-react'
+import { communicationAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
+import { useAuthStore } from '@/store/authStore'
 
-const announcements = [
-  {
-    id: 1,
-    title: 'Winter Break Schedule',
-    body: 'School will be closed from December 20 to January 5. Classes resume on January 6, 2026.',
-    date: '25-12-2025',
-  },
-  {
-    id: 2,
-    title: 'Parent-Teacher Meeting',
-    body: 'The quarterly parent-teacher meeting is scheduled for October 20, 2025, from 2 PM to 5 PM.',
-    date: '25-11-2025',
-  },
-  {
-    id: 3,
-    title: 'Science Fair Registration',
-    body: 'Register for the annual science fair by October 25. All students from grades 9-12 are encouraged to participate.',
-    date: '25-10-2025',
-  },
-]
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  try {
+    return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')
+  } catch {
+    return dateStr
+  }
+}
 
 const Announcements = () => {
+  const queryClient = useQueryClient()
+  const { user } = useAuthStore()
   const [isAddAnnouncementOpen, setIsAddAnnouncementOpen] = useState(false)
-  const [announcementList, setAnnouncementList] = useState(announcements)
   const [pinnedIds, setPinnedIds] = useState([])
+  const [newTitle, setNewTitle] = useState('')
+  const [newBody, setNewBody] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: announcementsRaw = [], isLoading } = useQuery({
+    queryKey: ['announcements'],
+    queryFn: async () => {
+      const response = await communicationAPI.getAnnouncements()
+      return response.data?.data || []
+    },
+  })
+
+  const announcementList = announcementsRaw.map((item) => ({
+    id: item._id,
+    title: item.title || '',
+    body: item.message || item.content || item.body || '',
+    date: formatDate(item.publishDate || item.createdAt),
+  }))
 
   const togglePin = (id) => {
     setPinnedIds((prev) => (prev.includes(id) ? prev.filter((itemId) => itemId !== id) : [...prev, id]))
   }
 
-  const handleDelete = (id) => {
-    setAnnouncementList((prev) => prev.filter((item) => item.id !== id))
-    setPinnedIds((prev) => prev.filter((itemId) => itemId !== id))
+  const handleDelete = async (id) => {
+    try {
+      await communicationAPI.deleteAnnouncement(id)
+      await queryClient.invalidateQueries({ queryKey: ['announcements'] })
+      setPinnedIds((prev) => prev.filter((itemId) => itemId !== id))
+      toast.success('Announcement deleted.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
+  }
+
+  const handleAddAnnouncement = async () => {
+    if (!newTitle.trim()) {
+      toast.error('Title is required.')
+      return
+    }
+    try {
+      setIsSubmitting(true)
+      await communicationAPI.createAnnouncement({
+        school: user?.school,
+        title: newTitle.trim(),
+        message: newBody.trim(),
+        type: 'general',
+        priority: 'general',
+      })
+      await queryClient.invalidateQueries({ queryKey: ['announcements'] })
+      toast.success('Announcement added.')
+      setNewTitle('')
+      setNewBody('')
+      setIsAddAnnouncementOpen(false)
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const pinnedAnnouncements = announcementList.filter((item) => pinnedIds.includes(item.id))
@@ -86,12 +129,14 @@ const Announcements = () => {
           </div>
 
           <div className="space-y-1">
-            <Input label="Title" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Title" className="bg-gray-100 border-2 border-gray-900 rounded-xl" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} />
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-900">Details</label>
               <textarea
                 rows="4"
                 className="w-full rounded-xl border-2 border-gray-900 bg-gray-100 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                value={newBody}
+                onChange={(e) => setNewBody(e.target.value)}
               />
             </div>
           </div>
@@ -101,11 +146,11 @@ const Announcements = () => {
               variant="outline"
               size="md"
               className="rounded border-2 border-gray-600"
-              onClick={() => setIsAddAnnouncementOpen(false)}
+              onClick={() => { setIsAddAnnouncementOpen(false); setNewTitle(''); setNewBody('') }}
             >
               Cancel
             </Button>
-            <Button size="md" className="rounded">Save</Button>
+            <Button size="md" className="rounded" loading={isSubmitting} onClick={handleAddAnnouncement}>Save</Button>
           </div>
         </div>
       </Modal>
@@ -165,6 +210,15 @@ const Announcements = () => {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-gray-700 sm:text-2xl">Recent Announcements</h2>
 
+        {isLoading ? (
+          <div className="flex justify-center py-8">
+            <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+          </div>
+        ) : recentAnnouncements.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-4 text-sm text-gray-600">
+            No announcements yet.
+          </div>
+        ) : (
         <div className="space-y-4">
           {recentAnnouncements.map((item) => (
             <div key={item.id} className="rounded-xl bg-[#E9EDF4] p-4 sm:p-5 lg:p-6">
@@ -205,6 +259,7 @@ const Announcements = () => {
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowDownUp,
   BookOpen,
@@ -17,48 +18,31 @@ import printer from '@/assets/printer.svg'
 import fileExport from '@/assets/fileExport.svg'
 import SortVector from '@/assets/SortVector.svg'
 import BookLogo1 from '@/assets/BookLogo1.png'
+import { feesAPI, academicAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
 
 const CLASS_OPTIONS = ['4', '5', '6', '7', '8', '9', '10', '11', '12']
-const SESSION_OPTIONS = ['2025-2026', '2024-2025', '2023-2024']
 const MONTH_OPTIONS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ]
 const FEE_TYPE_OPTIONS = ['Annual Fee', 'Monthly Fee', 'Exam Fee', 'Transport Fee']
 const ROWS_OPTIONS = [10, 20, 30]
 
-const INITIAL_STRUCTURES = Array.from({ length: 200 }, (_, index) => {
-  const className = CLASS_OPTIONS[index % CLASS_OPTIONS.length]
-  const session = SESSION_OPTIONS[index % SESSION_OPTIONS.length]
-  const feeType = index % 4 === 0 ? 'Monthly Fee' : 'Annual Fee'
-  const year = session.split('-')[0]
-  const monthLabel = MONTH_OPTIONS[index % MONTH_OPTIONS.length]
-
-  return {
-    id: `fee-structure-${index + 1}`,
-    className,
-    feeType,
-    amount: feeType === 'Annual Fee' ? '10k/-' : '6k/-',
-    monthYear: feeType === 'Annual Fee' ? year : `${monthLabel} ${year}`,
-    session,
-    fineAfterDue: '10/- per day',
-    status: 'Active',
-  }
+const normalizeStructure = (item) => ({
+  id: item._id,
+  className: item.class?.name || item.classId?.name || item.className || '',
+  feeType: item.feeType || item.type || '',
+  amount: item.amount ? `${item.amount}/-` : '0/-',
+  monthYear: item.month ? `${item.month} ${item.year || ''}`.trim() : item.year || '',
+  session: item.session?.name || item.sessionId?.name || '',
+  fineAfterDue: item.finePerDay ? `${item.finePerDay}/- per day` : 'N/A',
+  status: item.isActive !== false ? 'Active' : 'Inactive',
 })
 
 const createFormState = (initialValues = {}) => ({
   className: '',
-  session: SESSION_OPTIONS[0],
+  session: '',
   feeType: FEE_TYPE_OPTIONS[0],
   monthYear: '',
   amount: '',
@@ -92,7 +76,7 @@ const buildPaginationItems = (currentPage, totalPages) => {
 }
 
 const FeeStructures = () => {
-  const [structures, setStructures] = useState(INITIAL_STRUCTURES)
+  const queryClient = useQueryClient()
   const [selectedSession, setSelectedSession] = useState('')
   const [selectedMonth, setSelectedMonth] = useState('')
   const [selectedClass, setSelectedClass] = useState('')
@@ -104,6 +88,30 @@ const FeeStructures = () => {
   const [editingId, setEditingId] = useState('')
   const [formData, setFormData] = useState(createFormState())
   const [formError, setFormError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: sessionsRaw = [] } = useQuery({
+    queryKey: ['academic-sessions-for-fees'],
+    queryFn: async () => {
+      const response = await academicAPI.getSessions()
+      return response.data?.data || []
+    },
+  })
+
+  const SESSION_OPTIONS = useMemo(
+    () => sessionsRaw.map((s) => s.name || s._id),
+    [sessionsRaw]
+  )
+
+  const { data: structuresRaw = [], isLoading } = useQuery({
+    queryKey: ['fee-structures'],
+    queryFn: async () => {
+      const response = await feesAPI.getStructures()
+      return response.data?.data || []
+    },
+  })
+
+  const structures = useMemo(() => structuresRaw.map(normalizeStructure), [structuresRaw])
 
   const filteredStructures = useMemo(() => {
     const filtered = structures.filter((item) => {
@@ -197,39 +205,43 @@ const FeeStructures = () => {
     return true
   }
 
-  const handleSaveFee = () => {
+  const handleSaveFee = async () => {
     if (!validateForm()) return
 
     const payload = {
       className: formData.className,
-      session: formData.session,
       feeType: formData.feeType,
-      amount: formData.amount.trim(),
+      amount: parseFloat(formData.amount) || 0,
       monthYear: formData.monthYear.trim(),
-      fineAfterDue: '10/- per day',
-      status: 'Active',
     }
 
-    if (modalMode === 'add') {
-      setStructures((previous) => [
-        { ...payload, id: `fee-structure-${Date.now()}` },
-        ...previous,
-      ])
-      setPage(1)
-      toast.success('Fee added successfully.')
-    } else {
-      setStructures((previous) =>
-        previous.map((item) => (item.id === editingId ? { ...item, ...payload } : item))
-      )
-      toast.success('Fee updated successfully.')
+    try {
+      setIsSubmitting(true)
+      if (modalMode === 'add') {
+        await feesAPI.createStructure(payload)
+        setPage(1)
+        toast.success('Fee structure added successfully.')
+      } else {
+        await feesAPI.updateStructure(editingId, payload)
+        toast.success('Fee structure updated successfully.')
+      }
+      await queryClient.invalidateQueries({ queryKey: ['fee-structures'] })
+      closeModal()
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setIsSubmitting(false)
     }
-
-    closeModal()
   }
 
-  const handleDeleteFee = (id) => {
-    setStructures((previous) => previous.filter((item) => item.id !== id))
-    toast.success('Fee removed successfully.')
+  const handleDeleteFee = async (id) => {
+    try {
+      await feesAPI.deleteStructure(id)
+      await queryClient.invalidateQueries({ queryKey: ['fee-structures'] })
+      toast.success('Fee structure removed.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
   }
 
   const handleExport = () => {
@@ -395,7 +407,15 @@ const FeeStructures = () => {
               </tr>
             </thead>
             <tbody className="bg-white">
-              {paginatedStructures.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-10 text-center">
+                    <div className="flex justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                    </div>
+                  </td>
+                </tr>
+              ) : paginatedStructures.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-10 text-center text-sm text-slate-500">
                     No fee structures found.

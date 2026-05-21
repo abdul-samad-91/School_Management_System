@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { Calendar, Download, Filter, Search } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Calendar, Filter, Search } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import fileExport2 from '@/assets/fileExport2.svg'
 import printer from '@/assets/printer.svg'
 import checks from '@/assets/checks.svg'
@@ -24,6 +25,7 @@ import {
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 import Button from '@/components/ui/Button'
+import { attendanceAPI, academicAPI } from '@/lib/api'
 
 const tabs = ['Attendance Report', 'Daily Attendance', 'Teacher/Staff Report']
 
@@ -34,98 +36,17 @@ const statusLegend = [
   { label: 'Holiday', dot: 'bg-sky-500',icon:clockX, pill: 'bg-sky-50' },
 ]
 
-const classOptions = [
-  { value: 'i', label: 'Class I' },
-  { value: 'ii', label: 'Class II' },
-  { value: 'iii', label: 'Class III' },
-  { value: 'iv', label: 'Class IV' },
-  { value: 'v', label: 'Class V' },
-  { value: 'vi', label: 'Class VI' },
-]
-
 const dateColumns = Array.from({ length: 21 }, (_, i) => {
   const day = String(i + 1).padStart(2, '0')
   const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
   return { day, dow: dows[i % 7] }
 })
 
-const students = [
-  {
-    name: 'Javeria',
-    avatar: 'J',
-    percent: 100,
-    stats: { p: 24, l: 0, a: 0, h: 6, f: 0 },
-    attendance: Array(21).fill('present'),
-
-  },
-  {
-    name: 'Ali',
-    avatar: 'A',
-    percent: 45,
-    stats: { p: 16, l: 2, a: 6, h: 0, f: 0 },
-    attendance: Array.from({ length: 21 }, (_, i) => (i % 5 === 0 ? 'absent' : 'present')),
-  },
-  {
-    name: 'Laila',
-    avatar: 'L',
-    percent: 100,
-    stats: { p: 24, l: 2, a: 1, h: 0, f: 0 },
-    attendance: Array(21).fill('present'),
-  },
-  {
-    name: 'Rehan',
-    avatar: 'R',
-    percent: 95,
-    stats: { p: 21, l: 2, a: 1, h: 0, f: 0 },
-    attendance: Array.from({ length: 21 }, (_, i) => (i === 6 ? 'late' : 'present')),
-  },
-  {
-    name: 'Amna',
-    avatar: 'A',
-    percent: 99,
-    stats: { p: 22, l: 0, a: 4, h: 0, f: 0 },
-    attendance: Array.from({ length: 21 }, (_, i) => (i === 9 ? 'absent' : 'present')),
-  },
-  {
-    name: 'Ryan',
-    avatar: 'R',
-    percent: 98,
-    stats: { p: 23, l: 0, a: 2, h: 0, f: 0 },
-    attendance: Array.from({ length: 21 }, (_, i) => (i === 12 ? 'absent' : 'present')),
-  },
-  {
-    name: 'Sadia',
-    avatar: 'S',
-    percent: 32,
-    stats: { p: 20, l: 3, a: 1, h: 6, f: 0 },
-    attendance: Array.from({ length: 21 }, (_, i) => (i % 4 === 0 ? 'holiday' : 'present')),
-  },
-  {
-    name: 'Sana',
-    avatar: 'S',
-    percent: 50,
-    stats: { p: 20, l: 3, a: 1, h: 6, f: 0 },
-    attendance: Array.from({ length: 21 }, (_, i) => (i % 4 === 0 ? 'holiday' : 'present')),
-  },
-]
-
-const dailyAttendance = [
-  { className: 'III', section: 'A', present: 69, absent: 2, presentPct: 98, absentPct: 2 },
-  { className: 'IV', section: 'A', present: 45, absent: 7, presentPct: 78, absentPct: 22 },
-  { className: 'II', section: 'B', present: 69, absent: 8, presentPct: 89, absentPct: 11 },
-  { className: 'I', section: 'C', present: 54, absent: 7, presentPct: 99, absentPct: 1 },
-  { className: 'II', section: 'A', present: 65, absent: 1, presentPct: 98, absentPct: 2 },
-  { className: 'III', section: 'B', present: 78, absent: 2, presentPct: 72, absentPct: 28 },
-  { className: 'V', section: 'C', present: 65, absent: 0, presentPct: 100, absentPct: 0 },
-  { className: 'VI', section: 'A', present: 45, absent: 2, presentPct: 99, absentPct: 11 },
-  { className: 'VIII', section: 'B', present: 47, absent: 2, presentPct: 98, absentPct: 2 },
-]
-
 const getDotClass = (status) => {
-  // if (status === 'present') return 'bg-green-500'
-  // if (status === 'absent') return 'bg-red-500'
-  // if (status === 'late') return 'bg-blue-500'
-  // if (status === 'holiday') return 'bg-sky-500'
+  if (status === 'present') return 'bg-green-500'
+  if (status === 'absent') return 'bg-red-500'
+  if (status === 'late') return 'bg-blue-500'
+  if (status === 'holiday') return 'bg-sky-500'
   return 'bg-green-500'
 }
 
@@ -150,6 +71,59 @@ const iconColor ={
 
 const AttendanceReport = () => {
   const [activeTab, setActiveTab] = useState(tabs[0])
+  const [selectedClass, setSelectedClass] = useState('')
+  const today = new Date().toISOString().split('T')[0]
+  const [selectedDate, setSelectedDate] = useState(today)
+
+  const { data: classesRaw = [] } = useQuery({
+    queryKey: ['academic-classes-report'],
+    queryFn: async () => {
+      const response = await academicAPI.getClasses()
+      return response.data?.data || []
+    },
+  })
+
+  const classOptions = classesRaw.map((c) => ({ value: c._id, label: c.name }))
+
+  const { data: reportData, isLoading: isReportLoading } = useQuery({
+    queryKey: ['attendance-report', selectedClass, selectedDate],
+    queryFn: async () => {
+      const response = await attendanceAPI.getReport({ classId: selectedClass, date: selectedDate, type: 'student' })
+      return response.data?.data || []
+    },
+    enabled: Boolean(selectedClass),
+  })
+
+  const students = useMemo(() => {
+    if (!reportData) return []
+    return reportData.map((record) => {
+      const name = `${record.student?.profile?.firstName || ''} ${record.student?.profile?.lastName || ''}`.trim()
+      const p = record.presentCount || 0
+      const a = record.absentCount || 0
+      const l = record.lateCount || 0
+      const h = record.holidayCount || 0
+      const total = p + a + l + h || 1
+      return {
+        name: name || 'Unknown',
+        avatar: name?.[0] || '?',
+        percent: Math.round((p / total) * 100),
+        stats: { p, l, a, h, f: 0 },
+        attendance: record.dailyRecords?.slice(0, 21).map((r) => r.status || 'present') || Array(21).fill('present'),
+      }
+    })
+  }, [reportData])
+
+  const dailyAttendance = useMemo(() => {
+    if (!reportData) return []
+    return reportData.map((record) => ({
+      className: record.class?.name || '',
+      section: record.section || '',
+      present: record.presentCount || 0,
+      absent: record.absentCount || 0,
+      presentPct: record.presentPercent || 0,
+      absentPct: record.absentPercent || 0,
+    }))
+  }, [reportData])
 
   return (
     <div className="space-y-6">
@@ -280,7 +254,9 @@ const AttendanceReport = () => {
             <CardTitle className="text-xl font-bold">Attendance Report List</CardTitle>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <Input
-                placeholder="15 May 2020 - 24 May 2020"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
                 rightIcon={<Calendar className="h-4 w-4" />}
                 className="min-w-[200px]"
               />
@@ -288,6 +264,8 @@ const AttendanceReport = () => {
                 options={classOptions}
                 placeholder="Select Class"
                 className="min-w-[160px]"
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
               />
             </div>
           </CardHeader>
@@ -347,7 +325,18 @@ const AttendanceReport = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {students.map((student) => (
+                  {isReportLoading ? (
+                    <TableRow>
+                      <TableCell colSpan={28} className="py-10 text-center">
+                        <div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" /></div>
+                      </TableCell>
+                    </TableRow>
+                  ) : !selectedClass ? (
+                    <TableRow><TableCell colSpan={28} className="py-10 text-center text-sm text-gray-500">Select a class to view attendance.</TableCell></TableRow>
+                  ) : students.length === 0 ? (
+                    <TableRow><TableCell colSpan={28} className="py-10 text-center text-sm text-gray-500">No records found.</TableCell></TableRow>
+                  ) : 
+                  students.map((student) => (
                     <TableRow key={student.name}>
                       <TableCell>
                         <div className="flex items-center gap-3">

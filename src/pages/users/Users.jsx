@@ -1,5 +1,7 @@
 import { Plus, Search } from 'lucide-react'
 import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
@@ -13,6 +15,8 @@ import printer from '@/assets/printer.svg'
 import dotsVertical from '@/assets/dotsVertical.svg'
 import SortingArrow from '@/assets/SortingArrow.svg'
 import logo from '@/assets/BookLogo1.png'
+import { usersAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
 
 import {
   Card,
@@ -29,21 +33,73 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 
-const users = [
-  { id: '001', name: 'Ayesha', role: 'Admin', assignedClass: 'All', status: 'Active' },
-  { id: '002', name: 'Ali', role: 'Admin', assignedClass: 'All', status: 'Active' },
-  { id: '003', name: 'Ahmad', role: 'Admin', assignedClass: 'All', status: 'Active' },
-  { id: '004', name: 'Bilal', role: 'Teacher', assignedClass: '9A,9B,9C', status: 'Active' },
-  { id: '005', name: 'Emaan', role: 'Teacher', assignedClass: '10A,10B,10C', status: 'Active' },
-  { id: '006', name: 'Fareed', role: 'Teacher', assignedClass: '8A,8B,8C', status: 'Active' },
-  { id: '007', name: 'Hania', role: 'Teacher', assignedClass: '7A,7B,7C', status: 'Active' },
-  { id: '008', name: 'Kalsoom', role: 'Teacher', assignedClass: '6A,6B,6C', status: 'Active' },
-  { id: '009', name: 'Laila', role: 'Teacher', assignedClass: '5A,5B,5C', status: 'Active' },
-  { id: '010', name: 'Mansoor', role: 'Teacher', assignedClass: '4A,4B,4C', status: 'Active' },
-]
-
 const Users = () => {
-  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const queryClient = useQueryClient()
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false)
+  const [formData, setFormData] = useState({ name: '', username: '', email: '', role: '', assignedClass: '', password: '', confirmPassword: '' })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const { data: usersRaw = [], isLoading } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const response = await usersAPI.getAll()
+      return response.data?.data || []
+    },
+  })
+
+  const users = usersRaw
+    .map((u) => ({
+      id: u._id,
+      displayId: u.employeeId || u.studentId || u._id?.slice(-4) || '',
+      name: u.name || `${u.profile?.firstName || ''} ${u.profile?.lastName || ''}`.trim(),
+      role: u.role || '',
+      assignedClass: u.assignedClass || 'All',
+      status: u.isActive !== false ? 'Active' : 'Inactive',
+    }))
+    .filter((u) => !searchTerm || u.name.toLowerCase().includes(searchTerm.toLowerCase()))
+
+  const handleFieldChange = (field, value) => setFormData((prev) => ({ ...prev, [field]: value }))
+
+  const handleAddUser = async () => {
+    if (!formData.email || !formData.password || !formData.role) {
+      toast.error('Email, password and role are required.')
+      return
+    }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match.')
+      return
+    }
+    try {
+      setIsSubmitting(true)
+      await usersAPI.create({
+        name: formData.name,
+        username: formData.username,
+        email: formData.email,
+        role: formData.role,
+        assignedClass: formData.assignedClass,
+        password: formData.password,
+      })
+      await queryClient.invalidateQueries({ queryKey: ['users'] })
+      toast.success('User added successfully.')
+      setIsAddUserOpen(false)
+      setFormData({ name: '', username: '', email: '', role: '', assignedClass: '', password: '', confirmPassword: '' })
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteUser = async (id) => {
+    try {
+      await usersAPI.delete(id)
+      await queryClient.invalidateQueries({ queryKey: ['users'] })
+      toast.success('User deleted.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -79,14 +135,14 @@ const Users = () => {
           {/* <br /> */}
 
           <div className="grid grid-cols-2 gap-3 p-4">
-            <Input label="Name" className="bg-gray-100 border-2 border-gray-900 rounded-xl " />
-            <Input label="Username" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
-            <Input label="Email" type="email" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
-            <Input label="Role" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
-            <Input label="Class" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Name" value={formData.name} onChange={(e) => handleFieldChange('name', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl " />
+            <Input label="Username" value={formData.username} onChange={(e) => handleFieldChange('username', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Email" type="email" value={formData.email} onChange={(e) => handleFieldChange('email', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Role" value={formData.role} onChange={(e) => handleFieldChange('role', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Class" value={formData.assignedClass} onChange={(e) => handleFieldChange('assignedClass', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
             <Input label="Access" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
-            <Input label="Password" type="password" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
-            <Input label="Confirm Password" type="password" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Password" type="password" value={formData.password} onChange={(e) => handleFieldChange('password', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Confirm Password" type="password" value={formData.confirmPassword} onChange={(e) => handleFieldChange('confirmPassword', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
           </div>
 
           <div className="flex items-center justify-end gap-3  px-4">
@@ -98,7 +154,7 @@ const Users = () => {
             >
               Cancel
             </Button>
-            <Button size="md" className="rounded py-2 px-6">Save</Button>
+            <Button size="md" className="rounded py-2 px-6" loading={isSubmitting} onClick={handleAddUser}>Save</Button>
           </div>
         </div>
       </Modal>
@@ -112,6 +168,8 @@ const Users = () => {
                 placeholder="Search"
                 leftIcon={<Search className="h-4 w-4" />}
                 className="h-9 w-[300px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <div className="relative">
@@ -189,24 +247,37 @@ const Users = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="py-10 text-center">
+                    <div className="flex justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="py-10 text-center text-sm text-gray-500">No users found.</TableCell>
+                </TableRow>
+              ) : (
+              users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <input type="checkbox" className="h-3.5 w-3.5" />
                   </TableCell>
-                  <TableCell className="text-blue-600">{user.id}</TableCell>
+                  <TableCell className="text-blue-600">{user.displayId}</TableCell>
                   <TableCell>{user.name}</TableCell>
                   <TableCell className="text-gray-600">{user.role}</TableCell>
                   <TableCell className="text-gray-600">{user.assignedClass}</TableCell>
                   <TableCell>
-                    <Badge variant="success" className="gap-1 border-none rounded">
-                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    <Badge variant={user.status === 'Active' ? 'success' : 'error'} className="gap-1 border-none rounded">
+                      <span className={`h-1.5 w-1.5 rounded-full ${user.status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`} />
                       {user.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="inline-flex items-center gap-2">
-                      <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
+                      <button className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50" onClick={() => handleDeleteUser(user.id)}>
                         <span className="sr-only">Delete</span>
                         <img src={trash} alt="Delete" className="h-4 w-4" />
                       </button>
@@ -217,7 +288,8 @@ const Users = () => {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+              )}
             </TableBody>
           </Table>
 

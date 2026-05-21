@@ -1,8 +1,8 @@
 import { useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { 
-  // Download,
   Plus, 
-  // ArrowUpDown 
   } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
@@ -12,12 +12,12 @@ import Select from '@/components/ui/Select'
 import fileExport2 from '@/assets/fileExport2.svg'
 import SortVector from '@/assets/SortVector.svg'
 import edit from '@/assets/edit.svg'
-// import { Trash } from 'lucide-react'
 import trash from '@/assets/Trash.svg'
 import SortingArrow from '@/assets/SortingArrow.svg'
-// import logo from '@/assets/BookLogo1.png'
 import printer from '@/assets/printer.svg'
 import BookLogo1 from '@/assets/BookLogo1.png'
+import { examsAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -27,90 +27,116 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 
-const examRows = [
-  {
-    id: 1,
-    subject: 'English',
-    date: '13 May 2024',
-    startTime: '09:30 AM',
-    endTime: '10:45 AM',
-    duration: '3 hrs',
-    room: '101',
-    maxMarks: 100,
-    minMarks: 35,
-  },
-  {
-    id: 2,
-    subject: 'Urdu',
-    date: '14 May 2024',
-    startTime: '09:30 AM',
-    endTime: '10:45 AM',
-    duration: '3 hrs',
-    room: '104',
-    maxMarks: 100,
-    minMarks: 35,
-  },
-  {
-    id: 3,
-    subject: 'Physics',
-    date: '15 May 2024',
-    startTime: '09:30 AM',
-    endTime: '10:45 AM',
-    duration: '3 hrs',
-    room: '103',
-    maxMarks: 100,
-    minMarks: 35,
-  },
-  {
-    id: 4,
-    subject: 'Chemistry',
-    date: '16 May 2024',
-    startTime: '09:30 AM',
-    endTime: '10:45 AM',
-    duration: '3 hrs',
-    room: '105',
-    maxMarks: 100,
-    minMarks: 35,
-  },
-  {
-    id: 5,
-    subject: 'Maths',
-    date: '17 May 2024',
-    startTime: '09:30 AM',
-    endTime: '10:45 AM',
-    duration: '3 hrs',
-    room: '106',
-    maxMarks: 100,
-    minMarks: 35,
-  },
-  {
-    id: 6,
-    subject: 'Computer',
-    date: '18 May 2024',
-    startTime: '09:30 AM',
-    endTime: '10:45 AM',
-    duration: '3 hrs',
-    room: '102',
-    maxMarks: 100,
-    minMarks: 35,
-  },
-  {
-    id: 7,
-    subject: 'History',
-    date: '19 May 2024',
-    startTime: '09:30 AM',
-    endTime: '10:45 AM',
-    duration: '3 hrs',
-    room: '107',
-    maxMarks: 100,
-    minMarks: 35,
-  },
-]
+const createEmptyExam = () => ({
+  subject: '',
+  date: '',
+  startTime: '',
+  endTime: '',
+  duration: '',
+  room: '',
+  maxMarks: '',
+  minMarks: '',
+  className: '',
+})
+
+const normalizeExam = (exam) => ({
+  id: exam._id,
+  subject: exam.subject?.name || exam.subjectId?.name || exam.subject || '',
+  date: exam.date ? new Date(exam.date).toLocaleDateString() : '',
+  startTime: exam.schedule?.[0]?.startTime || exam.startTime || '',
+  endTime: exam.schedule?.[0]?.endTime || exam.endTime || '',
+  duration: exam.duration || '',
+  room: exam.room || exam.venue || '',
+  maxMarks: exam.maxMarks || exam.totalMarks || 100,
+  minMarks: exam.passingMarks || exam.minMarks || 35,
+  className: exam.class?.name || exam.classId?.name || '',
+})
 
 const Exams = () => {
+  const queryClient = useQueryClient()
   const [isAddExamOpen, setIsAddExamOpen] = useState(false)
   const [isEditExamOpen, setIsEditExamOpen] = useState(false)
   const [selectedExam, setSelectedExam] = useState(null)
+  const [formData, setFormData] = useState(createEmptyExam())
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: examsRaw = [], isLoading } = useQuery({
+    queryKey: ['exams'],
+    queryFn: async () => {
+      const response = await examsAPI.getAll()
+      return response.data?.data || []
+    },
+  })
+
+  const examRows = examsRaw.map(normalizeExam)
+
+  const handleFieldChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleAddExam = async () => {
+    if (!formData.subject || !formData.date) {
+      toast.error('Subject and date are required.')
+      return
+    }
+    try {
+      setIsSubmitting(true)
+      await examsAPI.create({
+        subject: formData.subject,
+        date: formData.date,
+        startTime: formData.startTime,
+        endTime: formData.endTime,
+        duration: formData.duration,
+        room: formData.room,
+        maxMarks: Number(formData.maxMarks) || 100,
+        passingMarks: Number(formData.minMarks) || 35,
+        class: formData.className,
+      })
+      await queryClient.invalidateQueries({ queryKey: ['exams'] })
+      toast.success('Exam added successfully.')
+      setIsAddExamOpen(false)
+      setFormData(createEmptyExam())
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleSaveExam = async () => {
+    if (!selectedExam) return
+    try {
+      setIsSubmitting(true)
+      await examsAPI.update(selectedExam.id, {
+        subject: selectedExam.subject,
+        date: selectedExam.date,
+        startTime: selectedExam.startTime,
+        endTime: selectedExam.endTime,
+        duration: selectedExam.duration,
+        room: selectedExam.room,
+        maxMarks: Number(selectedExam.maxMarks),
+        passingMarks: Number(selectedExam.minMarks),
+      })
+      await queryClient.invalidateQueries({ queryKey: ['exams'] })
+      toast.success('Exam updated successfully.')
+      setIsEditExamOpen(false)
+      setSelectedExam(null)
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteExam = async (id) => {
+    try {
+      await examsAPI.delete(id)
+      await queryClient.invalidateQueries({ queryKey: ['exams'] })
+      toast.success('Exam removed.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -151,28 +177,28 @@ const Exams = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Input label="Subject" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
-            <Input label="Exam Date" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Class" placeholder=""  className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Room No." placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Max. Marks" type="number" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Min. Marks" type="number" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Start Time"  placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="End Time"  placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Subject" value={formData.subject} onChange={(e) => handleFieldChange('subject', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl" />
+            <Input label="Exam Date" type="date" value={formData.date} onChange={(e) => handleFieldChange('date', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Class" value={formData.className} onChange={(e) => handleFieldChange('className', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Room No." value={formData.room} onChange={(e) => handleFieldChange('room', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Max. Marks" type="number" value={formData.maxMarks} onChange={(e) => handleFieldChange('maxMarks', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Min. Marks" type="number" value={formData.minMarks} onChange={(e) => handleFieldChange('minMarks', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Start Time" value={formData.startTime} onChange={(e) => handleFieldChange('startTime', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="End Time" value={formData.endTime} onChange={(e) => handleFieldChange('endTime', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
           </div>
 
-          <Input label="Duration" placeholder="" className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+          <Input label="Duration" value={formData.duration} onChange={(e) => handleFieldChange('duration', e.target.value)} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button
               variant="outline"
               size="md"
               className="rounded border-gray-700 text-gray-900 px-6 mb-6"
-              onClick={() => setIsAddExamOpen(false)}
+              onClick={() => { setIsAddExamOpen(false); setFormData(createEmptyExam()) }}
             >
               Cancel
             </Button>
-            <Button size="md" className="rounded px-6 mb-6">Add Exam</Button>
+            <Button size="md" className="rounded px-6 mb-6" loading={isSubmitting} onClick={handleAddExam}>Add Exam</Button>
           </div>
         </div>
       </Modal>
@@ -198,17 +224,17 @@ const Exams = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Input label="Subject" placeholder=""  defaultValue={selectedExam?.subject || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl " />
-            <Input label="Exam Date" placeholder="" defaultValue={selectedExam?.date || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Class" placeholder="" defaultValue={selectedExam?.className || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Room No." placeholder="" defaultValue={selectedExam?.room || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Max. Marks" type="number" placeholder="" defaultValue={selectedExam?.maxMarks || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Min. Marks" type="number" placeholder="" defaultValue={selectedExam?.minMarks || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="Start Time"  placeholder="" defaultValue={selectedExam?.startTime || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
-            <Input label="End Time"  placeholder="" defaultValue={selectedExam?.endTime || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Subject" placeholder="" value={selectedExam?.subject || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, subject: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl " />
+            <Input label="Exam Date" placeholder="" value={selectedExam?.date || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, date: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Class" placeholder="" value={selectedExam?.className || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, className: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Room No." placeholder="" value={selectedExam?.room || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, room: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Max. Marks" type="number" placeholder="" value={selectedExam?.maxMarks || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, maxMarks: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Min. Marks" type="number" placeholder="" value={selectedExam?.minMarks || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, minMarks: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="Start Time" placeholder="" value={selectedExam?.startTime || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, startTime: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+            <Input label="End Time" placeholder="" value={selectedExam?.endTime || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, endTime: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
           </div>
 
-          <Input label="Duration" placeholder="" defaultValue={selectedExam?.duration || ''} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
+          <Input label="Duration" placeholder="" value={selectedExam?.duration || ''} onChange={(e) => setSelectedExam(prev => ({ ...prev, duration: e.target.value }))} className="bg-gray-100 border-2 border-gray-900 rounded-xl"/>
 
           <div className="flex items-center justify-end gap-3 pt-2">
             <Button
@@ -222,7 +248,7 @@ const Exams = () => {
             >
               Cancel
             </Button>
-            <Button size="md" className="rounded bg-primary-500 px-6 mb-6">Save</Button>
+            <Button size="md" className="rounded bg-primary-500 px-6 mb-6" loading={isSubmitting} onClick={handleSaveExam}>Save</Button>
           </div>
         </div>
       </Modal>
@@ -347,7 +373,20 @@ const Exams = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {examRows.map((row) => (
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={10} className="py-10 text-center">
+                    <div className="flex justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : examRows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={10} className="py-10 text-center text-sm text-gray-500">No exams found.</TableCell>
+                </TableRow>
+              ) : (
+              examRows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>
                     <input type="checkbox" className="h-3.5 w-3.5" />
@@ -361,38 +400,27 @@ const Exams = () => {
                   <TableCell className="text-gray-600">{row.maxMarks}</TableCell>
                   <TableCell className="text-gray-600">{row.minMarks}</TableCell>
                   <TableCell className="text-right">
-                    <div className="inline-flex items-center gap-2 ">
+                    <div className="inline-flex items-center gap-2">
                       <button
                         className="rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50"
-                      
+                        onClick={() => handleDeleteExam(row.id)}
                       >
                         <span className="sr-only">Delete</span>
-                        {/* <svg viewBox="0 0 24 24" className="h-4 w-4 text-black" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M3 6h18" />
-                          <path d="M8 6V4h8v2" />
-                          <path d="M19 6l-1 14H6L5 6" />
-                          <path d="M10 11v6" />
-                          <path d="M14 11v6" />
-                        </svg> */}
                         <img src={trash} alt="Delete" className="h-5 w-5" />
                       </button>
-                      <button className="rounded border border-gray-200 p-1.5  hover:bg-gray-50"
-                      
+                      <button className="rounded border border-gray-200 p-1.5 hover:bg-gray-50"
                         onClick={() => {
                           setSelectedExam(row)
                           setIsEditExamOpen(true)
                         }}>
                         <span className="sr-only">Edit</span>
-                        {/* <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 20h9" />
-                          <path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z" />
-                        </svg> */}
                         <img src={edit} alt="Edit" className="h-5 w-5" />
                       </button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+              )}
             </TableBody>
             </Table>
           </div>
@@ -412,4 +440,3 @@ const Exams = () => {
 }
 
 export default Exams
-

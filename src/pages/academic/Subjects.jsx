@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import {
   ArrowDownUp,
   BookOpen,
@@ -18,6 +20,7 @@ import Trash from '@/assets/Trash.svg'
 import BookLogo1 from '@/assets/BookLogo1.png'
 import fileExport from '@/assets/fileExport.svg'
 import printer from '@/assets/printer.svg'
+import { academicAPI, schoolAPI } from '@/lib/api'
 
 import {
   Table,
@@ -28,28 +31,6 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 
-const SUBJECT_TEMPLATES = [
-  { id: 'SU128394', name: 'English', code: '101', type: 'Theory', status: 'Active' },
-  { id: 'SU128393', name: 'Math', code: '102', type: 'Theory', status: 'Active' },
-  { id: 'SU128392', name: 'Physics', code: '103', type: 'Practical', status: 'Active' },
-  { id: 'SU128391', name: 'Chemistry', code: '104', type: 'Practical', status: 'Active' },
-  { id: 'SU128390', name: 'Biology', code: '105', type: 'Practical', status: 'Active' },
-  { id: 'SU128389', name: 'Urdu', code: '106', type: 'Theory', status: 'Active' },
-  { id: 'SU128388', name: 'Higher Math', code: '107', type: 'Theory', status: 'Active' },
-  { id: 'SU128387', name: 'Islamiyat', code: '108', type: 'Theory', status: 'Active' },
-  { id: 'SU128386', name: 'Science', code: '109', type: 'Theory', status: 'Active' },
-  { id: 'SU128385', name: 'Pakistan Studies', code: '110', type: 'Theory', status: 'Active' },
-]
-
-const INITIAL_SUBJECTS = Array.from({ length: 200 }, (_, index) => {
-  const template = SUBJECT_TEMPLATES[index % SUBJECT_TEMPLATES.length]
-  return {
-    ...template,
-    id: `SU${String(128394 - index)}`,
-    code: String(101 + (index % 10)),
-  }
-})
-
 const ROWS_PER_PAGE = 10
 
 const createEmptyForm = () => ({
@@ -59,8 +40,16 @@ const createEmptyForm = () => ({
   code: '',
 })
 
+const normalizeSubject = (subject) => ({
+  id: subject._id,
+  name: subject.name || '',
+  code: subject.code || '',
+  type: subject.type || '',
+  status: subject.isActive !== false ? 'Active' : 'Inactive',
+})
+
 const Subjects = () => {
-  const [subjects, setSubjects] = useState(INITIAL_SUBJECTS)
+  const queryClient = useQueryClient()
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOrder, setSortOrder] = useState('az')
   const [page, setPage] = useState(1)
@@ -69,6 +58,25 @@ const Subjects = () => {
   const [isEditEnabled, setIsEditEnabled] = useState(true)
   const [formData, setFormData] = useState(createEmptyForm())
   const [formError, setFormError] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { data: subjectsRaw = [], isLoading } = useQuery({
+    queryKey: ['academic-subjects'],
+    queryFn: async () => {
+      const response = await academicAPI.getSubjects()
+      return response.data?.data || []
+    },
+  })
+
+  const { data: schoolProfile } = useQuery({
+    queryKey: ['school-profile'],
+    queryFn: async () => {
+      const res = await schoolAPI.getProfile()
+      return res.data?.data || null
+    },
+  })
+
+  const subjects = useMemo(() => subjectsRaw.map(normalizeSubject), [subjectsRaw])
 
   const filteredSubjects = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
@@ -145,10 +153,7 @@ const Subjects = () => {
   const openAddSubjectModal = () => {
     setModalMode('add')
     setIsEditEnabled(true)
-    setFormData({
-      ...createEmptyForm(),
-      id: `SU${Math.floor(100000 + Math.random() * 900000)}`,
-    })
+    setFormData(createEmptyForm())
     setFormError('')
     setIsModalOpen(true)
   }
@@ -186,44 +191,69 @@ const Subjects = () => {
     return true
   }
 
-  const handleAddSubject = () => {
+  const handleAddSubject = async () => {
     if (!validateForm()) return
 
-    const newSubject = {
-      id: formData.id.trim().toUpperCase(),
-      name: formData.name.trim(),
-      code: formData.code.trim(),
-      type: formData.type.trim(),
-      status: 'Active',
+    try {
+      setIsSubmitting(true)
+      await academicAPI.createSubject({
+        name: formData.name.trim(),
+        code: formData.code.trim(),
+        type: formData.type.trim(),
+        ...(schoolProfile?._id ? { school: schoolProfile._id } : {}),
+      })
+      await queryClient.invalidateQueries({ queryKey: ['academic-subjects'] })
+      setPage(1)
+      toast.success('Subject added successfully.')
+      closeModal()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to add subject.'
+      setFormError(message)
+      toast.error(message)
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setSubjects((previous) => [newSubject, ...previous])
-    setPage(1)
-    closeModal()
   }
 
-  const handleSaveSubject = () => {
+  const handleSaveSubject = async () => {
     if (!isEditEnabled) return
     if (!validateForm()) return
 
-    setSubjects((previous) =>
-      previous.map((subject) =>
-        subject.id === formData.id
-          ? {
-              ...subject,
-              name: formData.name.trim(),
-              code: formData.code.trim(),
-              type: formData.type.trim(),
-            }
-          : subject
-      )
-    )
-
-    closeModal()
+    try {
+      setIsSubmitting(true)
+      await academicAPI.updateSubject(formData.id, {
+        name: formData.name.trim(),
+        code: formData.code.trim(),
+        type: formData.type.trim(),
+      })
+      await queryClient.invalidateQueries({ queryKey: ['academic-subjects'] })
+      toast.success('Subject updated successfully.')
+      closeModal()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to update subject.'
+      setFormError(message)
+      toast.error(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleDeleteSubject = (id) => {
-    setSubjects((previous) => previous.filter((subject) => subject.id !== id))
+  const handleDeleteSubject = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this subject? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      setIsSubmitting(true)
+      await academicAPI.deleteSubject(id)
+      await queryClient.invalidateQueries({ queryKey: ['academic-subjects'] })
+      toast.success('Subject deleted successfully.')
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to delete subject.'
+      toast.error(message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleSortToggle = () => {
@@ -332,7 +362,15 @@ const Subjects = () => {
             </TableRow>
           </TableHeader>
           <TableBody className="bg-white">
-            {paginatedSubjects.length === 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={7} className="px-4 py-10 text-center">
+                  <div className="flex justify-center">
+                    <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : paginatedSubjects.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="px-4 py-10 text-center text-sm text-slate-500">
                   No subjects found.
@@ -367,7 +405,8 @@ const Subjects = () => {
                       <button
                         type="button"
                         onClick={() => handleDeleteSubject(subject.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50"
+                        disabled={isSubmitting}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d5dbe7] bg-white text-[#5d6883] transition hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label={`Delete subject ${subject.name}`}
                       >
                         {/* <Trash2 className="h-4 w-4" /> */}

@@ -1,20 +1,25 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import { Mail } from 'lucide-react'
+import { authAPI } from '@/lib/api'
 
 const ForgotPassword = () => {
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
   const { register, handleSubmit, formState: { errors } } = useForm()
 
   const onSubmit = async (data) => {
     try {
       setLoading(true)
-      // UI-only placeholder for now
+      await authAPI.forgotPassword({ email: data.email })
       toast.success('Password reset instructions sent!')
+      navigate(`/otp-verification?email=${encodeURIComponent(data.email)}`)
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send reset instructions')
     } finally {
       setLoading(false)
     }
@@ -41,7 +46,7 @@ const ForgotPassword = () => {
         />
 
         <Button type="submit" className="w-full" loading={loading}>
-          Sign In
+          Send Reset Link
         </Button>
       </form>
 

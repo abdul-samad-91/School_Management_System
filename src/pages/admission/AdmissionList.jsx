@@ -1,4 +1,6 @@
-import { Calendar, Download, Edit2, Search, Trash2 } from 'lucide-react'
+import { Calendar, Download, Search } from 'lucide-react'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/Card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/Table'
 import Button from '@/components/ui/Button'
@@ -8,31 +10,38 @@ import Badge from '@/components/ui/Badge'
 import printer from '@/assets/printer.svg'
 import edit from '@/assets/edit.svg'
 import trash from '@/assets/Trash.svg'
-
-
-const stats = [
-  { label: 'New Adms', value: '200', subtext: '50% of School', tone: 'bg-blue-50 border-blue-200 text-blue-700' },
-  { label: 'Recent Adms', value: '100', subtext: '20% of School', tone: 'bg-green-50 border-green-200 text-green-700' },
-  { label: 'Pending Adms', value: '20', subtext: '10% of School', tone: 'bg-red-50 border-red-200 text-red-700' },
-  { label: 'T.Students', value: '1100', subtext: 'In School', tone: 'bg-amber-50 border-amber-200 text-amber-700' },
-]
-
-const rows = [
-  { id: '7191', student: 'Ahmad Ali', father: 'Ali Khan', contact: '0337875725', status: 'Active' },
-  { id: '3379', student: 'Bilal Akbar', father: 'Akbar Khan', contact: '0337875725', status: 'Active' },
-  { id: '3633', student: 'Fatima Niaz', father: 'Niaz Hussain', contact: '0337875725', status: 'Active' },
-  { id: '2802', student: 'Nayyab Hussain', father: 'Hussain Iqbal', contact: '0337875725', status: 'Active' },
-  { id: '6788', student: 'Sadia Hassan', father: 'Hassan Shah', contact: '0337875725', status: 'Active' },
-  { id: '1080', student: 'Farhan Ali', father: 'Ali Akbar', contact: '0337875725', status: 'Active' },
-  { id: '6899', student: 'Sanan Shah', father: 'Shayan Shah', contact: '0337875725', status: 'Active' },
-  { id: '6999', student: 'Zaib Malik', father: 'Ali Malik', contact: '0337875725', status: 'Active' },
-  { id: '6929', student: 'Zaib Shah', father: 'Ali zaman', contact: '0337435725', status: 'Active' },
-  { id: '6919', student: 'Zaib Malik', father: 'Ali Malik', contact: '03378725', status: 'Active' },
-]
-
-
+import { studentsAPI } from '@/lib/api'
 
 const AdmissionList = () => {
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const { data: studentsRaw = [], isLoading } = useQuery({
+    queryKey: ['admissions'],
+    queryFn: async () => {
+      const response = await studentsAPI.getAll()
+      return response.data?.data || []
+    },
+  })
+
+  const rows = studentsRaw
+    .map((s) => ({
+      id: s.admissionNo || s._id?.slice(-4) || '',
+      student: `${s.profile?.firstName || ''} ${s.profile?.lastName || ''}`.trim(),
+      father: s.parent?.fatherName || '',
+      contact: s.parent?.fatherPhone || s.parent?.phone || '',
+      status: s.status === 'active' ? 'Active' : s.status || 'Active',
+    }))
+    .filter((r) => !searchTerm || r.student.toLowerCase().includes(searchTerm.toLowerCase()))
+
+  const stats = [
+    { label: 'New Adms', value: studentsRaw.filter(s => s.status === 'new').length || studentsRaw.length, subtext: 'In School', tone: 'bg-blue-50 border-blue-200 text-blue-700' },
+    { label: 'Recent Adms', value: studentsRaw.filter(s => {
+      const d = new Date(s.createdAt); const now = new Date(); return (now - d) < 30 * 24 * 60 * 60 * 1000
+    }).length, subtext: 'Last 30 days', tone: 'bg-green-50 border-green-200 text-green-700' },
+    { label: 'Pending Adms', value: studentsRaw.filter(s => s.status === 'pending').length, subtext: 'Pending review', tone: 'bg-red-50 border-red-200 text-red-700' },
+    { label: 'T.Students', value: studentsRaw.length, subtext: 'Total in School', tone: 'bg-amber-50 border-amber-200 text-amber-700' },
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -101,6 +110,8 @@ const AdmissionList = () => {
                 placeholder="Search"
                 leftIcon={<Search className="h-4 w-4" />}
                 className="h-9"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
@@ -122,7 +133,12 @@ const AdmissionList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row) => (
+              {isLoading ? (
+                <TableRow><TableCell colSpan={7} className="py-10 text-center"><div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" /></div></TableCell></TableRow>
+              ) : rows.length === 0 ? (
+                <TableRow><TableCell colSpan={7} className="py-10 text-center text-sm text-gray-500">No admissions found.</TableCell></TableRow>
+              ) : (
+              rows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell className="w-10">
                     <input type="checkbox" className="h-4 w-4 rounded border-gray-300" />
@@ -147,7 +163,7 @@ const AdmissionList = () => {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )))}
             </TableBody>
           </Table>
         </div>

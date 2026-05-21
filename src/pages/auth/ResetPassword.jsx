@@ -1,20 +1,29 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { authAPI } from '@/lib/api'
 
 const ResetPassword = () => {
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const params = new URLSearchParams(location.search)
+  const email = params.get('email') || ''
+  const otp = params.get('otp') || ''
   const { register, handleSubmit, watch, formState: { errors } } = useForm()
   const newPassword = watch('newPassword')
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
       setLoading(true)
-      // UI-only placeholder for now
+      await authAPI.resetPassword({ email, otp, newPassword: data.newPassword })
       toast.success('Password updated successfully!')
+      navigate('/password-updated')
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to reset password')
     } finally {
       setLoading(false)
     }

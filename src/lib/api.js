@@ -17,6 +17,10 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    // If sending FormData, let browser set Content-Type with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
     return config
   },
   (error) => {
@@ -45,8 +49,11 @@ export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
   register: (userData) => api.post('/auth/register', userData),
   getMe: () => api.get('/auth/me'),
-  updatePassword: (data) => api.put('/auth/update-password', data),
+  updateProfile: (formData) => api.put('/auth/me/update', formData),
   logout: () => api.post('/auth/logout'),
+  forgotPassword: (data) => api.post('/auth/forgot-password', data),
+  verifyOtp: (data) => api.post('/auth/verify-otp', data),
+  resetPassword: (data) => api.post('/auth/reset-password', data),
 }
 
 // School
@@ -85,6 +92,7 @@ export const academicAPI = {
   getSessions: () => api.get('/academic/sessions'),
   createSession: (data) => api.post('/academic/sessions', data),
   updateSession: (id, data) => api.put(`/academic/sessions/${id}`, data),
+  setActiveSession: (id) => api.post(`/academic/sessions/${id}/setActive`),
   activateSession: (id) => api.put(`/academic/sessions/${id}/activate`),
   
   // Classes
@@ -97,6 +105,7 @@ export const academicAPI = {
   getSubjects: (params) => api.get('/academic/subjects', { params }),
   createSubject: (data) => api.post('/academic/subjects', data),
   updateSubject: (id, data) => api.put(`/academic/subjects/${id}`, data),
+  deleteSubject: (id) => api.delete(`/academic/subjects/${id}`),
   
   // Grading
   getGradingSystems: () => api.get('/academic/grading-systems'),
@@ -122,6 +131,7 @@ export const examsAPI = {
   getById: (id) => api.get(`/exams/${id}`),
   create: (data) => api.post('/exams', data),
   update: (id, data) => api.put(`/exams/${id}`, data),
+  delete: (id) => api.delete(`/exams/${id}`),
   publish: (id) => api.put(`/exams/${id}/publish`),
   
   // Results
@@ -138,12 +148,14 @@ export const feesAPI = {
   getStructure: (id) => api.get(`/fees/structures/${id}`),
   createStructure: (data) => api.post('/fees/structures', data),
   updateStructure: (id, data) => api.put(`/fees/structures/${id}`, data),
+  deleteStructure: (id) => api.delete(`/fees/structures/${id}`),
   
   // Payments
   getPayments: (params) => api.get('/fees/payments', { params }),
   getPayment: (id) => api.get(`/fees/payments/${id}`),
   createPayment: (data) => api.post('/fees/payments', data),
   updatePayment: (id, data) => api.put(`/fees/payments/${id}`, data),
+  deletePayment: (id) => api.delete(`/fees/payments/${id}`),
   getPaymentSummary: (params) => api.get('/fees/payments/summary/student', { params }),
 }
 
@@ -161,6 +173,7 @@ export const communicationAPI = {
 export const usersAPI = {
   getAll: (params) => api.get('/users', { params }),
   getById: (id) => api.get(`/users/${id}`),
+  create: (data) => api.post('/users', data),
   update: (id, data) => api.put(`/users/${id}`, data),
   updatePermissions: (id, data) => api.put(`/users/${id}/permissions`, data),
   toggleStatus: (id) => api.put(`/users/${id}/toggle-status`),

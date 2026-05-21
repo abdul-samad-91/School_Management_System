@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Filter, Mail, MoreVertical, Phone, Plus, Search } from 'lucide-react'
+import { Filter, Mail, Phone, Plus, Search } from 'lucide-react'
 import { toast } from 'sonner'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent } from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -10,106 +11,55 @@ import SortVector from '@/assets/SortVector.svg'
 import brandhiphat from '@/assets/brandhiphat.svg'
 import loader3 from '@/assets/loader3.svg'
 import dotsVertical from '@/assets/dotsVertical.svg'
+import { studentsAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
 
+const normalizeStudent = (student) => {
+  const firstName = student?.profile?.firstName || ''
+  const lastName = student?.profile?.lastName || ''
+  const name = `${firstName} ${lastName}`.trim() || student?.fullName || 'Unknown'
+  const className = student?.academic?.currentClass?.name || student?.classId?.name || student?.class?.name || ''
+  const section = student?.academic?.currentSection || student?.section || ''
+  const gender = student?.profile?.gender || ''
+  const fatherName = student?.parents?.[0]?.firstName || student?.parent?.fatherName || ''
+  const status = student?.status
+    ? student.status.charAt(0).toUpperCase() + student.status.slice(1)
+    : 'Active'
 
-const INITIAL_STUDENTS = [
-  {
-    id: '1',
-    admissionNumber: '101',
-    name: 'Ayesha',
-    className: 'III',
-    section: 'A',
-    rollNo: '03',
-    gender: 'Female',
-    fatherName: 'Yousaf Ali',
-    status: 'Active',
-  },
-  {
-    id: '2',
-    admissionNumber: '31',
-    name: 'Junaid',
-    className: 'IV',
-    section: 'B',
-    rollNo: '05',
-    gender: 'Male',
-    fatherName: 'Samad Khan',
-    status: 'Active',
-  },
-  {
-    id: '3',
-    admissionNumber: '20',
-    name: 'Kainat',
-    className: 'III',
-    section: 'A',
-    rollNo: '10',
-    gender: 'Female',
-    fatherName: 'Ahmad Ali',
-    status: 'Active',
-  },
-  {
-    id: '4',
-    admissionNumber: '40',
-    name: 'Ghaffor',
-    className: 'I',
-    section: 'B',
-    rollNo: '30',
-    gender: 'Male',
-    fatherName: 'Hashim ',
-    status: 'Active',
-  },
-  {
-    id: '5',
-    admissionNumber: '111',
-    name: 'Laila',
-    className: 'II',
-    section: 'B',
-    rollNo: '18',
-    gender: 'Female',
-    fatherName: 'Talhaa Ahmad',
-    status: 'Active',
-  },
-  {
-    id: '6',
-    admissionNumber: '200',
-    name: 'Rehan',
-    className: 'III',
-    section: 'B',
-    rollNo: '27',
-    gender: 'Male',
-    fatherName: 'Fareed Ali',
-    status: 'Active',
-  },
-  {
-    id: '7',
-    admissionNumber: '245',
-    name: 'Javeria',
-    className: 'V',
-    section: 'A',
-    rollNo: '35007',
-    gender: 'Female',
-    fatherName: 'Nasir Butt',
-    status: 'Active',
-  },
-  {
-    id: '8',
-    admissionNumber: '200',
-    name: 'Raheel',
-    className: 'VI',
-    section: 'A',
-    rollNo: '35006',
-    gender: 'Male',
-    fatherName: 'Javed Shah',
-    status: 'Active',
-  },
-]
+  return {
+    id: student?._id,
+    admissionNumber: student?.admissionNumber || 'N/A',
+    name,
+    className,
+    section,
+    rollNo: student?.rollNumber || student?.rollNo || 'N/A',
+    gender,
+    fatherName,
+    status,
+    email: student?.profile?.email || '',
+    phone: student?.profile?.phone || '',
+  }
+}
 
 const Students = () => {
-  const [students, setStudents] = useState(INITIAL_STUDENTS)
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [sortOrder, setSortOrder] = useState('az')
   const [activeMenuId, setActiveMenuId] = useState(null)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [editValues, setEditValues] = useState(null)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const { data: studentsRaw = [], isLoading } = useQuery({
+    queryKey: ['students'],
+    queryFn: async () => {
+      const response = await studentsAPI.getAll()
+      return response.data?.data || []
+    },
+  })
+
+  const students = useMemo(() => studentsRaw.map(normalizeStudent), [studentsRaw])
+
   const filteredStudents = useMemo(() => {
     const needle = search.trim().toLowerCase()
     const filtered = needle
@@ -127,7 +77,7 @@ const Students = () => {
       }
       return current.name.localeCompare(next.name)
     })
-  }, [search, sortOrder])
+  }, [students, search, sortOrder])
 
   const handleSortToggle = () => {
     setSortOrder((previous) => (previous === 'az' ? 'za' : 'az'))
@@ -138,22 +88,41 @@ const Students = () => {
     setIsEditOpen(true)
   }
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editValues?.name?.trim()) {
       toast.error('Student name is required.')
       return
     }
-
-    setStudents((prev) =>
-      prev.map((student) => (student.id === editValues.id ? { ...student, ...editValues } : student))
-    )
-    setIsEditOpen(false)
-    toast.success('Student updated successfully.')
+    try {
+      setIsSaving(true)
+      await studentsAPI.update(editValues.id, {
+        profile: {
+          firstName: editValues.name.split(' ')[0] || '',
+          lastName: editValues.name.split(' ').slice(1).join(' ') || '',
+          gender: editValues.gender,
+        },
+        section: editValues.section,
+        rollNo: editValues.rollNo,
+        parent: { fatherName: editValues.fatherName },
+      })
+      await queryClient.invalidateQueries({ queryKey: ['students'] })
+      setIsEditOpen(false)
+      toast.success('Student updated successfully.')
+    } catch (error) {
+      toast.error(handleError(error))
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handleDeleteStudent = (id) => {
-    setStudents((prev) => prev.filter((student) => student.id !== id))
-    toast.success('Student removed successfully.')
+  const handleDeleteStudent = async (id) => {
+    try {
+      await studentsAPI.delete(id)
+      await queryClient.invalidateQueries({ queryKey: ['students'] })
+      toast.success('Student removed successfully.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
   }
 
   const handlePrintList = (list) => {
@@ -297,14 +266,20 @@ const Students = () => {
             onClick={handleSortToggle}
             type="button"
           >
-            {/* <SortAsc className="h-4 w-4" /> */}
             <img src={SortVector} alt="" />
             Sort By {sortOrder === 'az' ? 'A-Z' : 'Z-A'}
           </button>
         </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {isLoading ? (
+        <div className="flex justify-center py-16">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+        </div>
+      ) : filteredStudents.length === 0 ? (
+        <div className="py-16 text-center text-gray-500">No students found.</div>
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {filteredStudents.map((student) => {
           const initials = student.name
             .split(' ')
@@ -422,7 +397,8 @@ const Students = () => {
             </Card>
           )
         })}
-      </div>
+        </div>
+      )}
 
       <div className="flex justify-center">
         <button className="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white">
@@ -517,9 +493,10 @@ const Students = () => {
               <button
                 type="button"
                 onClick={handleSaveEdit}
-                className="rounded bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+                disabled={isSaving}
+                className="rounded bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60"
               >
-                Save
+                {isSaving ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { BookOpen, PlusCircle, X , Plus} from 'lucide-react'
+import { Plus} from 'lucide-react'
 import BookLogo1 from '@/assets/BookLogo1.png'
-import { academicAPI } from '@/lib/api'
+import { academicAPI, schoolAPI } from '@/lib/api'
 
 const createEmptyForm = () => ({
   id: null,
@@ -25,7 +25,7 @@ const formatDateForCard = (value) => {
 const sortSessionsByStartDate = (sessions) =>
   [...sessions].sort((first, second) => new Date(second.startDate) - new Date(first.startDate))
 
-const SessionCard = ({ session, isCurrent, onEdit }) => {
+const SessionCard = ({ session, isCurrent, onEdit, onSetActive, isSettingActive }) => {
   return (
     <article
       className={`w-full max-w-[380px] rounded-xl border-4 shadow-sm ${
@@ -35,9 +35,16 @@ const SessionCard = ({ session, isCurrent, onEdit }) => {
       }`}
     >
       <header className="border-b-2 border-gray-800 px-4 py-3">
-        <h3 className="text-center text-3xl font-semibold tracking-wide text-[#0f1524] sm:text-4xl">
-          {session.name}
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-center text-3xl font-semibold tracking-wide text-[#0f1524] sm:text-4xl">
+            {session.name}
+          </h3>
+          {isCurrent && (
+            <span className="inline-block rounded-full bg-green-500 px-3 py-1 text-sm font-semibold text-white">
+              Active
+            </span>
+          )}
+        </div>
       </header>
 
       <div className="space-y-3 px-5 py-4">
@@ -55,7 +62,17 @@ const SessionCard = ({ session, isCurrent, onEdit }) => {
           </div>
         </div>
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end gap-2 pt-2">
+          {!isCurrent && (
+            <button
+              type="button"
+              onClick={() => onSetActive(session)}
+              disabled={isSettingActive}
+              className="rounded-lg border-2 border-green-600 bg-green-50 px-4 py-2 text-lg font-semibold text-green-700 transition hover:bg-green-100 disabled:opacity-50"
+            >
+              {isSettingActive ? 'Setting...' : 'Set Active'}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onEdit(session)}
@@ -76,6 +93,7 @@ const Sessions = () => {
   const [formData, setFormData] = useState(createEmptyForm())
   const [formError, setFormError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [settingActiveSessionId, setSettingActiveSessionId] = useState(null)
 
   const {
     data: sessionsRaw,
@@ -86,6 +104,14 @@ const Sessions = () => {
     queryFn: async () => {
       const response = await academicAPI.getSessions()
       return response.data?.data || []
+    },
+  })
+
+  const { data: schoolProfile } = useQuery({
+    queryKey: ['school-profile'],
+    queryFn: async () => {
+      const res = await schoolAPI.getProfile()
+      return res.data?.data || null
     },
   })
 
@@ -168,6 +194,7 @@ const Sessions = () => {
         name: formData.name.trim(),
         startDate: formData.startDate,
         endDate: formData.endDate,
+        ...(schoolProfile?._id ? { school: schoolProfile._id } : {}),
       })
       toast.success('Session added successfully.')
       await refetch()
@@ -193,6 +220,7 @@ const Sessions = () => {
         name: formData.name.trim(),
         startDate: formData.startDate,
         endDate: formData.endDate,
+        ...(schoolProfile?._id ? { school: schoolProfile._id } : {}),
       })
       toast.success('Session updated successfully.')
       await refetch()
@@ -203,6 +231,23 @@ const Sessions = () => {
       toast.error(message)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleSetActiveSession = async (session) => {
+    if (settingActiveSessionId === session.id) return
+
+    setSettingActiveSessionId(session.id)
+
+    try {
+      await academicAPI.setActiveSession(session.id)
+      toast.success(`${session.name} is now active.`)
+      await refetch()
+    } catch (error) {
+      const message = error?.response?.data?.message || 'Failed to set active session.'
+      toast.error(message)
+    } finally {
+      setSettingActiveSessionId(null)
     }
   }
 
@@ -233,7 +278,13 @@ const Sessions = () => {
             Loading sessions...
           </div>
         ) : currentSession ? (
-          <SessionCard session={currentSession} isCurrent onEdit={openSessionDetails} />
+          <SessionCard 
+            session={currentSession} 
+            isCurrent 
+            onEdit={openSessionDetails} 
+            onSetActive={handleSetActiveSession}
+            isSettingActive={settingActiveSessionId === currentSession.id}
+          />
         ) : (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-lg text-slate-500">
             No active session available.
@@ -250,6 +301,8 @@ const Sessions = () => {
               session={session}
               isCurrent={false}
               onEdit={openSessionDetails}
+              onSetActive={handleSetActiveSession}
+              isSettingActive={settingActiveSessionId === session.id}
             />
           ))}
         </div>

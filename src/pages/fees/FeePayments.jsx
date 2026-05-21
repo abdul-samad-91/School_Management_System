@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ArrowLeft,
   ChevronDown,
@@ -18,47 +19,32 @@ import printer from "@/assets/printer.svg"
 import edit from "@/assets/edit.svg"
 import Trash from "@/assets/Trash.svg"
 import dotsVertical from "@/assets/dotsVertical.svg"
+import { feesAPI, academicAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
 
 const SESSION_OPTIONS = ['2025-2026', '2024-2025', '2023-2024']
 const MONTH_OPTIONS = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
 ]
 const CLASS_OPTIONS = ['4', '5', '6', '7', '8', '9', '10', '11', '12']
 const ROWS_OPTIONS = [10, 20, 30]
 
-const STUDENT_NAMES = ['Ali', 'Asia', 'Amnai', 'Aliya', 'Bilal', 'Beenish', 'Fatima', 'Hania']
-
-const INITIAL_PAYMENTS = Array.from({ length: 200 }, (_, index) => {
-  const totalAmount = 6000
-  const isPaid = index % 3 !== 0
-  const paidAmount = isPaid ? totalAmount : 0
-  const pendingAmount = isPaid ? 0 : totalAmount
-
-  return {
-    id: `fee-payment-${index + 1}`,
-    rollNo: String(index + 1).padStart(4, '0'),
-    studentName: STUDENT_NAMES[index % STUDENT_NAMES.length],
-    className: CLASS_OPTIONS[index % CLASS_OPTIONS.length],
-    session: SESSION_OPTIONS[index % SESSION_OPTIONS.length],
-    month: MONTH_OPTIONS[index % MONTH_OPTIONS.length],
-    amount: totalAmount,
-    paidAmount,
-    pendingAmount,
-    dueDate: isPaid ? '-' : '12-12-2025',
-    fineAfterDue: isPaid ? '-' : '10/- per day',
-    status: isPaid ? 'Paid' : 'Unpaid',
-  }
+const normalizePayment = (item) => ({
+  id: item._id,
+  rollNo: item.student?.rollNo || item.rollNo || '',
+  studentName: item.student?.profile?.firstName
+    ? `${item.student.profile.firstName} ${item.student.profile.lastName || ''}`.trim()
+    : item.studentName || 'Unknown',
+  className: item.class?.name || item.classId?.name || item.className || '',
+  session: item.session?.name || item.sessionId?.name || item.session || '',
+  month: item.month || '',
+  amount: item.totalAmount || item.amount || 0,
+  paidAmount: item.paidAmount || 0,
+  pendingAmount: item.pendingAmount || (item.totalAmount || 0) - (item.paidAmount || 0),
+  dueDate: item.dueDate ? new Date(item.dueDate).toLocaleDateString() : '-',
+  fineAfterDue: item.fineAmount ? `${item.fineAmount}/- per day` : '-',
+  status: item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Unpaid',
 })
 
 const buildPaginationItems = (currentPage, totalPages) => {
@@ -105,7 +91,7 @@ const formatCompactAmount = (value) => {
 
 const FeePayments = () => {
   const navigate = useNavigate()
-  const [payments, setPayments] = useState(INITIAL_PAYMENTS)
+  const queryClient = useQueryClient()
   const [selectedSession, setSelectedSession] = useState('')
   const [selectedMonth, setSelectedMonth] = useState('')
   const [selectedClass, setSelectedClass] = useState('')
@@ -114,6 +100,16 @@ const FeePayments = () => {
   const [page, setPage] = useState(1)
   const [isChallanOpen, setIsChallanOpen] = useState(false)
   const [challanRecord, setChallanRecord] = useState(null)
+
+  const { data: paymentsRaw = [], isLoading } = useQuery({
+    queryKey: ['fee-payments'],
+    queryFn: async () => {
+      const response = await feesAPI.getPayments()
+      return response.data?.data || []
+    },
+  })
+
+  const payments = useMemo(() => paymentsRaw.map(normalizePayment), [paymentsRaw])
 
   const filteredPayments = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase()
@@ -177,38 +173,28 @@ const FeePayments = () => {
     setChallanRecord(null)
   }
 
-  const handleDeletePayment = (id) => {
-    setPayments((previous) => previous.filter((item) => item.id !== id))
-    toast.success('Payment record removed successfully.')
+  const handleDeletePayment = async (id) => {
+    try {
+      await feesAPI.deletePayment(id)
+      await queryClient.invalidateQueries({ queryKey: ['fee-payments'] })
+      toast.success('Payment record removed successfully.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
   }
 
-  const handleToggleStatus = (id) => {
-    setPayments((previous) =>
-      previous.map((item) => {
-        if (item.id !== id) return item
-
-        if (item.status === 'Paid') {
-          return {
-            ...item,
-            paidAmount: 0,
-            pendingAmount: item.amount,
-            dueDate: '12-12-2025',
-            fineAfterDue: '10/- per day',
-            status: 'Unpaid',
-          }
-        }
-
-        return {
-          ...item,
-          paidAmount: item.amount,
-          pendingAmount: 0,
-          dueDate: '-',
-          fineAfterDue: '-',
-          status: 'Paid',
-        }
+  const handleToggleStatus = async (id) => {
+    try {
+      const payment = payments.find((p) => p.id === id)
+      if (!payment) return
+      await feesAPI.updatePayment(id, {
+        status: payment.status === 'Paid' ? 'unpaid' : 'paid',
       })
-    )
-    toast.success('Payment status updated.')
+      await queryClient.invalidateQueries({ queryKey: ['fee-payments'] })
+      toast.success('Payment status updated.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
   }
 
   const handleExport = () => {
@@ -450,7 +436,15 @@ const FeePayments = () => {
             </thead>
 
             <tbody className="bg-white">
-              {paginatedPayments.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-10 text-center">
+                    <div className="flex justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+                    </div>
+                  </td>
+                </tr>
+              ) : paginatedPayments.length === 0 ? (
                 <tr>
                   <td colSpan={10} className="px-4 py-10 text-center text-sm text-slate-500">
                     No fee payments found.

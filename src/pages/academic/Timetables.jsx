@@ -1,80 +1,129 @@
 import { useMemo, useState } from 'react'
 import {
-  BookOpen,
   ChevronDown,
   Clock3,
-  Download,
-  MapPin,
-  Pencil,
-  Plus,
-  // Print,
-  X,
+  Plus
 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import fileExport from '@/assets/fileExport.svg'
 import printer from '@/assets/printer.svg'
 import edit from '@/assets/edit.svg'
 import LocationOn from '@/assets/LocationOn.svg'
 import BookLogo1 from '@/assets/BookLogo1.png'
+import { academicAPI, schoolAPI, teachersAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
 
-const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+const WEEK_DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 const PERIOD_SLOTS = [
-  { id: 'period-1', time: '8:00 - 9:00', teacher: 'Ms. Ayesha' },
-  { id: 'period-2', time: '9:00 - 10:00', teacher: 'Ms. Sadia' },
-  { id: 'period-3', time: '10:00 - 11:00', teacher: 'Ms. Naheeda' },
-  { id: 'period-4', time: '11:00 - 12:00', teacher: 'Ms. Naila' },
-  { id: 'period-5', time: '1:00 - 2:00', teacher: 'Ms. Amna' },
+  { id: 'period-1', time: '8:00 - 8:45' },
+  { id: 'period-2', time: '8:45 - 9:30' },
+  { id: 'period-3', time: '9:30 - 10:15' },
+  { id: 'period-4', time: '10:15 - 11:00' },
+  { id: 'period-5', time: '11:45 - 12:30' },
+  { id: 'period-6', time: '12:30 - 1:15' },
 ]
 
-const CLASS_BASE_SUBJECTS = [
-  {
-    id: 'class-6-a',
-    label: 'Class 6 - A',
-    subjects: ['English', 'Science', 'Maths', 'History', 'Geography'],
-  },
-  {
-    id: 'class-7-a',
-    label: 'Class 7 - A',
-    subjects: ['Pstudy', 'English', 'Islamic Studies', 'Club', 'History'],
-  },
-  {
-    id: 'class-8-a',
-    label: 'Class 8 - A',
-    subjects: ['English', 'Urdu', 'Maths', 'Science', 'Geography'],
-  },
-  {
-    id: 'class-9-a',
-    label: 'Class 9 - A',
-    subjects: ['Maths', 'English', 'Science', 'Maths', 'Pstudy'],
-  },
+const FRIDAY_PERIODS = [
+  { id: 'fri-period-1', time: '8:00 - 8:40' },
+  { id: 'fri-period-2', time: '8:40 - 9:20' },
+  { id: 'fri-period-3', time: '9:20 - 10:00' },
+  { id: 'fri-period-4', time: '10:00 - 10:40' },
+  { id: 'fri-period-5', time: '10:40 - 11:20' },
+  { id: 'fri-period-6', time: '11:20 - 12:00' },
 ]
 
-const rotateSubjects = (subjects, offset) =>
-  subjects.map((_, index) => subjects[(index + offset) % subjects.length])
-
-const buildDaySchedule = (subjects) => {
-  const periodEntries = PERIOD_SLOTS.map((slot, index) => ({
-    ...slot,
-    type: 'period',
-    subject: subjects[index],
-    room: 'Room 25',
-  }))
-
-  return [
-    ...periodEntries.slice(0, 4),
-    { id: 'break-1', type: 'break', label: '12:00 - 1:00 - Lunch Break' },
-    periodEntries[4],
-  ]
+const BREAK_PERIOD = {
+  slotId: 'break-1',
+  time: '11:00 - 11:45',
+  type: 'break',
+  breakLabel: '11:00 - 11:45 - Break',
 }
 
-const INITIAL_TIMETABLES = CLASS_BASE_SUBJECTS.map((classItem) => ({
-  ...classItem,
-  days: WEEK_DAYS.reduce((accumulator, day, dayIndex) => {
-    accumulator[day] = buildDaySchedule(rotateSubjects(classItem.subjects, dayIndex))
-    return accumulator
+const buildDefaultDays = () =>
+  WEEK_DAYS.map((day) => {
+    // Friday: 6 periods (8:00 - 12:00) with no break
+    if (day === 'Friday') {
+      return {
+        day,
+        periods: FRIDAY_PERIODS.map((slot) => ({
+          slotId: slot.id,
+          time: slot.time,
+          subject: '',
+          teacher: '',
+          room: 'Room 25',
+          type: 'period',
+        })),
+      }
+    }
+
+    // Other days: 6 periods with 45-minute break
+    return {
+      day,
+      periods: [
+        ...PERIOD_SLOTS.slice(0, 4).map((slot) => ({
+          slotId: slot.id,
+          time: slot.time,
+          subject: '',
+          teacher: '',
+          room: 'Room 25',
+          type: 'period',
+        })),
+        BREAK_PERIOD,
+        ...PERIOD_SLOTS.slice(4, 6).map((slot) => ({
+          slotId: slot.id,
+          time: slot.time,
+          subject: '',
+          teacher: '',
+          room: 'Room 25',
+          type: 'period',
+        })),
+      ],
+    }
+  })
+
+// Transform API timetable to view format {id, label, days: {Monday: [...]}}
+const toViewFormat = (tt) => ({
+  id: tt._id,
+  label: tt.label,
+  days: WEEK_DAYS.reduce((acc, day) => {
+    // Friday: Always use the new 6-period schedule (8:00 - 12:00) regardless of database data
+    if (day === 'Friday') {
+      acc[day] = FRIDAY_PERIODS.map((slot) => ({
+        id: slot.id,
+        time: slot.time,
+        type: 'period',
+        subject: '',
+        teacher: '',
+        room: '',
+      }))
+      return acc
+    }
+
+    // Other days: Use database data if exists, otherwise use defaults
+    const dayData = (tt.days || []).find((d) => d.day === day)
+    if (!dayData) {
+      // Default: 6 periods with 45-minute break
+      acc[day] = [
+        ...PERIOD_SLOTS.slice(0, 4).map((slot) => ({ id: slot.id, time: slot.time, type: 'period', subject: '', teacher: '', room: '' })),
+        { id: 'break-1', type: 'break', time: BREAK_PERIOD.time, label: BREAK_PERIOD.breakLabel },
+        ...PERIOD_SLOTS.slice(4, 6).map((slot) => ({ id: slot.id, time: slot.time, type: 'period', subject: '', teacher: '', room: '' })),
+      ]
+    } else {
+      acc[day] = (dayData.periods || []).map((p) => ({
+        id: p.slotId || 'period',
+        time: p.time || '',
+        type: p.type || 'period',
+        subject: p.subject || '',
+        teacher: p.teacher || '',
+        room: p.room || '',
+        label: p.breakLabel || '',
+      }))
+    }
+    return acc
   }, {}),
-}))
+})
 
 const createFormState = (initialValues = {}) => ({
   subject: '',
@@ -87,21 +136,59 @@ const createFormState = (initialValues = {}) => ({
 })
 
 const Timetables = () => {
-  const [timetables, setTimetables] = useState(INITIAL_TIMETABLES)
+  const queryClient = useQueryClient()
   const [selectedClassId, setSelectedClassId] = useState('')
   const [activeDay, setActiveDay] = useState(WEEK_DAYS[0])
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalMode, setModalMode] = useState('add')
+  const [modalMode, setModalMode] = useState('add') // 'add' | 'edit' | 'create'
   const [formData, setFormData] = useState(createFormState())
   const [formError, setFormError] = useState('')
+  const [newLabel, setNewLabel] = useState('')
+
+  const { data: schoolProfile } = useQuery({
+    queryKey: ['school-profile'],
+    queryFn: async () => {
+      const res = await schoolAPI.getProfile()
+      return res.data?.data
+    },
+  })
+
+  const { data: teachers = [] } = useQuery({
+    queryKey: ['teachers'],
+    queryFn: async () => {
+      const res = await teachersAPI.getAll()
+      return res.data?.data || []
+    },
+  })
+
+  const { data: timetablesRaw = [], isLoading } = useQuery({
+    queryKey: ['timetables'],
+    queryFn: async () => {
+      const res = await academicAPI.getTimetables()
+      return res.data?.data || []
+    },
+  })
+
+  const timetables = useMemo(() => timetablesRaw.map(toViewFormat), [timetablesRaw])
+
+  const { mutateAsync: saveTimetable, isPending: isSaving } = useMutation({
+    mutationFn: ({ id, days }) => academicAPI.updateTimetable(id, { days }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['timetables'] }),
+  })
+
+  const { mutateAsync: createNewTimetable, isPending: isCreating } = useMutation({
+    mutationFn: (data) => academicAPI.createTimetable(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['timetables'] }),
+  })
 
   const activeTimetable = useMemo(
-    () => timetables.find((timetable) => timetable.id === selectedClassId) ?? timetables[0],
+    () => timetables.find((tt) => tt.id === selectedClassId) ?? timetables[0],
     [selectedClassId, timetables]
   )
 
   const activeDaySchedule = activeTimetable?.days?.[activeDay] ?? []
   const isEditMode = modalMode === 'edit'
+  const isCreateMode = modalMode === 'create'
 
   const handlePrint = () => {
     window.print()
@@ -116,6 +203,14 @@ const Timetables = () => {
     setModalMode('add')
     setFormData(createFormState())
     setFormError('')
+    setNewLabel('')
+  }
+
+  const openCreateModal = () => {
+    setModalMode('create')
+    setNewLabel('')
+    setFormError('')
+    setIsModalOpen(true)
   }
 
   const openAddModal = () => {
@@ -161,7 +256,7 @@ const Timetables = () => {
     }
 
     if (!formData.teacher.trim()) {
-      setFormError('Please enter teacher name.')
+      setFormError('Please select a teacher.')
       return false
     }
 
@@ -179,39 +274,62 @@ const Timetables = () => {
     return true
   }
 
-  const upsertTimetableEntry = () => {
-    setTimetables((previous) =>
-      previous.map((classItem) => {
-        if (classItem.id !== formData.classId) return classItem
-
-        return {
-          ...classItem,
-          days: {
-            ...classItem.days,
-            [formData.day]: classItem.days[formData.day].map((entry) => {
-              if (entry.type === 'break') return entry
-              if (entry.time !== formData.time) return entry
-
-              return {
-                ...entry,
-                subject: formData.subject.trim(),
-                teacher: formData.teacher.trim(),
-                room: formData.room.trim(),
-              }
-            }),
-          },
-        }
-      })
-    )
-  }
-
-  const handleModalSubmit = (event) => {
+  const handleModalSubmit = async (event) => {
     event.preventDefault()
+
+    // Create new timetable mode
+    if (isCreateMode) {
+      if (!newLabel.trim()) {
+        setFormError('Please enter a class label (e.g. Class 6 - A).')
+        return
+      }
+      try {
+        await createNewTimetable({
+          label: newLabel.trim(),
+          days: buildDefaultDays(),
+          ...(schoolProfile?._id ? { school: schoolProfile._id } : {}),
+        })
+        toast.success('Timetable created successfully.')
+        closeModal()
+      } catch (error) {
+        toast.error(handleError(error))
+      }
+      return
+    }
+
     if (!validateForm()) return
 
-    upsertTimetableEntry()
-    toast.success(isEditMode ? 'Timetable updated successfully.' : 'Timetable added successfully.')
-    closeModal()
+    const rawTimetable = timetablesRaw.find((tt) => tt._id === formData.classId)
+    if (!rawTimetable) {
+      toast.error('Class timetable not found.')
+      return
+    }
+
+    // Build full updated days array – patch the matching period slot
+    const sourceDays = rawTimetable.days?.length ? rawTimetable.days : buildDefaultDays()
+    const updatedDays = sourceDays.map((d) => {
+      if (d.day !== formData.day) return d
+      return {
+        ...d,
+        periods: d.periods.map((p) => {
+          if (p.type === 'break' || p.time !== formData.time) return p
+          return {
+            ...p,
+            subject: formData.subject.trim(),
+            teacher: formData.teacher.trim(),
+            room: formData.room.trim(),
+          }
+        }),
+      }
+    })
+
+    try {
+      await saveTimetable({ id: rawTimetable._id, days: updatedDays })
+      toast.success('Timetable updated successfully.')
+      closeModal()
+    } catch (error) {
+      toast.error(handleError(error))
+    }
   }
 
   const handleRoomClick = (entry) => {
@@ -247,7 +365,7 @@ const Timetables = () => {
           </button>
           <button
             type="button"
-            onClick={openAddModal}
+            onClick={openCreateModal}
             className="inline-flex items-center gap-2 rounded bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-700"
           >
             <Plus className="h-3 w-3 bg-white rounded  text-primary-500" />
@@ -256,7 +374,18 @@ const Timetables = () => {
         </div>
       </div>
 
-      <div className="relative w-full max-w-[170px]">
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+        </div>
+      ) : timetables.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center text-gray-500">
+          <p className="text-lg font-medium">No timetables found.</p>
+          <p className="text-sm mt-1">Click &quot;Add timetable&quot; to create one.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="relative w-full max-w-[170px]">
         <select
           value={selectedClassId}
           onChange={(event) => setSelectedClassId(event.target.value)}
@@ -359,6 +488,8 @@ const Timetables = () => {
           )
         })}
       </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 top-[52px] flex items-center justify-center bg-white/35 px-4 backdrop-blur-[2px]">
@@ -379,10 +510,22 @@ const Timetables = () => {
                                   </div>
 
             <h2 className="mt-4 text-center text-4xl font-semibold text-[#111827]">
-              {isEditMode ? 'Edit Timetable' : 'Add New Timetable'}
+              {isCreateMode ? 'New Timetable' : isEditMode ? 'Edit Timetable' : 'Add New Timetable'}
             </h2>
 
             <form onSubmit={handleModalSubmit} className="mt-8 space-y-4 px-10 ">
+              {isCreateMode ? (
+                <label className="block space-y-1">
+                  <span className="text-xl font-normal text-[#111827]">Class Label</span>
+                  <input
+                    type="text"
+                    placeholder="e.g. Class 6 - A"
+                    value={newLabel}
+                    onChange={(e) => setNewLabel(e.target.value)}
+                    className="h-9 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
+                  />
+                </label>
+              ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <label className="space-y-1">
                   <span className="text-xl font-normal text-[#111827]">Subject Name</span>
@@ -396,12 +539,27 @@ const Timetables = () => {
 
                 <label className="space-y-1">
                   <span className="text-xl font-normal text-[#111827]">Teacher Name</span>
-                  <input
-                    type="text"
+                  <select
                     value={formData.teacher}
                     onChange={(event) => handleInputChange('teacher', event.target.value)}
                     className="h-9 w-full rounded-xl border-2 border-gray-700 bg-gray-100 px-3 text-sm text-[#111827] outline-none transition focus:border-primary-500"
-                  />
+                  >
+                    <option value="">Select Teacher</option>
+                    {teachers.length > 0 ? (
+                      teachers.map((teacher) => {
+                        const fullName = teacher.profile 
+                          ? `${teacher.profile.firstName || ''} ${teacher.profile.lastName || ''}`.trim()
+                          : teacher.firstName ? `${teacher.firstName} ${teacher.lastName || ''}`.trim() : 'Unknown';
+                        return (
+                          <option key={teacher._id} value={fullName}>
+                            {fullName}
+                          </option>
+                        );
+                      })
+                    ) : (
+                      <option disabled>No teachers available</option>
+                    )}
+                  </select>
                 </label>
 
                 <label className="space-y-1">
@@ -475,6 +633,7 @@ const Timetables = () => {
                   </select>
                 </label>
               </div>
+              )}
 
               {formError ? <p className="text-base font-medium text-red-600">{formError}</p> : null}
 
@@ -488,9 +647,10 @@ const Timetables = () => {
                 </button>
                 <button
                   type="submit"
-                  className="inline-flex h-10 mt-10 items-center rounded bg-primary-500 px-6 text-sm font-semibold text-white transition hover:bg-primary-700"
+                  disabled={isSaving || isCreating}
+                  className="inline-flex h-10 mt-10 items-center rounded bg-primary-500 px-6 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:opacity-50"
                 >
-                  {isEditMode ? 'Save Changes' : 'Add Timetable'}
+                  {isCreateMode ? 'Create' : isEditMode ? 'Save Changes' : 'Add Timetable'}
                 </button>
               </div>
             </form>

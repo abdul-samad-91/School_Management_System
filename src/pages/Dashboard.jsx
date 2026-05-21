@@ -2,9 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import {
-  Users,
   GraduationCap,
-  BookOpen,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -17,7 +15,6 @@ import {
   ClipboardList,
 } from 'lucide-react'
 import {
-  addDays,
   addMonths,
   eachDayOfInterval,
   endOfMonth,
@@ -52,117 +49,11 @@ const buildEmptyFeeChart = (months) => {
   })
 }
 
-const buildDummyFeeChart = (months) => {
-  const now = new Date()
-  const sampleValues = [3.4, 4.1, 3.8, 4.6, 5.2, 4.8, 5.6, 6.1]
-
-  return Array.from({ length: months }, (_, index) => {
-    const date = subMonths(now, months - 1 - index)
-    const value = sampleValues[index % sampleValues.length]
-
-    return {
-      _id: {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-      },
-      totalCollected: Math.round(value * 100000),
-    }
-  })
-}
-
 const buildYAxisTicks = (maxValue) => {
   const safeMax = Math.max(1, maxValue)
   const roundedMax = Math.ceil(safeMax / 10) * 10
   const step = Math.max(1, Math.round(roundedMax / 5))
   return Array.from({ length: 6 }, (_, index) => index * step)
-}
-
-const buildDummyAnnouncements = () => {
-  const today = new Date()
-
-  return [
-    {
-      _id: 'ann-fee-deadline',
-      title: 'Fee submission closes Friday',
-      publishDate: addDays(today, -2).toISOString(),
-      expiryDate: addDays(today, 4).toISOString(),
-      priority: 'urgent',
-      type: 'fee',
-    },
-    {
-      _id: 'ann-science-fair',
-      title: 'Science fair registrations open',
-      publishDate: addDays(today, -5).toISOString(),
-      expiryDate: addDays(today, 12).toISOString(),
-      priority: 'high',
-      type: 'event',
-    },
-    {
-      _id: 'ann-ptm',
-      title: 'Parent-teacher meeting schedule',
-      publishDate: addDays(today, -1).toISOString(),
-      expiryDate: addDays(today, 3).toISOString(),
-      priority: 'general',
-      type: 'general',
-    },
-    {
-      _id: 'ann-exams',
-      title: 'Midterm exam timetable released',
-      publishDate: addDays(today, -7).toISOString(),
-      expiryDate: addDays(today, 20).toISOString(),
-      priority: 'exam',
-      type: 'exam',
-    },
-  ]
-}
-
-const buildDummyStats = () => {
-  const today = new Date()
-  const examStart = addDays(today, 6)
-  const examEnd = addDays(today, 8)
-  const quizDate = addDays(today, 13)
-
-  return {
-    students: {
-      total: 1240,
-      newAdmissions: 28,
-    },
-    teachers: {
-      total: 86,
-    },
-    classes: {
-      total: 44,
-    },
-    attendance: {
-      date: today.toISOString(),
-      today: {
-        present: 1182,
-        absent: 46,
-        late: 12,
-      },
-      teachers: {
-        present: 73,
-        absent: 4,
-        late: 2,
-      },
-    },
-    upcomingExams: [
-      {
-        _id: 'exam-midterm',
-        name: 'Midterm Exams',
-        startDate: examStart.toISOString(),
-        endDate: examEnd.toISOString(),
-        schedule: [{ startTime: '09:00 AM', endTime: '12:00 PM' }],
-      },
-      {
-        _id: 'quiz-math',
-        name: 'Math Quiz',
-        startDate: quizDate.toISOString(),
-        endDate: quizDate.toISOString(),
-        schedule: [{ startTime: '10:30 AM', endTime: '11:30 AM' }],
-      },
-    ],
-  }
 }
 
 const ANNOUNCEMENT_ICON_MAP = {
@@ -175,9 +66,6 @@ const ANNOUNCEMENT_ICON_MAP = {
   general: { icon: ClipboardList, iconStyles: 'bg-slate-100 text-slate-600' },
 }
 
-const DUMMY_FEE_CHART = buildDummyFeeChart(FEE_CHART_MONTHS)
-const DUMMY_ANNOUNCEMENTS = buildDummyAnnouncements()
-const DUMMY_STATS = buildDummyStats()
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -195,7 +83,7 @@ const Dashboard = () => {
   })
   const feeChartRef = useRef(null)
 
-  const { data: statsRaw, isLoading } = useQuery({
+  const { data: statsRaw, isLoading: statsLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: async () => {
       const response = await dashboardAPI.getStats()
@@ -203,7 +91,7 @@ const Dashboard = () => {
     },
   })
 
-  const { data: feeChartRaw } = useQuery({
+  const { data: feeChartRaw, isLoading: feeLoading } = useQuery({
     queryKey: ['dashboard-fee-chart', FEE_CHART_MONTHS],
     queryFn: async () => {
       const response = await dashboardAPI.getFeeChart({ months: FEE_CHART_MONTHS })
@@ -211,7 +99,7 @@ const Dashboard = () => {
     },
   })
 
-  const { data: announcementsRaw } = useQuery({
+  const { data: announcementsRaw, isLoading: annLoading } = useQuery({
     queryKey: ['dashboard-announcements'],
     queryFn: async () => {
       const response = await communicationAPI.getAnnouncements({ isPublished: true })
@@ -219,10 +107,10 @@ const Dashboard = () => {
     },
   })
 
-  const shouldUseDummyStats = !statsRaw || Object.keys(statsRaw).length === 0
-  const stats = shouldUseDummyStats ? DUMMY_STATS : statsRaw
-  const feeChartSource = feeChartRaw?.length ? feeChartRaw : DUMMY_FEE_CHART
-  const announcementsSource = announcementsRaw?.length ? announcementsRaw : DUMMY_ANNOUNCEMENTS
+  const isLoading = statsLoading || feeLoading || annLoading
+  const stats = useMemo(() => statsRaw || {}, [statsRaw])
+  const feeChartSource = useMemo(() => feeChartRaw || [], [feeChartRaw])
+  const announcementsSource = useMemo(() => announcementsRaw || [], [announcementsRaw])
 
   const fullName = [user?.profile?.firstName, user?.profile?.lastName].filter(Boolean).join(' ') || 'Admin'
   const rawName = user?.profile?.firstName || fullName
@@ -233,42 +121,37 @@ const Dashboard = () => {
   const newStudents = stats?.students?.newAdmissions ?? 0
   const updatedDate = stats?.attendance?.date ? new Date(stats.attendance.date) : new Date()
 
-  const studentAttendance = {
-    present: stats?.attendance?.today?.present ?? 0,
-    absent: stats?.attendance?.today?.absent ?? 0,
-    late: stats?.attendance?.today?.late ?? 0,
-  }
-
-  const teacherAttendance = {
-    present: stats?.attendance?.teachers?.present ?? 0,
-    absent: stats?.attendance?.teachers?.absent ?? 0,
-    late: stats?.attendance?.teachers?.late ?? 0,
-  }
-
   const attendancePanelData = useMemo(() => {
     const formatSmallValue = (value) => String(value ?? 0).padStart(2, '0')
+
+    const studentPresent = stats?.attendance?.today?.present ?? 0
+    const studentAbsent = stats?.attendance?.today?.absent ?? 0
+    const studentLate = stats?.attendance?.today?.late ?? 0
+    const teacherPresent = stats?.attendance?.teachers?.present ?? 0
+    const teacherAbsent = stats?.attendance?.teachers?.absent ?? 0
+    const teacherLate = stats?.attendance?.teachers?.late ?? 0
 
     return {
       students: {
         stats: [
-          { label: 'Present', value: formatSmallValue(studentAttendance.present) },
-          { label: 'Absent', value: formatSmallValue(studentAttendance.absent) },
-          { label: 'Late', value: formatSmallValue(studentAttendance.late) },
+          { label: 'Present', value: formatSmallValue(studentPresent) },
+          { label: 'Absent', value: formatSmallValue(studentAbsent) },
+          { label: 'Late', value: formatSmallValue(studentLate) },
         ],
-        presentTotal: studentAttendance.present,
-        absentTotal: studentAttendance.absent,
+        presentTotal: studentPresent,
+        absentTotal: studentAbsent,
       },
       teachers: {
         stats: [
-          { label: 'Present', value: formatSmallValue(teacherAttendance.present) },
-          { label: 'Absent', value: formatSmallValue(teacherAttendance.absent) },
-          { label: 'Late', value: formatSmallValue(teacherAttendance.late) },
+          { label: 'Present', value: formatSmallValue(teacherPresent) },
+          { label: 'Absent', value: formatSmallValue(teacherAbsent) },
+          { label: 'Late', value: formatSmallValue(teacherLate) },
         ],
-        presentTotal: teacherAttendance.present,
-        absentTotal: teacherAttendance.absent,
+        presentTotal: teacherPresent,
+        absentTotal: teacherAbsent,
       },
     }
-  }, [studentAttendance, teacherAttendance])
+  }, [stats])
 
   const activeAttendanceData = attendancePanelData[attendanceTab]
   const donutTotal = activeAttendanceData.presentTotal + activeAttendanceData.absentTotal
@@ -454,7 +337,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
         <article className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-          <div className="flex items-center justify-between py-4 px-6">
+          <div className="flex items-center justify-between py-2 px-2">
             <div className="flex flex-col gap-3">
               <h3 className="text-xl font-semibold text-gray-900">Total Students</h3>
               <p className="mt-1 text-2xl font-bold text-gray-900">{studentsCount}</p>
@@ -481,7 +364,7 @@ const Dashboard = () => {
         </article>
 
         <article className="rounded-xl border border-gray-300 bg-white p-3 shadow-sm">
-          <div className="flex items-center justify-between py-4 px-6">
+          <div className="flex items-center justify-between py-2 px-2">
             <div className="flex flex-col gap-3">
               <h3 className="text-base font-semibold text-gray-900">Total Classes</h3>
               <p className="mt-1 text-2xl font-bold text-gray-900">{classesCount}</p>

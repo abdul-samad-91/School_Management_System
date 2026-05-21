@@ -92,7 +92,7 @@ const DashboardLayout = () => {
       ],
     },
     { name: 'Certificates', href: '/certificates', icon: FileText },
-    { name: 'Whatsapp', href: '/communication/announcements', icon: whatsappIcon },
+    { name: 'Announcements', href: '/communication/announcements', icon: whatsappIcon },
     { name: 'Users', href: '/users', icon: User },
   ]
 

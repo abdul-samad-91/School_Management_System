@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-// import { User, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuthStore } from '@/store/authStore'
 import UserLogo from '@/assets/AddUserMale.svg'
+import { authAPI } from '@/lib/api'
+import { handleError } from '@/lib/utils'
 
 const createFormState = (user) => {
   const firstName = user?.profile?.firstName || ''
@@ -30,9 +31,10 @@ const createFormState = (user) => {
 }
 
 const Profile = () => {
-  const { user } = useAuthStore()
+  const { user, updateUser } = useAuthStore()
   const [formData, setFormData] = useState(createFormState(user))
   const [userPhotoUrl, setUserPhotoUrl] = useState(null)
+  const [photoFile, setPhotoFile] = useState(null)
   const fileInputRef = useRef(null)
 
   useEffect(() => {
@@ -50,14 +52,11 @@ const Profile = () => {
 
   const handlePhotoChange = (event) => {
     const file = event.target.files?.[0]
-    if (!file) {
-      return
-    }
+    if (!file) return
+    setPhotoFile(file)
     const previewUrl = URL.createObjectURL(file)
     setUserPhotoUrl((prev) => {
-      if (prev) {
-        URL.revokeObjectURL(prev)
-      }
+      if (prev) URL.revokeObjectURL(prev)
       return previewUrl
     })
   }
@@ -74,15 +73,33 @@ const Profile = () => {
     setFormData(createFormState(user))
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
     if (formData.password && formData.password !== formData.confirmPassword) {
-      toast.error('Password and confirm password must match')
+      toast.error('Passwords do not match')
       return
     }
 
-    toast.success('Profile form saved')
+    try {
+      const form = new FormData()
+      if (photoFile) form.append('photo', photoFile)
+      const nameParts = formData.fullName.trim().split(' ')
+      form.append('firstName', nameParts[0] || '')
+      form.append('lastName', nameParts.slice(1).join(' ') || '')
+      form.append('phone', formData.phoneNumber || '')
+      if (formData.password) {
+        form.append('newPassword', formData.password)
+        form.append('currentPassword', formData.currentPassword || '')
+      }
+      const response = await authAPI.updateProfile(form)
+      if (response.data?.data) {
+        updateUser(response.data.data)
+      }
+      toast.success('Profile saved successfully.')
+    } catch (error) {
+      toast.error(handleError(error))
+    }
   }
 
   const inputStyles =
@@ -116,7 +133,7 @@ const Profile = () => {
    <div className="h-40 w-40 rounded-full bg-gray-200 flex items-center justify-center">
                   
              <img
-        src={userPhotoUrl || UserLogo}
+        src={userPhotoUrl || user?.profile?.photo || UserLogo}
         alt="Upload Logo"
         className="w-24 h-24 cursor-pointer rounded-full border object-cover"
         onClick={handlePhotoClick}

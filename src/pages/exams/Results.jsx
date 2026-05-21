@@ -1,4 +1,6 @@
-import { Download, Plus, Eye, Edit2, Trash2, Printer, Trash } from 'lucide-react'
+import { useMemo } from 'react'
+import { Plus } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import Button from '@/components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import Select from '@/components/ui/Select'
@@ -7,6 +9,7 @@ import SortingArrow from '@/assets/SortingArrow.svg'
 import printer from '@/assets/printer.svg'
 import trash from '@/assets/Trash.svg'
 import edit from '@/assets/edit.svg'
+import { examsAPI } from '@/lib/api'
 
 import {
   Table,
@@ -17,96 +20,38 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 
-const summaryCards = [
-  {
-    id: 'average',
-    title: 'Class Average',
-    value: '90%',
-    subtitle: 'Overall Performance',
-    valueClass: 'text-blue-600',
-  },
-  {
-    id: 'top',
-    title: 'Top Performers',
-    value: '12',
-    subtitle: 'Grade A or Above',
-    valueClass: 'text-green-600',
-  },
-  {
-    id: 'support',
-    title: 'Need Support',
-    value: '3',
-    subtitle: 'Below Average',
-    valueClass: 'text-red-600',
-  },
-  {
-    id: 'pass',
-    title: 'Pass Rate',
-    value: '94%',
-    subtitle: 'Above passing grade',
-    valueClass: 'text-blue-600',
-  },
-]
-
-const resultsRows = [
-  {
-    id: 1,
-    name: 'Ali',
-    math: 95,
-    science: 80,
-    english: 90,
-    history: 90,
-    grade: 'A',
-    total: 100,
-    percentage: '90%',
-  },
-  {
-    id: 2,
-    name: 'Amna',
-    math: 90,
-    science: 90,
-    english: 90,
-    history: 90,
-    grade: 'A+',
-    total: 100,
-    percentage: '90%',
-  },
-  {
-    id: 3,
-    name: 'Sadia',
-    math: 90,
-    science: 90,
-    english: 90,
-    history: 90,
-    grade: 'B',
-    total: 100,
-    percentage: '90%',
-  },
-  {
-    id: 4,
-    name: 'Salwa',
-    math: 90,
-    science: 90,
-    english: 90,
-    history: 90,
-    grade: 'A',
-    total: 100,
-    percentage: '90%',
-  },
-  {
-    id: 5,
-    name: 'Momina',
-    math: 90,
-    science: 90,
-    english: 90,
-    history: 90,
-    grade: 'A+',
-    total: 100,
-    percentage: '90%',
-  },
-]
-
 const Results = () => {
+  const { data: resultsRaw = [], isLoading } = useQuery({
+    queryKey: ['exam-results'],
+    queryFn: async () => {
+      const response = await examsAPI.getResults()
+      return response.data?.data || []
+    },
+  })
+
+  const resultsRows = resultsRaw.map((r, i) => ({
+    id: r._id || i,
+    name: `${r.student?.profile?.firstName || ''} ${r.student?.profile?.lastName || ''}`.trim() || r.student?.name || '',
+    math: r.subjects?.find(s => /math/i.test(s.name))?.marks || r.marksObtained || '-',
+    science: r.subjects?.find(s => /science/i.test(s.name))?.marks || '-',
+    english: r.subjects?.find(s => /english/i.test(s.name))?.marks || '-',
+    history: r.subjects?.find(s => /history/i.test(s.name))?.marks || '-',
+    grade: r.grade || '-',
+    total: r.totalMarks || r.maxMarks || 100,
+    percentage: r.percentage ? `${r.percentage}%` : (r.marksObtained && r.totalMarks ? `${Math.round((r.marksObtained / r.totalMarks) * 100)}%` : '-'),
+  }))
+
+  const summaryCards = useMemo(() => {
+    const pcts = resultsRaw.map(r => r.percentage || (r.marksObtained && r.totalMarks ? Math.round((r.marksObtained / r.totalMarks) * 100) : 0))
+    const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0
+    return [
+      { id: 'average', title: 'Class Average', value: `${avg}%`, subtitle: 'Overall Performance', valueClass: 'text-blue-600' },
+      { id: 'top', title: 'Top Performers', value: pcts.filter(p => p >= 80).length, subtitle: 'Grade A or Above', valueClass: 'text-green-600' },
+      { id: 'support', title: 'Need Support', value: pcts.filter(p => p < 50).length, subtitle: 'Below Average', valueClass: 'text-red-600' },
+      { id: 'pass', title: 'Pass Rate', value: pcts.length ? `${Math.round((pcts.filter(p => p >= 50).length / pcts.length) * 100)}%` : '0%', subtitle: 'Above passing grade', valueClass: 'text-blue-600' },
+    ]
+  }, [resultsRaw]);
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -193,7 +138,11 @@ const Results = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {resultsRows.map((row) => (
+              {isLoading ? (
+                <TableRow><TableCell colSpan={10} className="py-10 text-center"><div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" /></div></TableCell></TableRow>
+              ) : resultsRows.length === 0 ? (
+                <TableRow><TableCell colSpan={10} className="py-10 text-center text-sm text-gray-500">No results found.</TableCell></TableRow>
+              ) : resultsRows.map((row) => (
                 <TableRow key={row.id}>
                   <TableCell>
                     <input type="checkbox" className="h-3.5 w-3.5" />

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import edit from '@/assets/edit.svg'
 import Customer from '@/assets/Customer.svg'
@@ -8,20 +9,16 @@ import pdfIcon from '@/assets/pdfIcon.svg'
 import IconDown from '@/assets/IconDown.svg'
 import Icon from '@/assets/Icon.svg'
 import Calendar from '@/components/ui/Calendar'
+import { studentsAPI } from '@/lib/api'
 
 import {
-  ArrowLeft,
   CalendarDays,
-  Edit2,
-  FileText,
   Mail,
   MapPin,
   Phone,
-  UserRound,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
-import Button from '@/components/ui/Button'
 import {
   Table,
   TableBody,
@@ -31,47 +28,62 @@ import {
   TableRow,
 } from '@/components/ui/Table'
 
-const performanceBars = [100, 32, 58, 90, 88, 60,100]
+const performanceBars = [100, 32, 58, 90, 88, 60, 100]
 const performanceMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
-const documents = [
-  { id: 1, name: 'Form-B', type: 'Pdf' },
-  { id: 2, name: 'B-Certificate', type: 'Pdf' },
-  { id: 3, name: 'Medical ', type: 'Pdf' },
-  { id: 4, name: 'Transfer ', type: 'Pdf' },
-  { id: 5, name: 'Form-B', type: 'Pdf' },
-  { id: 6, name: 'Form-B', type: 'Pdf' },
-  { id: 7, name: 'Form-B', type: 'Pdf' },
-]
-const behaviorLogs = [
+
+const mockBehaviorLogs = [
   { id: 1, date: '12-12-2025', note: 'Shows positive behavior in class' },
   { id: 2, date: '05-12-2025', note: 'Participates well in group work' },
   { id: 3, date: '28-11-2025', note: 'Helped classmates during activity' },
-  { id: 4, date: '17-11-2025', note: 'Shows positive behavior in class' },
-  { id: 5, date: '02-11-2025', note: 'Shows positive behavior in class' },
 ]
-const yearOptions = Array.from({ length: 11 }, (_, index) => 2020 + index)
 
 const StudentDetails = () => {
-  const [selectedMonth, setSelectedMonth] = useState('Sep')
-  const [selectedYear, setSelectedYear] = useState(2025)
-  const location = useLocation()
-  const student = location.state?.student
-  const [studentData, setStudentData] = useState(() => ({
-    name: student?.name || 'Student',
-    admissionNumber: student?.admissionNumber || 'N/A',
-    className: student?.className || '',
-    section: student?.section || '',
-    rollNo: student?.rollNo || 'N/A',
-    gender: student?.gender || 'N/A',
-    fatherName: student?.fatherName || 'N/A',
-    status: student?.status || 'Unknown',
-  }))
+  const { id } = useParams()
   const [isProfileEditOpen, setIsProfileEditOpen] = useState(false)
   const [editProfileValues, setEditProfileValues] = useState(null)
 
-  const classLabel = studentData.className
-    ? `${studentData.className}-${studentData.section || ''}`.trim()
-    : 'N/A'
+  // Fetch student data from API
+  const { data: apiStudent, isLoading, error } = useQuery({
+    queryKey: ['student', id],
+    queryFn: async () => {
+      if (!id) return null
+      const response = await studentsAPI.getById(id)
+      return response.data?.data
+    },
+    enabled: !!id
+  })
+
+  // Transform API data to display format
+  const formatStudentName = (student) => {
+    if (!student?.profile) return 'Student'
+    const firstName = student.profile.firstName || ''
+    const lastName = student.profile.lastName || ''
+    return `${firstName} ${lastName}`.trim()
+  }
+
+  const formatClassName = (student) => {
+    if (!student?.academic?.currentClass?.name) return 'N/A'
+    const className = student.academic.currentClass.name || ''
+    const section = student.academic.currentSection || ''
+    return section ? `${className}-${section}` : className
+  }
+
+  const studentData = {
+    name: formatStudentName(apiStudent),
+    admissionNumber: apiStudent?.admissionNumber || 'N/A',
+    className: apiStudent?.academic?.currentClass?.name || '',
+    section: apiStudent?.academic?.currentSection || '',
+    rollNo: apiStudent?.rollNumber || 'N/A',
+    gender: apiStudent?.profile?.gender || 'N/A',
+    fatherName: apiStudent?.parents?.[0]?.firstName || 'N/A',
+    status: apiStudent?.status || 'Unknown',
+    dateOfBirth: apiStudent?.profile?.dateOfBirth || 'N/A',
+    email: apiStudent?.profile?.email || 'N/A',
+    phone: apiStudent?.profile?.phone || 'N/A',
+    address: apiStudent?.profile?.address?.current?.street || 'N/A',
+  }
+
+  const classLabel = formatClassName(apiStudent)
 
   const handleOpenProfileEdit = () => {
     setEditProfileValues({
@@ -91,17 +103,50 @@ const StudentDetails = () => {
       toast.error('Name is required.')
       return
     }
-    setStudentData((prev) => ({
-      ...prev,
-      ...editProfileValues,
-    }))
     setIsProfileEditOpen(false)
     toast.success('Student profile updated.')
   }
 
+  // Helper function to format date
+  const formatDate = (date) => {
+    if (!date) return 'N/A'
+    return new Date(date).toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    })
+  }
+
+  // Get parent information
+  const father = apiStudent?.parents?.find(p => p.relationship === 'father')
+  const mother = apiStudent?.parents?.find(p => p.relationship === 'mother')
+  const guardian = apiStudent?.parents?.find(p => p.relationship === 'guardian')
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-gray-600">Loading student details...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !apiStudent) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-red-600">Failed to load student details</p>
+          <Link to="/students" className="text-blue-600 mt-4 inline-block">
+            Back to Students
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   const percent = 84
   const clampedPercent = Math.min(Math.max(percent, 0), 100)
-  const degree = (clampedPercent / 100) * 180
 
   // Treat performanceBars as percentages (0-100)
   const barPercentages = performanceBars.map((value) => {
@@ -132,9 +177,12 @@ const StudentDetails = () => {
             <CardContent className="p-5 ">
               <div className="flex items-start justify-center  relative">
                 <div className="flex items-center gap-3 flex-col justify-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-500 border">
-                    {/* <UserRound className="h-7 w-7" /> */}
-                    <img src={Customer} alt="Customer" className="h-12 w-12" />
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 text-gray-500 border overflow-hidden">
+                    {apiStudent?.profile?.photo ? (
+                      <img src={apiStudent.profile.photo} alt={studentData.name} className="h-20 w-20 object-cover" />
+                    ) : (
+                      <img src={Customer} alt="Customer" className="h-12 w-12" />
+                    )}
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 text-center mb-1">{studentData.name}</h2>
@@ -168,21 +216,28 @@ const StudentDetails = () => {
                     <CalendarDays className="h-4 w-4" />
                     Date of Birth
                   </div>
-                  <span className="font-medium text-gray-900">N/A</span>
+                  <span className="font-medium text-gray-900">{formatDate(apiStudent?.profile?.dateOfBirth)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-gray-400 text-base">
                     <Phone className="h-4 w-4" />
                     Phone Number
                   </div>
-                  <span className="font-medium text-gray-900">N/a</span>
+                  <span className="font-medium text-gray-900">{apiStudent?.profile?.phone || 'N/A'}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex  items-center gap-2 text-gray-400 text-base">
+                    <Mail className="h-4 w-4" />
+                    Email
+                  </div>
+                  <span className="font-medium text-gray-900">{apiStudent?.profile?.email || 'N/A'}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex  items-center gap-2 text-gray-400 text-base">
                     <MapPin className="h-4 w-4" />
                     Address
                   </div>
-                  <span className="font-medium text-gray-900">N/A</span>
+                  <span className="font-medium text-gray-900">{apiStudent?.profile?.address?.current?.street || 'N/A'}</span>
                 </div>
               </div>
             </CardContent>
@@ -193,29 +248,45 @@ const StudentDetails = () => {
               <CardTitle className="text-lg font-semibold ">Parent/Guardian Info</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 bg-[#F8F8F8]">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Father</span>
-                <div className="text-right">
-                  <p className="font-medium text-gray-900">{studentData.fatherName}</p>
-                  <p className="text-xs text-gray-500">N/A</p>
-                </div>
-              </div>
-              <hr />
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Mother</span>
-                <div className="text-right">
-                  <p className="font-medium text-gray-900">N/A</p>
-                  <p className="text-xs text-gray-500">N/A</p>
-                </div>
-              </div>
-              <hr />
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-500">Alternative Guardian</span>
-                <div className="text-right">
-                  <p className="font-medium text-gray-900">N/A</p>
-                  <p className="text-xs text-gray-500">N/A</p>
-                </div>
-              </div>
+              {father && (
+                <>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Father</span>
+                    <div className="text-right">
+                      <p className="font-medium text-gray-900">{father.firstName} {father.lastName || ''}</p>
+                      <p className="text-xs text-gray-500">{father.phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <hr />
+                </>
+              )}
+              {mother && (
+                <>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Mother</span>
+                    <div className="text-right">
+                      <p className="font-medium text-gray-900">{mother.firstName} {mother.lastName || ''}</p>
+                      <p className="text-xs text-gray-500">{mother.phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <hr />
+                </>
+              )}
+              {guardian && (
+                <>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Alternative Guardian</span>
+                    <div className="text-right">
+                      <p className="font-medium text-gray-900">{guardian.firstName} {guardian.lastName || ''}</p>
+                      <p className="text-xs text-gray-500">{guardian.phone || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <hr />
+                </>
+              )}
+              {!father && !mother && !guardian && (
+                <p className="text-sm text-gray-500">No parent/guardian information available</p>
+              )}
             </CardContent>
           </Card>
 
@@ -223,19 +294,47 @@ const StudentDetails = () => {
             <CardHeader className="border-none">
               <CardTitle className="text-base">Additional Info</CardTitle>
             </CardHeader>
-            <CardContent className="bg-[#F8F8F8] rounded ">
-              <p className="text-sm font-medium text-gray-900">Roll No</p>
-              <p className="text-sm text-gray-500">{studentData.rollNo}</p>
+            <CardContent className="bg-[#F8F8F8] rounded space-y-3">
+              <div>
+                <p className="text-sm font-medium text-gray-900">Roll No</p>
+                <p className="text-sm text-gray-500">{apiStudent?.rollNumber || 'N/A'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Admission Date</p>
+                <p className="text-sm text-gray-500">{formatDate(apiStudent?.academic?.admissionDate)}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Previous School</p>
+                <p className="text-sm text-gray-500">{apiStudent?.academic?.previousSchool?.name || 'N/A'}</p>
+              </div>
+              {apiStudent?.medical?.conditions?.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Medical Conditions</p>
+                  <p className="text-sm text-gray-500">{apiStudent.medical.conditions.join(', ')}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           <Card className="border-none bg-transparent p-2">
-            {/* <CardHeader className="border-none">
-                <CardTitle className="text-base">Medical Info</CardTitle>
-                </CardHeader> */}
-            <CardContent className="bg-[#F8F8F8] rounded">
-              <p className="text-sm font-medium text-gray-900">Running, Reading</p>
-              <p className="text-sm text-gray-500">Mild Allergy</p>
+            <CardHeader className="border-none">
+              <CardTitle className="text-base">Medical Information</CardTitle>
+            </CardHeader>
+            <CardContent className="bg-[#F8F8F8] rounded space-y-2">
+              {apiStudent?.medical?.conditions?.length > 0 ? (
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Conditions</p>
+                  <p className="text-sm text-gray-500">{apiStudent.medical.conditions.join(', ')}</p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No medical conditions reported</p>
+              )}
+              {apiStudent?.medical?.allergies?.length > 0 && (
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Allergies</p>
+                  <p className="text-sm text-gray-500">{apiStudent.medical.allergies.join(', ')}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -341,29 +440,23 @@ const StudentDetails = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-2 p-1  w-full bg-[#F8F8F8] ">
-                {documents.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="flex items-center justify-between rounded-lg  "
-                  >
-                    <div className="flex items-center gap-2 text-sm  px-2 py-1 rounded w-full border-b ">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EFF6FF] p-1 text-gray-500">
-                        {/* <FileText className="h-4 w-4" /> */}
-                        <img src={pdfIcon} alt="PDF Icon" className='w-6 h-6' />
-                      </span>
-
-                      <div >
-                        <p className="text-sm font-medium text-gray-900">{doc.name}</p>
-                        <p className="text-xs text-gray-500">{doc.type}</p>
+                {apiStudent?.documents && apiStudent.documents.length > 0 ? (
+                  apiStudent.documents.map((doc) => (
+                    <div key={doc._id || doc.id} className="flex items-center justify-between rounded">
+                      <div className="flex items-center gap-2 text-sm  px-2 py-1 rounded w-full border-b">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EFF6FF] p-1 text-gray-500">
+                          <img src={pdfIcon} alt="PDF Icon" className='w-6 h-6' />
+                        </span>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{doc.name}</p>
+                          <p className="text-xs text-gray-500">{doc.type || 'Document'}</p>
+                        </div>
                       </div>
                     </div>
-
-                    {/* <button className="text-xs text-gray-500 hover:text-gray-700">
-                        View
-                      </button> */}
-
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 px-2 py-2">No documents uploaded</p>
+                )}
               </CardContent>
             </Card>
 
@@ -387,7 +480,7 @@ const StudentDetails = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {behaviorLogs.map((log) => (
+                    {mockBehaviorLogs.map((log) => (
                       <TableRow key={log.id} >
                         <TableCell > <input type="checkbox" className="ml-2" /></TableCell>
                         <TableCell className="text-primary-600">{log.date}</TableCell>

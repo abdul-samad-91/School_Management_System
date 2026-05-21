@@ -26,11 +26,13 @@ const Login = () => {
         email: data.email.trim().toLowerCase(),
         password: data.password,
       })
-      
+
       if (response.data.success) {
         setAuth(response.data.data, response.data.token)
         toast.success('Login successful!')
         navigate('/')
+      } else {
+        toast.error(response.data.message || 'Login failed')
       }
     } catch (error) {
       toast.error(handleError(error))
@@ -101,6 +103,7 @@ const Login = () => {
         >
           Sign In
         </Button>
+
       </form>
 
       <div className="mt-6 text-center">

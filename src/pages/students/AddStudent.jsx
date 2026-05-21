@@ -204,14 +204,9 @@ const AddStudent = () => {
       return
     }
 
-    if (!documentFiles.length) {
-      toast.error('At least one document is required.')
-      return
-    }
-
     const parents = buildParentPayload()
     if (!parents.length) {
-      toast.error('Provide at least one parent/guardian with phone number.')
+      toast.error('Provide at least one parent (father or mother) with phone number.')
       return
     }
 
@@ -391,7 +386,7 @@ const AddStudent = () => {
                 </div>
               </div>
               <div className="space-y-3">
-                <p className="text-xl font-medium text-gray-900">Alternative Guardian (if any)</p>
+                <p className="text-xl font-medium text-gray-900">Alternative Guardian <span className="text-sm font-normal text-gray-500">(Optional)</span></p>
                 <div className="grid gap-4 md:grid-cols-3">
                   <Input label="Name" value={formData.guardianName} onChange={(event) => updateField('guardianName', event.target.value)} />
                   <Input label="Relation" value={formData.guardianRelation} onChange={(event) => updateField('guardianRelation', event.target.value)} />
@@ -452,7 +447,7 @@ const AddStudent = () => {
 
           <Card>
             <CardContent className="p-5 space-y-4">
-              <h2 className="text-base font-semibold text-gray-900">Documents</h2>
+              <h2 className="text-base font-semibold text-gray-900">Documents <span className="text-sm font-normal text-gray-500">(Optional)</span></h2>
               <div className="flex  gap-2 rounded-lg border border-dashed border-primary-400 bg-primary-50/40 px-4 py-3">
                <img src={Icons} alt="" className='w-6 h-6'/>
                 <div>
@@ -486,7 +481,7 @@ const AddStudent = () => {
 
           <Card>
             <CardContent className="p-5 space-y-4">
-              <h2 className="text-xl font-semibold text-gray-900">Additional Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900">Additional Information <span className="text-sm font-normal text-gray-500">(Optional)</span></h2>
               <Input label="Hobbies/Interests" value={formData.hobbies} onChange={(event) => updateField('hobbies', event.target.value)} />
               <div className="space-y-2 text-sm text-gray-700">
                 <label className="relative inline-flex cursor-pointer items-center gap-2 ">
